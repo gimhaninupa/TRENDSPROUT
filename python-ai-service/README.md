@@ -3,8 +3,9 @@ title: TRENDSPROUT AI Computer Vision Microservice
 emoji: 🌿
 colorFrom: purple
 colorTo: indigo
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.44.1
+app_file: app.py
 pinned: false
 ---
 
