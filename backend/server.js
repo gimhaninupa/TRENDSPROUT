@@ -12,6 +12,7 @@ import vendorRouter from './routes/vendor.js';
 import adminRouter from './routes/admin.js';
 import aiRouter from './routes/ai.js';
 import cvRouter from './routes/cv.js';
+import uploadRouter from './routes/upload.js';
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/api/vendor', vendorRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/cv', cvRouter);
+app.use('/api/upload', uploadRouter);
 
 // Database connection function
 const connectDB = async () => {
@@ -57,7 +59,6 @@ const connectDB = async () => {
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    // Don't exit process just yet, let the server run to serve the health endpoint
   }
 };
 

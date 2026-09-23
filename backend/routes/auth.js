@@ -25,7 +25,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user already exists
-    const userExists = await User.findOne({ $or: [{ email }, { username }] });
+    const userExists = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
     if (userExists) {
       return res.status(400).json({ status: 'fail', message: 'User already exists with this email or username' });
     }
@@ -37,10 +37,11 @@ router.post('/register', async (req, res) => {
     // Create user
     const user = await User.create({
       username,
-      email,
+      email: email.toLowerCase(),
       password: hashedPassword,
       role: role || 'customer',
       phone: phone || '',
+      isVerified: true,
     });
 
     if (user) {
@@ -52,6 +53,7 @@ router.post('/register', async (req, res) => {
           email: user.email,
           role: user.role,
           phone: user.phone,
+          profileImage: user.profileImage,
           token: generateToken(user._id),
         }
       });
@@ -89,6 +91,7 @@ router.post('/login', async (req, res) => {
           email: user.email,
           role: user.role,
           phone: user.phone,
+          profileImage: user.profileImage,
           token: generateToken(user._id),
         }
       });
@@ -97,6 +100,74 @@ router.post('/login', async (req, res) => {
     }
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    Authenticate with Google OAuth ID Token
+// @route   POST /api/auth/google
+// @access  Public
+router.post('/google', async (req, res) => {
+  try {
+    const { credential, role = 'customer' } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ status: 'fail', message: 'Google credential token is required' });
+    }
+
+    // Decode Google ID Token payload
+    let payload = null;
+    try {
+      const base64Url = credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        Buffer.from(base64, 'base64')
+          .toString('latin1')
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      payload = JSON.parse(jsonPayload);
+    } catch {
+      return res.status(400).json({ status: 'fail', message: 'Invalid Google credential token' });
+    }
+
+    const { email, name, picture, sub } = payload;
+    if (!email) {
+      return res.status(400).json({ status: 'fail', message: 'Email not provided by Google' });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      const generatedUsername = name.replace(/\s+/g, '_').toLowerCase() + '_' + Math.floor(1000 + Math.random() * 9000);
+      const randomPassword = await bcrypt.hash(sub + (process.env.JWT_SECRET || 'trendsprout'), 10);
+
+      user = await User.create({
+        username: generatedUsername,
+        email: email.toLowerCase(),
+        password: randomPassword,
+        role,
+        profileImage: picture || '',
+        isVerified: true,
+      });
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Google login successful',
+      data: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        token: generateToken(user._id),
+      },
+    });
+  } catch (error) {
+    console.error('Google OAuth error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 });

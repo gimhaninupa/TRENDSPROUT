@@ -1,11 +1,25 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import AIDesign from '../models/aiDesign.js';
 import ChatMessage from '../models/chatMessage.js';
 import Product from '../models/product.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Initialize Gemini Client if API key is provided
+let genAI = null;
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey && apiKey.trim() && apiKey.startsWith('AIzaSy')) {
+    if (!genAI) {
+      genAI = new GoogleGenerativeAI(apiKey.trim());
+    }
+    return genAI;
+  }
+  return null;
+};
 
 // Helper to sanitize and create enhanced fashion prompt with user description prioritized
 const buildFashionPrompt = (userPrompt, style, fabric, colorPalette) => {
@@ -38,52 +52,86 @@ router.post('/chat', async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Message is required' });
     }
 
-    const lower = message.toLowerCase();
-
     // Fetch in-stock catalog products for context
     let catalogSnippets = [];
     if (mongoose.connection && mongoose.connection.readyState === 1) {
       try {
-        const dbProducts = await Product.find().limit(6).select('name price brand tag');
+        const dbProducts = await Product.find().limit(8).select('name price brand tag images category');
         catalogSnippets = dbProducts;
       } catch {
         // Fallback
       }
     }
 
+    const ai = getGeminiClient();
     let reply = "";
     let recommendedProducts = [];
 
-    // Intelligent Fashion Stylist Response Logic
-    if (lower.includes('dinner') || lower.includes('party') || lower.includes('cocktail') || lower.includes('evening')) {
-      reply = "For an evening dinner or party in Sri Lanka, I recommend our Linen Slip Dress (LKR 8,500) paired with an Oversized Wool Blazer (LKR 14,500) draped over your shoulders. Add minimalist gold jewelry and open-toe block heels for effortless contemporary elegance.";
+    if (ai) {
+      try {
+        const model = ai.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          systemInstruction: `You are SproutStylist, an expert luxury fashion curator and personal stylist for TrendSprout, a leading fashion marketplace in Sri Lanka.
+Tone: Warm, sophisticated, inspiring, concise (2-4 sentences max per response).
+Context: The store currency is Sri Lankan Rupees (LKR). Recommend styling ideas, color coordination, accessories, fabric choices, and silhouette balance.
+If recommending items, naturally mention types of apparel like linen slip dresses, oversized blazers, trench coats, vintage denim, or activewear.`
+        });
+
+        // Convert history format if available
+        const contents = [];
+        if (Array.isArray(history)) {
+          history.slice(-6).forEach(h => {
+            contents.push({
+              role: h.sender === 'user' ? 'user' : 'model',
+              parts: [{ text: h.text || '' }]
+            });
+          });
+        }
+        contents.push({ role: 'user', parts: [{ text: message }] });
+
+        const result = await model.generateContent({ contents });
+        reply = result.response.text();
+      } catch (geminiError) {
+        console.warn('Gemini API call failed, using smart fallback:', geminiError.message);
+      }
+    }
+
+    // Smart Fallback if Gemini not configured or failed
+    if (!reply) {
+      const lower = message.toLowerCase();
+      if (lower.includes('dinner') || lower.includes('party') || lower.includes('cocktail') || lower.includes('evening')) {
+        reply = "For an evening dinner or party, I recommend a Silk or Linen Slip Dress (LKR 8,500) paired with an Oversized Wool Blazer (LKR 14,500) draped over your shoulders. Add minimalist gold jewelry and open-toe block heels for effortless contemporary elegance.";
+      } else if (lower.includes('wedding') || lower.includes('formal') || lower.includes('ceremony')) {
+        reply = "For a formal wedding celebration, an editorial floor-length piece with clean architectural lines will stand out beautifully. Pair with our Leather Crossbody Bag in Cognac Tan (LKR 9,500) and delicate accessories.";
+      } else if (lower.includes('gym') || lower.includes('workout') || lower.includes('active') || lower.includes('casual')) {
+        reply = "Our Seamless Gym Leggings (LKR 4,200) paired with Minimalist Vegan Sneakers (LKR 11,200) create the ultimate athleisure ensemble—both breathable and sculpt-enhancing for tropical comfort.";
+      } else if (lower.includes('budget') || lower.includes('cheap') || lower.includes('under') || lower.includes('price')) {
+        reply = "Looking for premium style on a budget? We have pieces starting under LKR 5,000, like our Seamless Leggings (LKR 4,200) and Cable Knit Cardigans. You can also use coupon code 'TREND10' at checkout for 10% off!";
+      } else {
+        reply = `I love that fashion inquiry! When styling for that aesthetic, focus on silhouette balance: pair tailored, structured fits with flowing textures. From our Colombo catalog, pieces like our Linen Slip Dress (LKR 8,500) or Relaxed Vintage Denim Jacket (LKR 7,800) would suit this aesthetic effortlessly.`;
+      }
+    }
+
+    // Attach relevant product recommendations from catalog
+    if (catalogSnippets.length > 0) {
+      const lower = message.toLowerCase();
+      let matched = catalogSnippets.filter(p => {
+        const nameMatch = p.name && typeof p.name === 'string' && lower.includes(p.name.toLowerCase());
+        const tagMatch = p.tag && typeof p.tag === 'string' && lower.includes(p.tag.toLowerCase());
+        const catMatch = typeof p.category === 'string' && lower.includes(p.category.toLowerCase());
+        return nameMatch || tagMatch || catMatch;
+      });
+      if (matched.length === 0) matched = catalogSnippets.slice(0, 2);
+      recommendedProducts = matched.slice(0, 2).map(p => ({
+        name: p.name,
+        price: p.price,
+        brand: p.brand || 'Sprout Studio',
+        image: (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80'
+      }));
+    } else {
       recommendedProducts = [
         { name: "Linen Slip Dress", price: 8500, brand: "Aura Label", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" },
         { name: "Oversized Wool Blazer", price: 14500, brand: "Nouveau Collective", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80" }
-      ];
-    } else if (lower.includes('wedding') || lower.includes('formal') || lower.includes('ceremony')) {
-      reply = "For a formal wedding celebration, an editorial floor-length piece with clean architectural lines will stand out beautifully. Pair with our Leather Crossbody Bag in Cognac Tan (LKR 9,500) and delicate accessories.";
-      recommendedProducts = [
-        { name: "Water-Resistant City Trench", price: 19500, brand: "Sprout Studio", image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" },
-        { name: "Leather Crossbody Bag", price: 9500, brand: "Sprout Studio", image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80" }
-      ];
-    } else if (lower.includes('gym') || lower.includes('workout') || lower.includes('active') || lower.includes('casual')) {
-      reply = "Our Seamless Gym Leggings (LKR 4,200) in Lilac Purple paired with Minimalist Vegan Sneakers (LKR 11,200) create the ultimate athleisure ensemble. Both breathable and sculpt-enhancing.";
-      recommendedProducts = [
-        { name: "Seamless Gym Leggings", price: 4200, brand: "Veloce Active", image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&q=80" },
-        { name: "Minimalist Vegan Sneakers", price: 11200, brand: "Monolith Studio", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80" }
-      ];
-    } else if (lower.includes('budget') || lower.includes('cheap') || lower.includes('under') || lower.includes('price')) {
-      reply = "Looking for premium style on a budget? We have pieces starting under LKR 5,000, like our Seamless Leggings (LKR 4,200) and Cable Knit Cardigans on seasonal promotion. Don't forget you can use coupon code 'TREND10' for an extra 10% off!";
-      recommendedProducts = [
-        { name: "Seamless Gym Leggings", price: 4200, brand: "Veloce Active", image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&q=80" },
-        { name: "Linen Slip Dress", price: 8500, brand: "Aura Label", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" }
-      ];
-    } else {
-      reply = `I love that fashion inquiry! When styling for that vibe, focus on silhouette balance: pair tailored, structured fits with flowing textures. From our Colombo catalog, pieces like our Linen Slip Dress (LKR 8,500) or Relaxed Vintage Denim Jacket (LKR 7,800) would suit this aesthetic effortlessly. Would you like me to tailor this for a specific occasion or color palette?`;
-      recommendedProducts = [
-        { name: "Linen Slip Dress", price: 8500, brand: "Aura Label", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" },
-        { name: "Relaxed Vintage Denim Jacket", price: 7800, brand: "Nouveau Collective", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80" }
       ];
     }
 
@@ -93,6 +141,7 @@ router.post('/chat', async (req, res) => {
         role: 'ai',
         text: reply,
         recommendedProducts,
+        poweredBy: ai ? 'Google Gemini 1.5' : 'TrendSprout AI Engine',
       },
     });
   } catch (error) {
@@ -155,27 +204,70 @@ router.post('/generate-design', async (req, res) => {
 router.post('/vendor-description', async (req, res) => {
   try {
     const { title, category, material, fit, tone = 'Luxury' } = req.body;
+    const ai = getGeminiClient();
 
-    const descriptions = [
-      `Elevate your wardrobe with the ${title || 'Contemporary Garment'}. Meticulously tailored from premium ${material || 'organic textile'}, this piece embodies modern ${tone.toLowerCase()} elegance with clean lines and breathable comfort. Perfect for seamless day-to-night transitions.`,
-      `Crafted for the discerning individual, the ${title || 'Statement Piece'} combines structured ${fit || 'relaxed'} silhouette with exquisite ${material || 'fine fabric'} craftsmanship. An essential statement piece designed to turn heads.`,
-    ];
+    let description = '';
+    let altDescription = '';
+    let bulletPoints = [];
+    let suggestedTags = [];
 
-    const tags = ['Designer', 'Contemporary', 'Limited Edition', 'Ethical Fashion', 'Sri Lanka'];
+    if (ai) {
+      try {
+        const model = ai.getGenerativeModel({
+          model: 'gemini-1.5-flash',
+          systemInstruction: `You are an elite e-commerce fashion copywriter and SEO specialist. Return your response in pure valid JSON without markdown formatting.
+JSON structure:
+{
+  "description": "Primary high-converting luxury description (2-3 sentences)",
+  "altDescription": "Alternative editorial description with evocative adjectives",
+  "bulletPoints": ["4 clear product highlights covering material, fit, ethics, and care"],
+  "suggestedTags": ["5-6 trending SEO e-commerce tags"]
+}`
+        });
+
+        const prompt = `Write product copy for an apparel item:
+Title: ${title || 'Fashion Apparel'}
+Category: ${category || 'Apparel'}
+Material/Fabric: ${material || 'High-grade sustainable textile'}
+Fit: ${fit || 'Modern tailored fit'}
+Tone: ${tone}
+Region: Sri Lanka & Global Luxury Market`;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().trim().replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(text);
+
+        description = parsed.description;
+        altDescription = parsed.altDescription;
+        bulletPoints = parsed.bulletPoints || [];
+        suggestedTags = parsed.suggestedTags || [];
+      } catch (err) {
+        console.warn('Gemini Copywriter failed, using fallback:', err.message);
+      }
+    }
+
+    // Fallback if not generated
+    if (!description) {
+      description = `Elevate your wardrobe with the ${title || 'Contemporary Garment'}. Meticulously tailored from premium ${material || 'organic textile'}, this piece embodies modern ${tone.toLowerCase()} elegance with clean lines and breathable comfort. Perfect for seamless day-to-night transitions.`;
+      altDescription = `Crafted for the discerning individual, the ${title || 'Statement Piece'} combines a structured ${fit || 'relaxed'} silhouette with exquisite ${material || 'fine fabric'} craftsmanship. An essential statement piece designed to turn heads.`;
+      bulletPoints = [
+        `Tailored from 100% premium ${material || 'fabric'} with refined seam finishing`,
+        `Flattering ${fit || 'relaxed'} silhouette designed for tropical comfort`,
+        `Ethically produced by independent artisans in Sri Lanka`,
+        `Easy-care durable textile resistant to wrinkles`,
+      ];
+      suggestedTags = ['Designer', 'Contemporary', 'Limited Edition', 'Ethical Fashion', 'Sri Lanka'];
+    }
 
     res.json({
       status: 'success',
       data: {
         title: title || 'Silk Halter Evening Dress',
-        description: descriptions[0],
-        altDescription: descriptions[1],
-        bulletPoints: [
-          `Tailored from 100% premium ${material || 'fabric'} with refined seam finishing`,
-          `Flattering ${fit || 'relaxed'} silhouette designed for tropical comfort`,
-          `Ethically produced by independent artisans in Sri Lanka`,
-          `Easy-care durable textile resistant to wrinkles`,
-        ],
-        suggestedTags: tags,
+        description,
+        altDescription,
+        bulletPoints,
+        suggestedTags,
+        poweredBy: ai ? 'Google Gemini 1.5' : 'TrendSprout AI Engine',
       },
     });
   } catch (error) {
@@ -190,7 +282,6 @@ router.post('/vendor-description', async (req, res) => {
 router.post('/vendor-pricing', async (req, res) => {
   try {
     const { category, productionCost = 4500, targetMargin = 50 } = req.body;
-
     const cost = Number(productionCost);
     const suggestedPrice = Math.round((cost * (1 + Number(targetMargin) / 100)) / 100) * 100;
     const competitorLow = Math.round((suggestedPrice * 0.85) / 100) * 100;

@@ -1,4 +1,5 @@
 import express from 'express';
+import Stripe from 'stripe';
 import Order from '../models/order.js';
 import Product from '../models/product.js';
 import Cart from '../models/cart.js';
@@ -6,12 +7,68 @@ import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Initialize Stripe Client
+let stripeClient = null;
+const getStripe = () => {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (secretKey && secretKey.startsWith('sk_')) {
+    if (!stripeClient) {
+      stripeClient = new Stripe(secretKey);
+    }
+    return stripeClient;
+  }
+  return null;
+};
+
 // Helper to generate realistic tracking number
 const generateTrackingNumber = () => {
   return 'TS-LK-' + Math.floor(100000 + Math.random() * 900000);
 };
 
-// @desc    Create new order
+// @desc    Create Stripe PaymentIntent
+// @route   POST /api/orders/create-payment-intent
+// @access  Private / Public
+router.post('/create-payment-intent', protect, async (req, res) => {
+  try {
+    const { amount, currency = 'lkr', orderId } = req.body;
+    const stripe = getStripe();
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ status: 'fail', message: 'Valid payment amount is required' });
+    }
+
+    if (!stripe) {
+      return res.json({
+        status: 'success',
+        simulated: true,
+        clientSecret: 'mock_pi_' + Date.now() + '_secret_' + Math.random().toString(36).substring(7),
+        message: 'Stripe simulated mode active. Add STRIPE_SECRET_KEY in backend/.env for live gateway.',
+      });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(Number(amount) * 100),
+      currency: currency.toLowerCase(),
+      metadata: {
+        orderId: orderId || '',
+        userId: req.user._id.toString(),
+      },
+      automatic_payment_methods: { enabled: true },
+    });
+
+    res.json({
+      status: 'success',
+      simulated: false,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      publishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLISHABLE_KEY,
+    });
+  } catch (error) {
+    console.error('Stripe PaymentIntent error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
