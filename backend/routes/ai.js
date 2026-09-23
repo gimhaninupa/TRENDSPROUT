@@ -70,11 +70,11 @@ router.post('/chat', async (req, res) => {
     if (ai) {
       try {
         const model = ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
-          systemInstruction: `You are SproutStylist, an expert luxury fashion curator and personal stylist for TrendSprout, a leading fashion marketplace in Sri Lanka.
-Tone: Warm, sophisticated, inspiring, concise (2-4 sentences max per response).
-Context: The store currency is Sri Lankan Rupees (LKR). Recommend styling ideas, color coordination, accessories, fabric choices, and silhouette balance.
-If recommending items, naturally mention types of apparel like linen slip dresses, oversized blazers, trench coats, vintage denim, or activewear.`
+          model: 'gemini-2.5-flash',
+          systemInstruction: `You are SproutStylist, the AI luxury personal fashion stylist for TrendSprout in Sri Lanka.
+Tone: Chic, friendly, expert, and conversational. Keep responses concise (2 to 4 sentences).
+Store Context: Sri Lankan Rupees (LKR).
+Give genuine fashion styling advice for whatever the user asks (events, casual, trends, colors, fabrics).`
         });
 
         // Convert history format if available
@@ -108,7 +108,7 @@ If recommending items, naturally mention types of apparel like linen slip dresse
       } else if (lower.includes('budget') || lower.includes('cheap') || lower.includes('under') || lower.includes('price')) {
         reply = "Looking for premium style on a budget? We have pieces starting under LKR 5,000, like our Seamless Leggings (LKR 4,200) and Cable Knit Cardigans. You can also use coupon code 'TREND10' at checkout for 10% off!";
       } else {
-        reply = `I love that fashion inquiry! When styling for that aesthetic, focus on silhouette balance: pair tailored, structured fits with flowing textures. From our Colombo catalog, pieces like our Linen Slip Dress (LKR 8,500) or Relaxed Vintage Denim Jacket (LKR 7,800) would suit this aesthetic effortlessly.`;
+        reply = `Hello! I'm your TrendSprout AI Stylist. How can I help you elevate your look today? Feel free to ask me for outfit ideas, color matching, or styling for any upcoming event!`;
       }
     }
 
@@ -141,7 +141,7 @@ If recommending items, naturally mention types of apparel like linen slip dresse
         role: 'ai',
         text: reply,
         recommendedProducts,
-        poweredBy: ai ? 'Google Gemini 1.5' : 'TrendSprout AI Engine',
+        poweredBy: ai ? 'Google Gemini 2.5 Flash' : 'TrendSprout AI Engine',
       },
     });
   } catch (error) {
@@ -149,7 +149,6 @@ If recommending items, naturally mention types of apparel like linen slip dresse
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
-
 
 // @desc    Generate Fashion Design from Text
 // @route   POST /api/ai/generate-design
@@ -214,7 +213,7 @@ router.post('/vendor-description', async (req, res) => {
     if (ai) {
       try {
         const model = ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.5-flash',
           systemInstruction: `You are an elite e-commerce fashion copywriter and SEO specialist. Return your response in pure valid JSON without markdown formatting.
 JSON structure:
 {
@@ -267,7 +266,7 @@ Region: Sri Lanka & Global Luxury Market`;
         altDescription,
         bulletPoints,
         suggestedTags,
-        poweredBy: ai ? 'Google Gemini 1.5' : 'TrendSprout AI Engine',
+        poweredBy: ai ? 'Google Gemini 2.5 Flash' : 'TrendSprout AI Engine',
       },
     });
   } catch (error) {
