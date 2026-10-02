@@ -7,6 +7,7 @@ import {
   PrimaryBtn, Input, Navbar 
 } from '../../components/shared';
 import { StripePaymentForm } from '../../components/StripePaymentForm';
+import { PayHereCheckout } from '../../components/PayHereCheckout';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -27,7 +28,7 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   const [city, setCity] = useState("Colombo");
   const [state, setState] = useState("Western");
   const [zip, setZip] = useState("00400");
-  const [paymentMethod, setPaymentMethod] = useState("Card");
+  const [paymentMethod, setPaymentMethod] = useState("PayHere");
 
   // Payment Details State
   const [cardHolder, setCardHolder] = useState("Sophia Laurent");
@@ -221,15 +222,45 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                   </div>
                   <button onClick={() => setStep("address")} className="text-xs text-purple-600 font-semibold hover:underline">← Edit Address</button>
                 </div>
-                <div className="flex gap-3 mb-6">
-                  {["Card", "Bank Transfer", "COD"].map((m) => (
-                    <button key={m} onClick={() => setPaymentMethod(m)} className={`flex-1 py-3 rounded-xl border-2 text-sm font-semibold flex items-center justify-center gap-2 transition-all ${paymentMethod === m ? "border-purple-500 text-purple-700 bg-purple-50 shadow-sm" : "border-gray-200 text-gray-500 hover:border-purple-200"}`}>
-                      {m === "Card" && <CreditCard size={16} />}
-                      {m}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+                  {[
+                    { id: "PayHere", label: "PayHere (LK)", badge: "Instant LKR" },
+                    { id: "Card", label: "Card (Stripe)", badge: "Global" },
+                    { id: "Bank Transfer", label: "Bank Slip", badge: "Manual" },
+                    { id: "COD", label: "Cash on Delivery", badge: "Islandwide" },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setPaymentMethod(m.id)}
+                      className={`p-3 rounded-xl border-2 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                        paymentMethod === m.id
+                          ? "border-emerald-500 text-emerald-700 bg-emerald-50/70 shadow-sm"
+                          : "border-gray-200 text-gray-600 hover:border-emerald-200 bg-gray-50/50"
+                      }`}
+                    >
+                      <span className="font-bold">{m.label}</span>
+                      <span className="text-[10px] text-gray-400 font-normal">{m.badge}</span>
                     </button>
                   ))}
                 </div>
-                {paymentMethod === "Card" ? (
+
+                {paymentMethod === "PayHere" ? (
+                  <PayHereCheckout
+                    amount={finalTotal}
+                    orderId={'ORD-' + Math.floor(100000 + Math.random() * 900000)}
+                    customerDetails={{
+                      firstName,
+                      lastName,
+                      email,
+                      phone,
+                      street,
+                      city,
+                    }}
+                    onSuccess={(res) => handlePlaceOrder({ paymentIntentId: res.paymentId, brand: res.method })}
+                    isProcessing={isSubmitting}
+                    setIsProcessing={setIsSubmitting}
+                  />
+                ) : paymentMethod === "Card" ? (
                   <StripePaymentForm
                     amount={finalTotal}
                     billingDetails={{
@@ -281,9 +312,9 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                 )}
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl my-4">
                   <Lock size={14} className="text-gray-400" />
-                  <span className="text-xs text-gray-500">256-bit SSL Gateway Encrypted & 3D Secure 2.2 Compliant.</span>
+                  <span className="text-xs text-gray-500">256-bit SSL Gateway Encrypted & CBSL/PCI-DSS Compliant.</span>
                 </div>
-                {paymentMethod !== "Card" && (
+                {paymentMethod !== "PayHere" && paymentMethod !== "Card" && (
                   <PrimaryBtn onClick={() => handlePlaceOrder()} className="w-full !py-4 !rounded-2xl mt-2" icon={<Lock size={16} />}>
                     {isSubmitting ? "Authorizing Order..." : `Confirm & Authorize ${lkr(finalTotal)}`}
                   </PrimaryBtn>

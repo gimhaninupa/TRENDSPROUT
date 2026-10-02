@@ -132,6 +132,23 @@ class ApiClient {
     });
   }
 
+  async getPayHereHash(orderId: string, amount: number, currency = 'LKR') {
+    return this.request<{
+      status: string;
+      data: {
+        merchantId: string;
+        orderId: string;
+        amountFormatted: string;
+        currency: string;
+        hash: string;
+        isSandbox: boolean;
+      };
+    }>('/orders/payhere-hash', {
+      method: 'POST',
+      body: JSON.stringify({ orderId, amount, currency }),
+    });
+  }
+
   async createPaymentIntent(amount: number, currency = 'lkr', orderId?: string) {
     return this.request<{
       status: string;

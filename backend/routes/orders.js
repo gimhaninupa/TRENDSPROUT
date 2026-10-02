@@ -1,5 +1,6 @@
 import express from 'express';
 import Stripe from 'stripe';
+import crypto from 'crypto';
 import Order from '../models/order.js';
 import Product from '../models/product.js';
 import Cart from '../models/cart.js';
@@ -24,6 +25,85 @@ const getStripe = () => {
 const generateTrackingNumber = () => {
   return 'TS-LK-' + Math.floor(100000 + Math.random() * 900000);
 };
+
+// @desc    Generate PayHere secure checkout hash
+// @route   POST /api/orders/payhere-hash
+// @access  Public / Optional Auth
+router.post('/payhere-hash', optionalAuth, async (req, res) => {
+  try {
+    const { orderId, amount, currency = 'LKR' } = req.body;
+    if (!orderId || !amount) {
+      return res.status(400).json({ status: 'fail', message: 'Order ID and Amount are required' });
+    }
+
+    const merchantId = process.env.PAYHERE_MERCHANT_ID || '1211149'; // Official PayHere Sandbox Merchant ID
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '4TxxxTrendSproutSandboxKey';
+
+    // Amount must be formatted to 2 decimals without thousand separators
+    const formattedAmount = Number(amount).toFixed(2);
+
+    // Hash = MD5(merchant_id + order_id + amountFormatted + currency + UPPERCASE(MD5(merchant_secret)))
+    const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
+    const hash = crypto.createHash('md5').update(merchantId + orderId + formattedAmount + currency + hashedSecret).digest('hex').toUpperCase();
+
+    res.json({
+      status: 'success',
+      data: {
+        merchantId,
+        orderId,
+        amountFormatted: formattedAmount,
+        currency,
+        hash,
+        isSandbox: !process.env.PAYHERE_MERCHANT_ID || process.env.PAYHERE_SANDBOX === 'true' || process.env.NODE_ENV !== 'production',
+      },
+    });
+  } catch (error) {
+    console.error('PayHere hash error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    PayHere Instant Payment Notification (IPN Webhook)
+// @route   POST /api/orders/payhere-notify
+// @access  Public (PayHere Server callback)
+router.post('/payhere-notify', async (req, res) => {
+  try {
+    const {
+      merchant_id,
+      order_id,
+      payment_id,
+      payhere_amount,
+      payhere_currency,
+      status_code,
+      md5sig,
+    } = req.body;
+
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '4TxxxTrendSproutSandboxKey';
+    const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
+    const localMd5sig = crypto.createHash('md5').update(merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret).digest('hex').toUpperCase();
+
+    if (localMd5sig === md5sig) {
+      if (status_code === '2') {
+        // Status 2 = Success / Paid
+        await Order.findOneAndUpdate(
+          { $or: [{ trackingNumber: order_id }, { _id: mongoose.isValidObjectId(order_id) ? order_id : null }] },
+          {
+            paymentStatus: 'Paid',
+            status: 'Processing',
+            'paymentDetails.paymentIntentId': payment_id,
+            'paymentDetails.cardBrand': 'PayHere',
+          }
+        );
+      }
+      res.status(200).send('OK');
+    } else {
+      res.status(400).send('Hash verification failed');
+    }
+  } catch (error) {
+    console.error('PayHere notify error:', error);
+    res.status(500).send('Error');
+  }
+});
 
 // @desc    Create Stripe PaymentIntent
 // @route   POST /api/orders/create-payment-intent
