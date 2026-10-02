@@ -222,24 +222,23 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                   </div>
                   <button onClick={() => setStep("address")} className="text-xs text-purple-600 font-semibold hover:underline">← Edit Address</button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
+                {/* Method selector */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
                   {[
-                    { id: "PayHere", label: "PayHere (LK)", badge: "Instant LKR" },
-                    { id: "Card", label: "Card (Stripe)", badge: "Global" },
-                    { id: "Bank Transfer", label: "Bank Slip", badge: "Manual" },
-                    { id: "COD", label: "Cash on Delivery", badge: "Islandwide" },
+                    { id: "PayHere", label: "PayHere Online (LK)", badge: "Visa / Master / Wallets / Banks" },
+                    { id: "COD", label: "Cash on Delivery", badge: "Islandwide Delivery" },
                   ].map((m) => (
                     <button
                       key={m.id}
                       onClick={() => setPaymentMethod(m.id)}
-                      className={`p-3 rounded-xl border-2 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                      className={`p-4 rounded-2xl border-2 text-xs font-semibold flex flex-col items-center justify-center gap-1.5 transition-all ${
                         paymentMethod === m.id
-                          ? "border-emerald-500 text-emerald-700 bg-emerald-50/70 shadow-sm"
+                          ? "border-emerald-500 text-emerald-800 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-100"
                           : "border-gray-200 text-gray-600 hover:border-emerald-200 bg-gray-50/50"
                       }`}
                     >
-                      <span className="font-bold">{m.label}</span>
-                      <span className="text-[10px] text-gray-400 font-normal">{m.badge}</span>
+                      <span className="font-bold text-sm">{m.label}</span>
+                      <span className="text-[11px] text-gray-500 font-normal">{m.badge}</span>
                     </button>
                   ))}
                 </div>
@@ -260,69 +259,27 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                     isProcessing={isSubmitting}
                     setIsProcessing={setIsSubmitting}
                   />
-                ) : paymentMethod === "Card" ? (
-                  <StripePaymentForm
-                    amount={finalTotal}
-                    billingDetails={{
-                      name: `${firstName} ${lastName}`,
-                      email,
-                      phone,
-                      address: {
-                        line1: street,
-                        city,
-                        state,
-                        postal_code: zip,
-                        country: 'LK',
-                      },
-                    }}
-                    onSuccess={(res) => handlePlaceOrder(res)}
-                    isProcessing={isSubmitting}
-                    setIsProcessing={setIsSubmitting}
-                  />
-                ) : paymentMethod === "Bank Transfer" ? (
-                  <div className="flex flex-col gap-3">
-                    <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 text-xs text-purple-900 leading-relaxed">
-                      <p className="font-bold text-sm mb-1 text-purple-950">Commercial Bank of Ceylon PLC</p>
-                      <p><strong>Account Name:</strong> TrendSprout Holdings (Pvt) Ltd</p>
-                      <p><strong>Account Number:</strong> 1000 2938 47</p>
-                      <p><strong>Branch:</strong> Colombo 03 (Corporate)</p>
-                      <p className="text-purple-700 mt-2">Attach or upload your online banking transfer confirmation / ATM receipt below.</p>
-                    </div>
-                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:border-purple-400 transition-all bg-gray-50">
-                      <input
-                        type="file"
-                        id="slipUpload"
-                        accept="image/*,.pdf"
-                        onChange={handleSlipChange}
-                        className="hidden"
-                      />
-                      <label htmlFor="slipUpload" className="cursor-pointer flex flex-col items-center">
-                        <span className="text-xs font-semibold text-purple-600 hover:text-purple-700">
-                          {slipFile ? `Attached: ${slipFile}` : "Click to upload transfer slip (JPG, PNG, PDF)"}
-                        </span>
-                        <span className="text-[11px] text-gray-400 mt-0.5">Maximum file size 5MB</span>
-                      </label>
-                    </div>
-                  </div>
                 ) : (
                   <div className="p-4 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-600">
                     <p className="font-semibold text-gray-900 mb-1 text-sm">Cash on Delivery (COD)</p>
                     <p>Pay upon parcel handover by our verified courier rider across Sri Lanka. Please have exact change ready in Sri Lankan Rupees (LKR).</p>
                   </div>
                 )}
+
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl my-4">
                   <Lock size={14} className="text-gray-400" />
-                  <span className="text-xs text-gray-500">256-bit SSL Gateway Encrypted & CBSL/PCI-DSS Compliant.</span>
+                  <span className="text-xs text-gray-500">256-bit SSL Gateway Encrypted & CBSL Compliant.</span>
                 </div>
-                {paymentMethod !== "PayHere" && paymentMethod !== "Card" && (
+
+                {paymentMethod === "COD" && (
                   <PrimaryBtn onClick={() => handlePlaceOrder()} className="w-full !py-4 !rounded-2xl mt-2" icon={<Lock size={16} />}>
-                    {isSubmitting ? "Authorizing Order..." : `Confirm & Authorize ${lkr(finalTotal)}`}
+                    {isSubmitting ? "Placing Order..." : `Confirm Order with COD (${lkr(finalTotal)})`}
                   </PrimaryBtn>
                 )}
               </div>
             )}
           </div>
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-gray-100 p-5 sticky top-24">
               <h3 className="font-bold text-gray-900 mb-4">Order Summary ({cartItems.length})</h3>
               <div className="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
