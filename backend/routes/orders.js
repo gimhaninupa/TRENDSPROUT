@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import Order from '../models/order.js';
 import Product from '../models/product.js';
 import Cart from '../models/cart.js';
-import { protect, restrictTo } from '../middleware/auth.js';
+import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -27,8 +27,8 @@ const generateTrackingNumber = () => {
 
 // @desc    Create Stripe PaymentIntent
 // @route   POST /api/orders/create-payment-intent
-// @access  Private / Public
-router.post('/create-payment-intent', protect, async (req, res) => {
+// @access  Public / Optional Auth
+router.post('/create-payment-intent', optionalAuth, async (req, res) => {
   try {
     const { amount, currency = 'lkr', orderId } = req.body;
     const stripe = getStripe();
@@ -42,6 +42,7 @@ router.post('/create-payment-intent', protect, async (req, res) => {
         status: 'success',
         simulated: true,
         clientSecret: 'mock_pi_' + Date.now() + '_secret_' + Math.random().toString(36).substring(7),
+        publishableKey: process.env.VITE_STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLISHABLE_KEY || '',
         message: 'Stripe simulated mode active. Add STRIPE_SECRET_KEY in backend/.env for live gateway.',
       });
     }
@@ -51,7 +52,7 @@ router.post('/create-payment-intent', protect, async (req, res) => {
       currency: currency.toLowerCase(),
       metadata: {
         orderId: orderId || '',
-        userId: req.user._id.toString(),
+        userId: req.user?._id ? req.user._id.toString() : 'guest',
       },
       automatic_payment_methods: { enabled: true },
     });

@@ -132,7 +132,20 @@ class ApiClient {
     });
   }
 
-  // ─── ORDERS & TRACKING ────────────────────────────────────────────────────
+  async createPaymentIntent(amount: number, currency = 'lkr', orderId?: string) {
+    return this.request<{
+      status: string;
+      simulated?: boolean;
+      clientSecret: string;
+      paymentIntentId?: string;
+      publishableKey?: string;
+      message?: string;
+    }>('/orders/create-payment-intent', {
+      method: 'POST',
+      body: JSON.stringify({ amount, currency, orderId }),
+    });
+  }
+
   async createOrder(orderData: {
     items: any[];
     totalAmount: number;

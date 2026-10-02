@@ -34,6 +34,25 @@ export const protect = async (req, res, next) => {
   }
 };
 
+// Optional auth middleware (attaches user if token present, otherwise proceeds as guest)
+export const optionalAuth = async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key');
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch {
+      // Continue without user
+    }
+  }
+  next();
+};
+
 // Middleware to restrict access based on roles
 export const restrictTo = (...roles) => {
   return (req, res, next) => {

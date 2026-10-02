@@ -6,6 +6,7 @@ import {
   Screen, purple, lkr, 
   PrimaryBtn, Input, Navbar 
 } from '../../components/shared';
+import { StripePaymentForm } from '../../components/StripePaymentForm';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -61,11 +62,13 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
     }
   };
 
-  const handlePlaceOrder = async () => {
+  // In handlePlaceOrder, accept optional custom payment details from Stripe
+  const handlePlaceOrder = async (customDetails?: { paymentIntentId?: string; last4?: string; brand?: string }) => {
     setIsSubmitting(true);
     const trackingNum = 'TS-LK-' + Math.floor(100000 + Math.random() * 900000);
     const rawCard = cardNumber.replace(/\s+/g, '');
-    const cardLast4 = rawCard.slice(-4) || '8821';
+    const cardLast4 = customDetails?.last4 || rawCard.slice(-4) || '4242';
+    const resolvedBrand = customDetails?.brand || cardBrand || 'Visa';
 
     const orderPayload = {
       items: cartItems.map(i => ({
@@ -89,8 +92,9 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
       paymentMethod,
       paymentDetails: {
         cardLast4,
-        cardBrand,
+        cardBrand: resolvedBrand,
         slipUrl: slipFile || '',
+        paymentIntentId: customDetails?.paymentIntentId || '',
       },
       paymentStatus: paymentMethod === 'COD' ? 'Pending' : 'Paid',
       trackingNumber: trackingNum,
@@ -100,15 +104,13 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
     let resolvedTracking = trackingNum;
 
     try {
-      if (user?._id) {
-        const res = await api.createOrder({
-          ...orderPayload,
-          clearCart: true,
-        });
-        if (res.data?._id) {
-          createdOrderId = res.data._id;
-          resolvedTracking = res.data.trackingNumber || trackingNum;
-        }
+      const res = await api.createOrder({
+        ...orderPayload,
+        clearCart: true,
+      });
+      if (res.data?._id) {
+        createdOrderId = res.data._id;
+        resolvedTracking = res.data.trackingNumber || trackingNum;
       }
     } catch {
       // Graceful fallback for offline/demo operation
@@ -133,8 +135,9 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
         cardHolder,
         expiry: cardExpiry,
         cvv: cardCvv,
-        cardBrand,
+        cardBrand: resolvedBrand,
         cardLast4,
+        paymentIntentId: customDetails?.paymentIntentId,
       },
       slipFile,
       date: new Date().toLocaleDateString('en-LK', { month: 'short', day: 'numeric', year: 'numeric' }),
@@ -227,63 +230,24 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                   ))}
                 </div>
                 {paymentMethod === "Card" ? (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium text-gray-700">Cardholder name</label>
-                      <input
-                        type="text"
-                        value={cardHolder}
-                        onChange={e => setCardHolder(e.target.value)}
-                        placeholder="Sophia Laurent"
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium text-gray-700">Card number</label>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-purple-100 text-purple-700">{cardBrand}</span>
-                      </div>
-                      <div className="relative">
-                        <CreditCard size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="text"
-                          value={cardNumber}
-                          onChange={handleCardNumberChange}
-                          placeholder="4532 8920 1849 8821"
-                          maxLength={19}
-                          className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm font-mono text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700">Expiry date</label>
-                        <input
-                          type="text"
-                          value={cardExpiry}
-                          onChange={handleExpiryChange}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-mono text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">CVV <Info size={12} className="text-gray-400" /></label>
-                        <input
-                          type="password"
-                          value={cardCvv}
-                          onChange={e => setCardCvv(e.target.value.slice(0, 4))}
-                          placeholder="842"
-                          maxLength={4}
-                          className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm font-mono text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-start gap-2">
-                      <Info size={14} className="text-amber-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Testing Hint:</strong> Use card ending in <strong>0002</strong> to simulate 3D Secure bank decline and failure recovery.</span>
-                    </div>
-                  </div>
+                  <StripePaymentForm
+                    amount={finalTotal}
+                    billingDetails={{
+                      name: `${firstName} ${lastName}`,
+                      email,
+                      phone,
+                      address: {
+                        line1: street,
+                        city,
+                        state,
+                        postal_code: zip,
+                        country: 'LK',
+                      },
+                    }}
+                    onSuccess={(res) => handlePlaceOrder(res)}
+                    isProcessing={isSubmitting}
+                    setIsProcessing={setIsSubmitting}
+                  />
                 ) : paymentMethod === "Bank Transfer" ? (
                   <div className="flex flex-col gap-3">
                     <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 text-xs text-purple-900 leading-relaxed">
@@ -319,9 +283,11 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                   <Lock size={14} className="text-gray-400" />
                   <span className="text-xs text-gray-500">256-bit SSL Gateway Encrypted & 3D Secure 2.2 Compliant.</span>
                 </div>
-                <PrimaryBtn onClick={handlePlaceOrder} className="w-full !py-4 !rounded-2xl mt-2" icon={<Lock size={16} />}>
-                  {isSubmitting ? "Authorizing Order..." : `Confirm & Authorize ${lkr(finalTotal)}`}
-                </PrimaryBtn>
+                {paymentMethod !== "Card" && (
+                  <PrimaryBtn onClick={() => handlePlaceOrder()} className="w-full !py-4 !rounded-2xl mt-2" icon={<Lock size={16} />}>
+                    {isSubmitting ? "Authorizing Order..." : `Confirm & Authorize ${lkr(finalTotal)}`}
+                  </PrimaryBtn>
+                )}
               </div>
             )}
           </div>
