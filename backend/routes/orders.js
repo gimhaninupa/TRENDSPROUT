@@ -36,8 +36,8 @@ router.post('/payhere-hash', optionalAuth, async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Order ID and Amount are required' });
     }
 
-    const merchantId = process.env.PAYHERE_MERCHANT_ID || '1211149'; // Official PayHere Sandbox Merchant ID
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '4TxxxTrendSproutSandboxKey';
+    const merchantId = process.env.PAYHERE_MERCHANT_ID || '1235754';
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || 'MjI0MTc5OTUzMjczMTA1MTM1MzExMDA5NjA4NzMzMDA2MDUxODI=';
 
     // Amount must be formatted to 2 decimals without thousand separators
     const formattedAmount = Number(amount).toFixed(2);
@@ -78,7 +78,7 @@ router.post('/payhere-notify', async (req, res) => {
       md5sig,
     } = req.body;
 
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || '4TxxxTrendSproutSandboxKey';
+    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET || 'MjI0MTc5OTUzMjczMTA1MTM1MzExMDA5NjA4NzMzMDA2MDUxODI=';
     const hashedSecret = crypto.createHash('md5').update(merchantSecret).digest('hex').toUpperCase();
     const localMd5sig = crypto.createHash('md5').update(merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret).digest('hex').toUpperCase();
 
