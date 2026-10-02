@@ -58,6 +58,13 @@ class ApiClient {
     }, false);
   }
 
+  async googleLogin(credential: string, role = 'customer') {
+    return this.request<{ status: string; data: any; message?: string }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential, role }),
+    }, false);
+  }
+
   async getProfile() {
     return this.request<{ status: string; data: any }>('/auth/me');
   }

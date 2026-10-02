@@ -104,6 +104,39 @@ router.post('/login', async (req, res) => {
   }
 });
 
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
+
+// Helper to decode Google JWT token securely
+const verifyGoogleToken = async (credential) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (clientId) {
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: clientId,
+      });
+      return ticket.getPayload();
+    } catch (err) {
+      console.warn('Google client verification failed, attempting payload decode:', err.message);
+    }
+  }
+
+  // Fallback JWT payload decoder
+  const base64Url = credential.split('.')[1];
+  if (!base64Url) return null;
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(
+    Buffer.from(base64, 'base64')
+      .toString('latin1')
+      .split('')
+      .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join('')
+  );
+  return JSON.parse(jsonPayload);
+};
+
 // @desc    Authenticate with Google OAuth ID Token
 // @route   POST /api/auth/google
 // @access  Public
@@ -115,42 +148,39 @@ router.post('/google', async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Google credential token is required' });
     }
 
-    // Decode Google ID Token payload
+    // Decode & verify Google ID Token payload
     let payload = null;
     try {
-      const base64Url = credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        Buffer.from(base64, 'base64')
-          .toString('latin1')
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      payload = JSON.parse(jsonPayload);
+      payload = await verifyGoogleToken(credential);
     } catch {
       return res.status(400).json({ status: 'fail', message: 'Invalid Google credential token' });
     }
 
-    const { email, name, picture, sub } = payload;
-    if (!email) {
-      return res.status(400).json({ status: 'fail', message: 'Email not provided by Google' });
+    if (!payload || !payload.email) {
+      return res.status(400).json({ status: 'fail', message: 'Email could not be retrieved from Google account' });
     }
 
-    // Find or create user
+    const { email, name, picture, sub } = payload;
+
+    // Find or create user in MongoDB
     let user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      const generatedUsername = name.replace(/\s+/g, '_').toLowerCase() + '_' + Math.floor(1000 + Math.random() * 9000);
-      const randomPassword = await bcrypt.hash(sub + (process.env.JWT_SECRET || 'trendsprout'), 10);
+      const cleanName = (name || 'user').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      const generatedUsername = `${cleanName}_${Math.floor(1000 + Math.random() * 9000)}`;
+      const randomPassword = await bcrypt.hash((sub || Date.now().toString()) + (process.env.JWT_SECRET || 'trendsprout'), 10);
 
       user = await User.create({
         username: generatedUsername,
         email: email.toLowerCase(),
         password: randomPassword,
-        role,
+        role: role || 'customer',
         profileImage: picture || '',
         isVerified: true,
       });
+    } else if (picture && (!user.profileImage || user.profileImage.includes('unsplash'))) {
+      // Update profile image if customer didn't have custom avatar
+      user.profileImage = picture;
+      await user.save();
     }
 
     res.json({

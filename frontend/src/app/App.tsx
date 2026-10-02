@@ -149,15 +149,20 @@ function RouterWrapper() {
 
 import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '72400759272-a9mc9053qgltno9ikss2q2p5b2cded5t.apps.googleusercontent.com';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <RouterWrapper />
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <BrowserRouter>
+        <AuthProvider>
+          <CartProvider>
+            <RouterWrapper />
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 }

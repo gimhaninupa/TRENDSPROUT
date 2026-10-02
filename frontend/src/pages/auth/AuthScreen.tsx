@@ -20,13 +20,15 @@ import {
 } from '../../components/shared';
 
 import { useAuth } from '../../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | "otp" | "forgot-password"; onNavigate: (s: Screen) => void }) {
-  const { login, register, isLoading } = useAuth();
+  const { login, register, googleLogin, isLoading } = useAuth();
   const [email, setEmail] = useState("sophia@trendsprout.com");
   const [password, setPassword] = useState("password123");
   const [firstName, setFirstName] = useState("Sophia");
   const [lastName, setLastName] = useState("Laurent");
+  const [selectedRole, setSelectedRole] = useState<"customer" | "vendor">("customer");
   const [error, setError] = useState("");
   const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -53,6 +55,25 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setError("");
+    try {
+      if (!credentialResponse?.credential) {
+        throw new Error("No credential received from Google");
+      }
+      const user = await googleLogin(credentialResponse.credential, selectedRole);
+      if (user?.role === 'vendor') {
+        onNavigate("vendor-dashboard");
+      } else if (user?.role === 'admin') {
+        onNavigate("admin-dashboard");
+      } else {
+        onNavigate("customer-dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message || "Google authentication failed");
+    }
+  };
+
   const handleRegister = async () => {
     setError("");
     try {
@@ -61,7 +82,7 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
         username,
         email,
         password,
-        role: 'customer',
+        role: selectedRole,
       });
       onNavigate("otp");
     } catch (err: any) {
@@ -97,15 +118,37 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
         <div className="w-full max-w-sm">
           <button onClick={() => onNavigate("home")} className="flex items-center gap-1.5 text-xs text-gray-400 mb-8 hover:text-purple-600 transition-colors"><ChevronLeft size={14} />Back to site</button>
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
-              {error}
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium flex items-center gap-2">
+              <AlertCircle size={15} className="shrink-0" />
+              <span>{error}</span>
             </div>
           )}
           {mode === "login" && (
             <>
               <h1 className="text-3xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Clash Display', sans-serif" }}>Welcome back</h1>
-              <p className="text-gray-500 text-sm mb-8">Sign in to your TRENDSPROUT account</p>
-              <div className="flex flex-col gap-5">
+              <p className="text-gray-500 text-sm mb-6">Sign in to your TRENDSPROUT account</p>
+
+              {/* Google Fast One-Tap & Button */}
+              <div className="mb-5 flex flex-col items-center">
+                <div className="w-full flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError("Google login could not be initialized")}
+                    theme="outline"
+                    size="large"
+                    shape="pill"
+                    text="signin_with"
+                    width="320"
+                  />
+                </div>
+                <div className="relative flex items-center gap-3 w-full my-5">
+                  <div className="flex-1 border-t border-gray-200" />
+                  <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">or email sign in</span>
+                  <div className="flex-1 border-t border-gray-200" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1">Email or Username</label>
                   <input
@@ -128,46 +171,78 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
                 </div>
                 <div className="flex justify-end"><button onClick={() => onNavigate("forgot-password")} className="text-xs font-medium text-purple-600 hover:underline">Forgot password?</button></div>
                 <PrimaryBtn onClick={handleLogin} className="w-full !py-3.5 !rounded-xl">
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? "Signing in..." : "Sign In with Email"}
                 </PrimaryBtn>
-                <div className="relative flex items-center gap-3"><div className="flex-1 border-t border-gray-200" /><span className="text-xs text-gray-400">or continue with</span><div className="flex-1 border-t border-gray-200" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  {["Google", "Apple"].map(p => (
-                    <button key={p} onClick={handleLogin} className="flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all">{p}</button>
-                  ))}
-                </div>
-                <p className="text-center text-xs text-gray-500">No account? <button onClick={() => onNavigate("register")} className="text-purple-600 font-semibold hover:underline">Sign up free</button></p>
+                
+                <p className="text-center text-xs text-gray-500 mt-2">No account? <button onClick={() => onNavigate("register")} className="text-purple-600 font-semibold hover:underline">Sign up free</button></p>
               </div>
             </>
           )}
           {mode === "register" && (
             <>
               <h1 className="text-3xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Clash Display', sans-serif" }}>Create account</h1>
-              <p className="text-gray-500 text-sm mb-8">Join the AI-powered fashion revolution</p>
-              <div className="flex flex-col gap-4">
+              <p className="text-gray-500 text-sm mb-5">Join the AI-powered fashion revolution</p>
+
+              {/* Role Toggle */}
+              <div className="flex bg-gray-100 p-1 rounded-xl mb-4 text-xs font-semibold">
+                <button
+                  onClick={() => setSelectedRole("customer")}
+                  className={`flex-1 py-2 rounded-lg transition-all ${selectedRole === "customer" ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  Shopper / Customer
+                </button>
+                <button
+                  onClick={() => setSelectedRole("vendor")}
+                  className={`flex-1 py-2 rounded-lg transition-all ${selectedRole === "vendor" ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  Brand / Vendor
+                </button>
+              </div>
+
+              {/* Google Fast Sign Up */}
+              <div className="mb-4 flex flex-col items-center">
+                <div className="w-full flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError("Google signup failed")}
+                    theme="outline"
+                    size="large"
+                    shape="pill"
+                    text="signup_with"
+                    width="320"
+                  />
+                </div>
+                <div className="relative flex items-center gap-3 w-full my-4">
+                  <div className="flex-1 border-t border-gray-200" />
+                  <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">or direct signup</span>
+                  <div className="flex-1 border-t border-gray-200" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">First name</label>
-                    <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800" />
+                    <label className="text-xs font-medium text-gray-700 block mb-1">First name</label>
+                    <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">Last name</label>
-                    <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800" />
+                    <label className="text-xs font-medium text-gray-700 block mb-1">Last name</label>
+                    <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Email</label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800" />
+                  <label className="text-xs font-medium text-gray-700 block mb-1">Email</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1">Password</label>
-                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800" />
+                  <label className="text-xs font-medium text-gray-700 block mb-1">Password</label>
+                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 8 characters" className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800" />
                 </div>
-                <div className="flex items-start gap-2.5 mt-1">
+                <div className="flex items-start gap-2 mt-1">
                   <input type="checkbox" id="terms" defaultChecked className="mt-0.5 accent-purple-600" />
-                  <label htmlFor="terms" className="text-xs text-gray-500">I agree to the <span className="text-purple-600 font-medium">Terms of Service</span> and <span className="text-purple-600 font-medium">Privacy Policy</span></label>
+                  <label htmlFor="terms" className="text-[11px] text-gray-500">I agree to the <span className="text-purple-600 font-medium">Terms of Service</span> and <span className="text-purple-600 font-medium">Privacy Policy</span></label>
                 </div>
-                <PrimaryBtn onClick={handleRegister} className="w-full !py-3.5 !rounded-xl">
+                <PrimaryBtn onClick={handleRegister} className="w-full !py-3 !rounded-xl mt-1">
                   {isLoading ? "Creating..." : "Create Account"}
                 </PrimaryBtn>
                 <p className="text-center text-xs text-gray-500">Already have an account? <button onClick={() => onNavigate("login")} className="text-purple-600 font-semibold hover:underline">Sign in</button></p>
