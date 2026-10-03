@@ -86,14 +86,6 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
               <PrimaryBtn onClick={() => onNavigate("browse")} className="!py-4 !px-8 !text-base !rounded-2xl" icon={<ShoppingBag size={18} />}>Shop Now</PrimaryBtn>
               <GhostBtn onClick={() => onNavigate("ai-outfit")} className="!py-4 !px-8 !text-base !rounded-2xl">Try AI Stylist</GhostBtn>
             </div>
-            <div className="flex items-center gap-6 mt-10">
-              {[["50K+", "Products"], ["1.2K+", "Brands"], ["98%", "Satisfaction"]].map(([num, label]) => (
-                <div key={label}>
-                  <div className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>{num}</div>
-                  <div className="text-xs text-gray-400 font-medium">{label}</div>
-                </div>
-              ))}
-            </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:block">
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/10">
