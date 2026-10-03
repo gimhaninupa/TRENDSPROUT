@@ -35,10 +35,10 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
 
   useEffect(() => {
     let isMounted = true;
-    api.getProducts({ limit: 4 })
+    api.getProducts({ limit: 12 })
       .then(res => {
         if (isMounted && res?.data && res.data.length > 0) {
-          const formatted = res.data.slice(0, 4).map(item => ({
+          const formatted = res.data.map(item => ({
             id: item._id || item.id,
             name: item.name,
             price: item.price,
@@ -53,7 +53,18 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
             sizes: item.sizes || ['S', 'M', 'L'],
             colors: item.colors || ['Black', 'Ivory'],
           }));
-          setTrendingList(formatted);
+
+          const vendorSaved = localStorage.getItem('ts_vendor_products');
+          const vendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
+
+          const combined = [...vendorItems, ...formatted];
+          const uniqueMap = new Map();
+          combined.forEach(p => {
+            if (p && p.id && !uniqueMap.has(p.id)) {
+              uniqueMap.set(p.id, p);
+            }
+          });
+          setTrendingList(Array.from(uniqueMap.values()).slice(0, 8));
         }
       })
       .catch(() => {});

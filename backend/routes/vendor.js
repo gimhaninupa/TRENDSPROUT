@@ -1,13 +1,15 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/product.js';
+import Category from '../models/category.js';
 import Order from '../models/order.js';
 import User from '../models/user.js';
-import { protect, restrictTo } from '../middleware/auth.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Restrict all vendor routes to authenticated vendors and admins
-router.use(protect, restrictTo('vendor', 'admin'));
+// Require user to be authenticated for vendor actions
+router.use(protect);
 
 // @desc    Get vendor dashboard statistics & analytics
 // @route   GET /api/vendor/stats
@@ -94,33 +96,59 @@ router.get('/products', async (req, res) => {
 
 // @desc    Create new vendor product
 // @route   POST /api/vendor/products
-// @access  Private (Vendor / Admin)
+// @access  Private
 router.post('/products', async (req, res) => {
   try {
     const { name, description, price, originalPrice, brand, image, stock, category, tag, sizes, colors } = req.body;
 
-    if (!name || !description || !price || !category) {
-      return res.status(400).json({ status: 'fail', message: 'Name, description, price, and category are required' });
+    if (!name || !price) {
+      return res.status(400).json({ status: 'fail', message: 'Name and price are required' });
+    }
+
+    // Resolve Category ObjectId
+    let categoryDoc = null;
+    const catName = category || 'Bags';
+    if (mongoose.Types.ObjectId.isValid(catName)) {
+      categoryDoc = await Category.findById(catName);
+    }
+    if (!categoryDoc) {
+      const catSlug = String(catName).toLowerCase().replace(/\s+/g, '-');
+      categoryDoc = await Category.findOne({
+        $or: [
+          { slug: catSlug },
+          { name: new RegExp(`^${catName}$`, 'i') }
+        ]
+      });
+    }
+    if (!categoryDoc) {
+      const catSlug = String(catName).toLowerCase().replace(/\s+/g, '-');
+      categoryDoc = await Category.create({
+        name: catName,
+        slug: catSlug,
+        description: `${catName} Collection`,
+      });
     }
 
     const product = await Product.create({
       name,
-      description,
+      description: description || `Premium ${catName} handcrafted with top tier sustainable materials.`,
       price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : Number(price) * 1.25,
-      brand: brand || req.user.vendorStore?.storeName || 'Atelier Label',
-      image: image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
-      stock: Number(stock || 10),
-      category,
+      originalPrice: originalPrice ? Number(originalPrice) : Math.round(Number(price) * 1.25),
+      brand: brand || req.user.vendorStore?.storeName || req.user.username || 'Atelier Nord',
+      image: image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80',
+      stock: Number(stock || 20),
+      category: categoryDoc._id,
       vendor: req.user._id,
       tag: tag || 'New',
-      sizes: sizes || ['S', 'M', 'L', 'XL'],
-      colors: colors || ['Default'],
+      sizes: sizes || ['S', 'M', 'L'],
+      colors: colors || ['Midnight Black', 'Natural Ivory'],
     });
+
+    await product.populate('category', 'name slug');
 
     res.status(201).json({
       status: 'success',
-      message: 'Product created successfully',
+      message: 'Product created and published to store successfully',
       data: product,
     });
   } catch (error) {

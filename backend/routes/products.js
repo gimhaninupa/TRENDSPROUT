@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/product.js';
 import Category from '../models/category.js';
 
@@ -25,19 +26,24 @@ router.get('/categories', async (req, res) => {
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const { category, search, tag, brand, sort, priceMin, priceMax, page = 1, limit = 10 } = req.query;
+    const { category, search, tag, brand, sort, priceMin, priceMax, page = 1, limit = 50 } = req.query;
 
     const query = {};
 
-    // Filter by category slug or ID
-    if (category) {
-      // Find category first
-      const catObj = await Category.findOne({ $or: [{ _id: category.match(/^[0-9a-fA-F]{24}$/) ? category : null }, { slug: category }] });
+    // Filter by category slug, ID, or name
+    if (category && category !== 'All') {
+      const isObjectId = mongoose.Types.ObjectId.isValid(category);
+      const catSlug = String(category).toLowerCase().replace(/\s+/g, '-');
+      const catObj = await Category.findOne({
+        $or: [
+          ...(isObjectId ? [{ _id: category }] : []),
+          { slug: catSlug },
+          { name: new RegExp(`^${category}$`, 'i') }
+        ]
+      });
+
       if (catObj) {
         query.category = catObj._id;
-      } else {
-        // If category not found, return empty list
-        return res.json({ status: 'success', results: 0, data: [] });
       }
     }
 

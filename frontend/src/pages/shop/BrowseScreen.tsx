@@ -48,10 +48,17 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
             colors: item.colors || ['Black', 'Ivory'],
           }));
           
-          // Merge with custom vendor products if any
+          // Merge with custom vendor products if any and deduplicate
           const vendorSaved = localStorage.getItem('ts_vendor_products');
           const vendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
-          setAllProducts([...vendorItems, ...formatted]);
+          const combined = [...vendorItems, ...formatted];
+          const uniqueMap = new Map();
+          combined.forEach(p => {
+            if (p && p.id && !uniqueMap.has(p.id)) {
+              uniqueMap.set(p.id, p);
+            }
+          });
+          setAllProducts(Array.from(uniqueMap.values()));
         }
       })
       .catch(err => {
@@ -173,8 +180,10 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
   };
 
   const filteredProducts = allProducts.filter(p => {
+    const pCat = typeof p.category === 'string' ? p.category : (p.category?.name || '');
     const matchesCategory = activeFilters.includes("All") || activeFilters.some(f => 
-      p.category?.toLowerCase() === f.toLowerCase() || 
+      pCat.toLowerCase() === f.toLowerCase() || 
+      pCat.toLowerCase().includes(f.toLowerCase()) ||
       p.name?.toLowerCase().includes(f.toLowerCase())
     );
     const matchesSearch = !searchTerm.trim() || 
