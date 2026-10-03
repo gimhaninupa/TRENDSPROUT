@@ -23,7 +23,16 @@ import api from '../../services/api';
 export function VendorAIDescriptionScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState("");
-  const [title, setTitle] = useState("Oversized Linen Blazer");
+  const [title, setTitle] = useState(() => {
+    try {
+      const draft = localStorage.getItem('ts_vendor_product_draft');
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed.title) return parsed.title;
+      }
+    } catch {}
+    return "Oversized Linen Blazer";
+  });
   const [material, setMaterial] = useState("Irish Linen");
   const [color, setColor] = useState("Natural Ivory");
   const [tone, setTone] = useState("Editorial");
@@ -53,6 +62,12 @@ export function VendorAIDescriptionScreen({ onNavigate }: { onNavigate: (s: Scre
 
   const handleUseThis = () => {
     if (result) {
+      try {
+        const draft = localStorage.getItem('ts_vendor_product_draft');
+        const parsed = draft ? JSON.parse(draft) : {};
+        parsed.desc = result;
+        localStorage.setItem('ts_vendor_product_draft', JSON.stringify(parsed));
+      } catch {}
       localStorage.setItem('ts_ai_generated_desc', result);
     }
     onNavigate("vendor-add-product");

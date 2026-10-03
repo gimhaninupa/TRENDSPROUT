@@ -23,9 +23,27 @@ import api from '../../services/api';
 export function VendorAIPricingScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const [analyzed, setAnalyzed] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-  const [yourPrice, setYourPrice] = useState("12500");
+  const [yourPrice, setYourPrice] = useState(() => {
+    try {
+      const draft = localStorage.getItem('ts_vendor_product_draft');
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed.price) return String(parsed.price);
+      }
+    } catch {}
+    return "12500";
+  });
   const [prodCost, setProdCost] = useState("5500");
-  const [category, setCategory] = useState("Blazers");
+  const [category, setCategory] = useState(() => {
+    try {
+      const draft = localStorage.getItem('ts_vendor_product_draft');
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed.category) return parsed.category;
+      }
+    } catch {}
+    return "Blazers";
+  });
   const [pricingData, setPricingData] = useState<any>(null);
 
   const handleAnalyze = async () => {
@@ -62,6 +80,11 @@ export function VendorAIPricingScreen({ onNavigate }: { onNavigate: (s: Screen) 
 
   const handleApplyPrice = (priceVal: number) => {
     try {
+      const draft = localStorage.getItem('ts_vendor_product_draft');
+      const parsed = draft ? JSON.parse(draft) : {};
+      parsed.price = String(priceVal);
+      parsed.comparePrice = String(Math.round(priceVal * 1.25));
+      localStorage.setItem('ts_vendor_product_draft', JSON.stringify(parsed));
       localStorage.setItem('ts_ai_pricing', String(priceVal));
     } catch {}
     onNavigate("vendor-add-product");
