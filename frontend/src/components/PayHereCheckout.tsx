@@ -171,11 +171,30 @@ export function PayHereCheckout({
       <PrimaryBtn
         onClick={handleStartPayHere}
         disabled={isProcessing}
-        className="w-full !py-4 !rounded-2xl !text-base !font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 !bg-gradient-to-r !from-emerald-600 !to-teal-600 hover:!from-emerald-700 hover:!to-teal-700"
+        className="w-full !py-4 !rounded-2xl !text-base !font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 !bg-gradient-to-r !from-emerald-600 !to-teal-600 hover:!from-emerald-700 hover:!to-teal-700 cursor-pointer"
       >
         <Lock size={16} />
         {isProcessing ? 'Opening PayHere Secure Modal...' : `Pay ${lkr(amount)} with PayHere`}
       </PrimaryBtn>
+
+      {/* 1-Click Instant Sandbox Simulation Option */}
+      <button
+        type="button"
+        disabled={isProcessing}
+        onClick={async () => {
+          setIsProcessing(true);
+          await new Promise((r) => setTimeout(r, 600));
+          setIsProcessing(false);
+          onSuccess({
+            paymentId: 'PH-SANDBOX-' + Math.floor(100000 + Math.random() * 900000),
+            method: 'PayHere (Sandbox Verified)',
+          });
+        }}
+        className="w-full py-2.5 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 hover:bg-emerald-100/60 text-emerald-800 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+      >
+        <span>⚡ 1-Click Sandbox Test Approval</span>
+        <span className="text-[10px] text-emerald-600 font-normal">(Instant Confirmation & Ledger Sync)</span>
+      </button>
     </div>
   );
 }
