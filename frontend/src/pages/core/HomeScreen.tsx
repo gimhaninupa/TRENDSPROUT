@@ -122,27 +122,29 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
         </div>
       </section>
 
-      {/* AI Features */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
+      {/* AI Features - 2 cards per row on mobile */}
+      <section className="py-12 sm:py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6">
+          <div className="text-center mb-8 sm:mb-14">
             <Badge variant="purple">Powered by AI</Badge>
-            <h2 className="text-4xl font-black text-gray-900 mt-4 mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fashion Intelligence</h2>
-            <p className="text-gray-500 max-w-xl mx-auto">Our AI doesn't just recommend — it understands your style DNA and evolves with every interaction.</p>
+            <h2 className="text-2xl sm:text-4xl font-black text-gray-900 mt-3 sm:mt-4 mb-2 sm:mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fashion Intelligence</h2>
+            <p className="text-gray-500 text-xs sm:text-base max-w-xl mx-auto px-4">Our AI doesn't just recommend — it understands your style DNA and evolves with every interaction.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {[
-              { icon: <Bot size={24} />, title: "AI Chatbot Stylist", desc: "Real-time fashion advice powered by LLMs trained on decades of runway data.", screen: "ai-chatbot" as Screen },
-              { icon: <Wand2 size={24} />, title: "Outfit Generator", desc: "Complete looks built from your wardrobe and our catalog — personalized to your occasion.", screen: "ai-outfit" as Screen },
-              { icon: <Image size={24} />, title: "Text to Design", desc: "Describe your dream piece in words and watch our AI bring it to life visually.", screen: "text-to-design" as Screen },
-              { icon: <TrendingUp size={24} />, title: "Trend Predictor", desc: "Stay ahead with AI-curated trend reports updated weekly from global runway data.", screen: "browse" as Screen },
+              { icon: <Bot className="w-5 h-5 sm:w-6 sm:h-6" />, title: "AI Chatbot Stylist", desc: "Real-time fashion advice powered by LLMs trained on decades of runway data.", screen: "ai-chatbot" as Screen },
+              { icon: <Wand2 className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Outfit Generator", desc: "Complete looks built from your wardrobe and our catalog — personalized to your occasion.", screen: "ai-outfit" as Screen },
+              { icon: <Image className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Text to Design", desc: "Describe your dream piece in words and watch our AI bring it to life visually.", screen: "text-to-design" as Screen },
+              { icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Trend Predictor", desc: "Stay ahead with AI-curated trend reports updated weekly from global runway data.", screen: "browse" as Screen },
             ].map(f => (
               <motion.div key={f.title} whileHover={{ y: -4 }} onClick={() => onNavigate(f.screen)}
-                className="bg-white rounded-2xl p-6 cursor-pointer border border-gray-100 hover:border-purple-200 hover:shadow-xl hover:shadow-purple-100/50 transition-all group">
-                <div className="w-12 h-12 rounded-2xl mb-5 flex items-center justify-center text-white" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>{f.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors">{f.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-                <div className="flex items-center gap-1 mt-4 text-xs font-semibold text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">Try it <ArrowRight size={12} /></div>
+                className="bg-white rounded-2xl p-3.5 sm:p-6 cursor-pointer border border-gray-100 hover:border-purple-200 hover:shadow-xl hover:shadow-purple-100/50 transition-all group flex flex-col justify-between">
+                <div>
+                  <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl mb-3 sm:mb-5 flex items-center justify-center text-white shrink-0 shadow-sm" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>{f.icon}</div>
+                  <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1.5 sm:mb-2 group-hover:text-purple-700 transition-colors leading-snug">{f.title}</h3>
+                  <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed line-clamp-3 sm:line-clamp-none">{f.desc}</p>
+                </div>
+                <div className="flex items-center gap-1 mt-3 sm:mt-4 text-[10px] sm:text-xs font-semibold text-purple-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">Try it <ArrowRight size={12} /></div>
               </motion.div>
             ))}
           </div>
