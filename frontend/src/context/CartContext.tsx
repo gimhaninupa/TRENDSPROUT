@@ -34,48 +34,66 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const userId = user?._id || 'guest';
+  const cartStorageKey = `ts_cart_${userId}`;
 
+  // User-scoped initial cart load (clean empty default)
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('ts_cart');
+      const saved = localStorage.getItem(cartStorageKey);
       if (saved) return JSON.parse(saved);
     } catch {}
-    // Default initial demonstration items
-    return [
-      {
-        id: 'c1',
-        productId: 'p1',
-        name: 'Linen Slip Dress',
-        brand: 'Aura Label',
-        price: 8500,
-        originalPrice: 12000,
-        image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
-        size: 'M',
-        color: 'Midnight Black',
-        qty: 1,
-      },
-      {
-        id: 'c2',
-        productId: 'p2',
-        name: 'Oversized Wool Blazer',
-        brand: 'Nouveau Collective',
-        price: 14500,
-        originalPrice: 18000,
-        image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
-        size: 'L',
-        color: 'Earth Brown',
-        qty: 1,
-      },
-    ];
+    return [];
   });
 
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountValue: number; discountType: string } | null>(null);
 
-  // Sync to localStorage
+  // When active user changes (Login / Logout / Switch Account), reload user's own cart
   useEffect(() => {
-    localStorage.setItem('ts_cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    const activeKey = `ts_cart_${user?._id || 'guest'}`;
+    try {
+      const saved = localStorage.getItem(activeKey);
+      if (saved) {
+        setCartItems(JSON.parse(saved));
+      } else {
+        setCartItems([]);
+      }
+    } catch {
+      setCartItems([]);
+    }
+    setAppliedCoupon(null);
+
+    // If authenticated, sync with user's MongoDB cart
+    if (isAuthenticated && user?._id) {
+      api.getCart()
+        .then(res => {
+          if (res?.data?.items && res.data.items.length > 0) {
+            const dbItems: CartItem[] = res.data.items.map((item: any) => ({
+              id: item._id || ('item_' + Math.random().toString(36).substring(2, 6)),
+              productId: item.product?._id || item.product,
+              name: item.product?.name || 'Fashion Item',
+              brand: item.product?.brand || 'Sprout Brand',
+              price: Number(item.product?.price || 0),
+              originalPrice: item.product?.originalPrice ? Number(item.product.originalPrice) : undefined,
+              image: item.product?.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
+              size: item.size || 'M',
+              color: item.color || 'Default',
+              qty: Number(item.quantity || 1),
+            }));
+            setCartItems(dbItems);
+            localStorage.setItem(activeKey, JSON.stringify(dbItems));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user?._id, isAuthenticated]);
+
+  // Persist current active user's cart to their own storage key
+  useEffect(() => {
+    const activeKey = `ts_cart_${user?._id || 'guest'}`;
+    localStorage.setItem(activeKey, JSON.stringify(cartItems));
+  }, [cartItems, user?._id]);
 
   const addToCart = (product: any, qty = 1, size = 'M', color = 'Default') => {
     setCartItems((prev) => {
@@ -108,7 +126,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // If logged in, optionally notify backend
+    // If logged in, sync with user's MongoDB cart
     if (isAuthenticated && product._id) {
       api.addToCart({ productId: product._id, quantity: qty, size, color }).catch(() => {});
     }
@@ -137,6 +155,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = () => {
     setCartItems([]);
     setAppliedCoupon(null);
+    const activeKey = `ts_cart_${user?._id || 'guest'}`;
+    localStorage.removeItem(activeKey);
     if (isAuthenticated) {
       api.clearCart().catch(() => {});
     }
