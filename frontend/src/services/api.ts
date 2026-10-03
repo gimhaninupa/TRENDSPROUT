@@ -296,6 +296,44 @@ class ApiClient {
     });
   }
 
+  async getAdminOrders() {
+    return this.request<{ status: string; results: number; data: any[] }>('/admin/orders');
+  }
+
+  async updateAdminOrderStatus(orderId: string, orderStatus?: string, paymentStatus?: string) {
+    return this.request<{ status: string; message: string; data: any }>(`/admin/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ orderStatus, paymentStatus }),
+    });
+  }
+
+  async getAdminProducts() {
+    return this.request<{ status: string; results: number; data: any[] }>('/admin/products');
+  }
+
+  async deleteAdminProduct(productId: string) {
+    return this.request<{ status: string; message: string }>(`/admin/products/${productId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getAdminUsers() {
+    return this.request<{ status: string; results: number; data: any[] }>('/admin/users');
+  }
+
+  async updateAdminUserRole(userId: string, role: string) {
+    return this.request<{ status: string; message: string; data: any }>(`/admin/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async deleteAdminUser(userId: string) {
+    return this.request<{ status: string; message: string }>(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
   async getAdminPayouts() {
     return this.request<{ status: string; results: number; data: any[] }>('/admin/payouts');
   }
