@@ -23,22 +23,22 @@ export function StoreCustomizationScreen({ onNavigate }: { onNavigate: (s: Scree
   const [tab, setTab] = useState("theme");
   const [primaryColor, setPrimaryColor] = useState("#6C4DF6");
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="store-customization" onNavigate={onNavigate} />
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Store Customization</h1>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Store Customization</h1>
           <div className="flex gap-3">
             <GhostBtn className="!py-2.5 !px-4 !text-sm">Preview</GhostBtn>
             <PrimaryBtn onClick={() => onNavigate("vendor-dashboard")} className="!py-2.5 !px-4 !text-sm" icon={<Globe size={14} />}>Publish</PrimaryBtn>
           </div>
         </div>
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto pb-2 no-scrollbar">
           {["theme", "branding", "layout", "banner"].map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${tab === t ? "text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-300"}`} style={tab === t ? { background: purple } : {}}>{t}</button>
+            <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold capitalize shrink-0 transition-all cursor-pointer ${tab === t ? "text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-300"}`} style={tab === t ? { background: purple } : {}}>{t}</button>
           ))}
         </div>
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             {tab === "theme" && (
               <>

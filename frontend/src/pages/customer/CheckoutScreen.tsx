@@ -195,7 +195,7 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                     <label className="text-sm font-medium text-gray-700 block mb-1">Street address</label>
                     <input type="text" value={street} onChange={e => setStreet(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:border-purple-500" />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-700 block mb-1">City</label>
                       <input type="text" value={city} onChange={e => setCity(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:border-purple-500" />
@@ -209,21 +209,21 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                       <input type="text" value={zip} onChange={e => setZip(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 px-4 text-sm text-gray-800 focus:outline-none focus:border-purple-500" />
                     </div>
                   </div>
-                  <PrimaryBtn onClick={() => setStep("payment")} className="w-full !py-4 !rounded-2xl mt-2">Continue to Payment</PrimaryBtn>
+                  <PrimaryBtn onClick={() => setStep("payment")} className="w-full !py-4 !rounded-2xl mt-2 cursor-pointer">Continue to Payment</PrimaryBtn>
                 </div>
               </div>
             )}
             {step === "payment" && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h2 className="font-bold text-gray-900">Payment Method</h2>
                     <p className="text-xs text-gray-500 mt-0.5">Choose your preferred settlement method</p>
                   </div>
-                  <button onClick={() => setStep("address")} className="text-xs text-purple-600 font-semibold hover:underline">← Edit Address</button>
+                  <button onClick={() => setStep("address")} className="text-xs text-purple-600 font-semibold hover:underline cursor-pointer">← Edit Address</button>
                 </div>
                 {/* Method selector */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                   {[
                     { id: "PayHere", label: "PayHere Online (LK)", badge: "Visa / Master / Wallets / Banks" },
                     { id: "COD", label: "Cash on Delivery", badge: "Islandwide Delivery" },

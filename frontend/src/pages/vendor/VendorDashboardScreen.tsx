@@ -21,17 +21,17 @@ import {
 
 export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-dashboard" onNavigate={onNavigate} />
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Vendor Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Atelier Nord · Jul 22, 2026</p>
+            <h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Vendor Dashboard</h1>
+            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Atelier Nord · Jul 22, 2026</p>
           </div>
-          <div className="flex gap-3">
-            <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: purple }}><Plus size={16} />Add Product</button>
-            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-purple-300 bg-white relative">
+          <div className="flex items-center gap-3">
+            <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer" style={{ background: purple }}><Plus size={16} />Add Product</button>
+            <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-purple-300 bg-white relative shrink-0">
               <Bell size={18} />
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">4</span>
             </button>

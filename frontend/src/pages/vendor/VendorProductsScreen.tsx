@@ -88,19 +88,19 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-products" onNavigate={onNavigate} />
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Products</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your store catalog, pricing, and live inventory</p>
+            <h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Products</h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Manage your store catalog, pricing, and live inventory</p>
           </div>
           <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={16} />}>Add Product</PrimaryBtn>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div className="relative flex-1 max-w-xs">
+          <div className="p-4 sm:p-5 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 max-w-full sm:max-w-xs">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 value={searchTerm}
@@ -112,7 +112,7 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
             <select 
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 focus:outline-none focus:border-purple-400 cursor-pointer"
+              className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 focus:outline-none focus:border-purple-400 cursor-pointer self-start sm:self-auto"
             >
               <option value="All">All status</option>
               <option value="Active">Active</option>
@@ -120,13 +120,14 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
               <option value="Out of Stock">Out of Stock</option>
             </select>
           </div>
-          <table className="w-full">
-            <thead>
-              <tr className="text-xs text-gray-400 font-semibold border-b border-gray-100 bg-gray-50/50">
-                {["Product", "SKU", "Stock", "Price", "Sales", "Status", "Actions"].map(h => <th key={h} className="text-left px-5 py-3">{h}</th>)}
-              </tr>
-            </thead>
-            <tbody>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full min-w-[640px]">
+              <thead>
+                <tr className="text-xs text-gray-400 font-semibold border-b border-gray-100 bg-gray-50/50">
+                  {["Product", "SKU", "Stock", "Price", "Sales", "Status", "Actions"].map(h => <th key={h} className="text-left px-5 py-3">{h}</th>)}
+                </tr>
+              </thead>
+              <tbody>
               {filteredItems.map(p => (
                 <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                   <td className="px-5 py-4">
@@ -167,9 +168,10 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-export default VendorProductsScreen;
+

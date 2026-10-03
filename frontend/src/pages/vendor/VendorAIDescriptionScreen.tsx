@@ -59,19 +59,19 @@ export function VendorAIDescriptionScreen({ onNavigate }: { onNavigate: (s: Scre
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-ai-description" onNavigate={onNavigate} />
-      <div className="p-8 max-w-3xl">
-        <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 transition-colors mb-6 cursor-pointer"><ChevronLeft size={14} />Back to product</button>
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}><FileText size={18} /></div>
-          <div><h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>AI Description Generator</h1><p className="text-gray-500 text-sm">Write compelling product copy instantly</p></div>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
+        <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-400 hover:text-purple-600 transition-colors mb-6 cursor-pointer"><ChevronLeft size={14} />Back to product</button>
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}><FileText size={18} /></div>
+          <div><h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>AI Description Generator</h1><p className="text-gray-500 text-xs sm:text-sm">Write compelling product copy instantly</p></div>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
-          <h3 className="font-bold text-gray-900 mb-4">Product Details</h3>
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 mb-5 shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-4 text-base">Product Details</h3>
           <div className="flex flex-col gap-4">
             <Input label="Product name" placeholder="Oversized Linen Blazer" value={title} onChange={e => setTitle(e.target.value)} />
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div><label className="text-sm font-medium text-gray-700 block mb-1.5">Category</label><select className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option>Blazers</option><option>Dresses</option><option>Knitwear</option></select></div>
               <Input label="Primary fabric" placeholder="Irish Linen" value={material} onChange={e => setMaterial(e.target.value)} />
               <Input label="Color" placeholder="Natural Ivory" value={color} onChange={e => setColor(e.target.value)} />
@@ -82,9 +82,9 @@ export function VendorAIDescriptionScreen({ onNavigate }: { onNavigate: (s: Scre
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-2">Tone</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {["Editorial", "Minimal", "Luxury", "Conversational"].map(t => (
-                  <button key={t} onClick={() => setTone(t)} className={`px-4 py-2 rounded-xl text-xs font-semibold border-2 transition-all cursor-pointer ${tone === t ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-purple-300"}`} style={tone === t ? { background: purple } : {}}>{t}</button>
+                  <button key={t} onClick={() => setTone(t)} className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold border-2 transition-all cursor-pointer ${tone === t ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-purple-300"}`} style={tone === t ? { background: purple } : {}}>{t}</button>
                 ))}
               </div>
             </div>

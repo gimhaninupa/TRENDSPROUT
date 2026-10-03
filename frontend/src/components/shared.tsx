@@ -481,18 +481,22 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
 
   const aiScreens: Screen[] = ["ai-chatbot", "ai-outfit", "text-to-design"];
   const isAiActive = aiScreens.includes(current);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm shadow-black/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        <button onClick={() => onNavigate("home")} className="flex items-center gap-2 font-bold text-xl tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-          <span className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>TS</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm shadow-black/5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between h-16">
+        <button onClick={() => onNavigate("home")} className="flex items-center gap-2 font-bold text-lg sm:text-xl tracking-tight shrink-0" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+          <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>TS</span>
           <span style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>TRENDSPROUT</span>
         </button>
+
+        {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
-          <button onClick={() => onNavigate("browse")} className={`hover:text-purple-600 transition-colors ${current === "browse" || current === "search-results" ? "text-purple-600" : ""}`}>Shop</button>
+          <button onClick={() => onNavigate("browse")} className={`hover:text-purple-600 transition-colors ${current === "browse" || current === "search-results" ? "text-purple-600 font-semibold" : ""}`}>Shop</button>
+          
           {/* AI dropdown */}
           <div className="relative" onMouseEnter={() => setAiOpen(true)} onMouseLeave={() => setAiOpen(false)}>
-            <button className={`flex items-center gap-1 hover:text-purple-600 transition-colors ${isAiActive ? "text-purple-600" : ""}`}>
+            <button className={`flex items-center gap-1 hover:text-purple-600 transition-colors ${isAiActive ? "text-purple-600 font-semibold" : ""}`}>
               <Sparkles size={14} />AI Tools<ChevronDown size={12} className={`transition-transform ${aiOpen ? "rotate-180" : ""}`} />
             </button>
             {aiOpen && (
@@ -511,20 +515,22 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
               </div>
             )}
           </div>
-          <button onClick={() => onNavigate("seller-store")} className={`hover:text-purple-600 transition-colors ${current === "seller-store" ? "text-purple-600" : ""}`}>Brands</button>
+          <button onClick={() => onNavigate("seller-store")} className={`hover:text-purple-600 transition-colors ${current === "seller-store" ? "text-purple-600 font-semibold" : ""}`}>Brands</button>
         </div>
-        <div className="hidden md:flex items-center gap-3">
+
+        {/* Right Header Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button 
             onClick={() => onNavigate("vendor-dashboard")} 
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white shadow-sm"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white shadow-sm cursor-pointer"
           >
             <Store size={14} />
             <span>Vendor Studio</span>
           </button>
-          <button onClick={() => onNavigate("search-results")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Search"><Search size={18} /></button>
-          <button onClick={() => onNavigate("wishlist")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Wishlist"><Heart size={18} /></button>
-          <button onClick={() => onNavigate("cart")} className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Cart">
-            <ShoppingCart size={18} />
+          <button onClick={() => onNavigate("search-results")} className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all cursor-pointer" title="Search"><Search size={17} /></button>
+          <button onClick={() => onNavigate("wishlist")} className="hidden xs:flex w-8 h-8 sm:w-9 sm:h-9 rounded-xl items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all cursor-pointer" title="Wishlist"><Heart size={17} /></button>
+          <button onClick={() => onNavigate("cart")} className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all cursor-pointer" title="Cart">
+            <ShoppingCart size={17} />
             {cartCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center animate-pulse" style={{ background: purple }}>
                 {cartCount}
@@ -532,34 +538,72 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
             )}
           </button>
           {effectiveRole === "guest"
-            ? <PrimaryBtn onClick={() => onNavigate("login")} className="!py-2 !px-4 !text-xs">Sign In</PrimaryBtn>
-            : <button onClick={() => onNavigate("profile")} className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all" title="My Profile">
+            ? <PrimaryBtn onClick={() => onNavigate("login")} className="!py-1.5 sm:!py-2 !px-3 sm:!px-4 !text-xs">Sign In</PrimaryBtn>
+            : <button onClick={() => onNavigate("profile")} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all cursor-pointer" title="My Profile">
                 <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-full h-full object-cover" />
               </button>
           }
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-xl transition-all cursor-pointer ml-1" aria-label="Toggle Menu">
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-9 h-9 flex items-center justify-center text-gray-600">
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
+
+      {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-1">
+        <div className="md:hidden bg-white/95 backdrop-blur-2xl border-t border-gray-100 px-4 py-5 flex flex-col gap-2 max-h-[85vh] overflow-y-auto shadow-2xl">
+          {/* Quick Vendor CTA for Mobile */}
+          <button 
+            onClick={() => { onNavigate("vendor-dashboard"); setMobileOpen(false); }}
+            className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white font-bold text-sm shadow-md mb-2 cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <Store size={18} className="text-purple-300" />
+              <span>Open Vendor Studio</span>
+            </div>
+            <ChevronRight size={16} className="text-purple-300" />
+          </button>
+
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-1">Shopping & Explore</p>
           {[
-            { label: "Shop", screen: "browse" as Screen },
-            { label: "AI Chatbot", screen: "ai-chatbot" as Screen },
-            { label: "Outfit Generator", screen: "ai-outfit" as Screen },
-            { label: "Text to Design", screen: "text-to-design" as Screen },
-            { label: "Trend Predictor", screen: "browse" as Screen },
-            { label: "Brands", screen: "seller-store" as Screen },
-            { label: "Sell on TRENDSPROUT", screen: "vendor-dashboard" as Screen },
-            { label: "Cart", screen: "cart" as Screen },
-            { label: "Wishlist", screen: "wishlist" as Screen },
+            { label: "Shop Catalog", screen: "browse" as Screen, icon: <ShoppingBag size={16} /> },
+            { label: "Search Products", screen: "search-results" as Screen, icon: <Search size={16} /> },
+            { label: "Saved Wishlist", screen: "wishlist" as Screen, icon: <Heart size={16} /> },
+            { label: "Brand Stores", screen: "seller-store" as Screen, icon: <Store size={16} /> },
+            { label: "Active Orders", screen: "orders" as Screen, icon: <Package size={16} /> },
           ].map(item => (
             <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
-              className="text-left text-sm font-medium text-gray-700 py-2.5 border-b border-gray-50 hover:text-purple-600 transition-colors">
-              {item.label}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
+              <span className="text-gray-400">{item.icon}</span>
+              <span>{item.label}</span>
             </button>
           ))}
+
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-3">AI Fashion Tools</p>
+          {aiTools.map(item => (
+            <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
+              <span className="text-purple-600">{item.icon}</span>
+              <div>
+                <p className="text-sm font-semibold">{item.label}</p>
+                <p className="text-xs text-gray-400">{item.desc}</p>
+              </div>
+            </button>
+          ))}
+
+          <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between px-2">
+            {effectiveRole === "guest" ? (
+              <PrimaryBtn onClick={() => { onNavigate("login"); setMobileOpen(false); }} className="w-full !py-2.5 !text-sm">Sign In / Register</PrimaryBtn>
+            ) : (
+              <button onClick={() => { onNavigate("profile"); setMobileOpen(false); }} className="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-2">
+                  <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-7 h-7 rounded-full object-cover" />
+                  <span className="text-xs font-bold text-gray-800">{user?.username || "My Account"}</span>
+                </div>
+                <span className="text-xs text-purple-600 font-semibold">View Profile →</span>
+              </button>
+            )}
+          </div>
         </div>
       )}
     </nav>
@@ -567,6 +611,7 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
 }
 
 export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavigate: (s: Screen) => void }) {
+  const [vendorMobileOpen, setVendorMobileOpen] = useState(false);
   const items = [
     { screen: "vendor-dashboard" as Screen, icon: <Home size={18} />, label: "Dashboard" },
     { screen: "vendor-products" as Screen, icon: <Package size={18} />, label: "Products" },
@@ -578,33 +623,81 @@ export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavi
     { screen: "store-customization" as Screen, icon: <Palette size={18} />, label: "Store" },
     { screen: "profile-settings" as Screen, icon: <Settings size={18} />, label: "Settings" },
   ];
+
   return (
-    <div className="fixed top-0 left-0 h-full w-60 flex flex-col pt-8 pb-6" style={{ background: "#0a0a0f" }}>
-      <div className="px-6 mb-8">
-        <div className="flex items-center gap-2.5 font-bold text-lg text-white" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-          <span className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>TS</span>
-          TRENDSPROUT
+    <>
+      {/* Mobile Top App Bar for Vendor Mode */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0a0f] z-50 flex items-center justify-between px-4 border-b border-white/10 shadow-lg">
+        <div className="flex items-center gap-2 font-bold text-base text-white" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+          <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>TS</span>
+          <span>Vendor Studio</span>
         </div>
-        <p className="text-xs text-gray-500 mt-1 pl-10">Vendor Portal</p>
-      </div>
-      <div className="flex-1 px-3 flex flex-col gap-1">
-        {items.map(item => (
-          <button
-            key={item.screen}
-            onClick={() => onNavigate(item.screen)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${current === item.screen ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
-            style={current === item.screen ? { background: `linear-gradient(135deg, ${purple}22, ${purple}11)`, color: "#a78bfa", borderLeft: `2px solid ${purple}` } : {}}
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => onNavigate("home")} 
+            className="px-2.5 py-1.5 rounded-lg bg-white/10 text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1"
           >
-            {item.icon}{item.label}
+            <LogOut size={13} />
+            <span>Store</span>
           </button>
-        ))}
+          <button 
+            onClick={() => setVendorMobileOpen(!vendorMobileOpen)} 
+            className="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+            aria-label="Toggle Vendor Menu"
+          >
+            {vendorMobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
-      <div className="px-3 mt-auto">
-        <button onClick={() => onNavigate("home")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all w-full">
-          <LogOut size={18} />Back to Store
-        </button>
+
+      {/* Mobile Vendor Drawer */}
+      {vendorMobileOpen && (
+        <div className="lg:hidden fixed inset-x-0 top-16 bg-[#0a0a0f]/95 backdrop-blur-2xl z-40 p-4 border-b border-white/10 shadow-2xl flex flex-col gap-1 max-h-[80vh] overflow-y-auto">
+          {items.map(item => (
+            <button
+              key={item.screen}
+              onClick={() => { onNavigate(item.screen); setVendorMobileOpen(false); }}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${current === item.screen ? "text-white bg-purple-900/40 border-l-2 border-purple-500 font-bold" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            >
+              {item.icon}{item.label}
+            </button>
+          ))}
+          <div className="pt-3 mt-2 border-t border-white/10">
+            <button onClick={() => { onNavigate("home"); setVendorMobileOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-purple-300 hover:text-white hover:bg-white/5 transition-all w-full">
+              <LogOut size={18} />Return to Customer Storefront
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Fixed Left Sidebar */}
+      <div className="hidden lg:flex fixed top-0 left-0 h-full w-60 flex-col pt-8 pb-6 z-40" style={{ background: "#0a0a0f" }}>
+        <div className="px-6 mb-8">
+          <div className="flex items-center gap-2.5 font-bold text-lg text-white" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>TS</span>
+            TRENDSPROUT
+          </div>
+          <p className="text-xs text-gray-500 mt-1 pl-10">Vendor Portal</p>
+        </div>
+        <div className="flex-1 px-3 flex flex-col gap-1 overflow-y-auto">
+          {items.map(item => (
+            <button
+              key={item.screen}
+              onClick={() => onNavigate(item.screen)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${current === item.screen ? "text-white font-bold" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+              style={current === item.screen ? { background: `linear-gradient(135deg, ${purple}22, ${purple}11)`, color: "#a78bfa", borderLeft: `2px solid ${purple}` } : {}}
+            >
+              {item.icon}{item.label}
+            </button>
+          ))}
+        </div>
+        <div className="px-3 mt-auto pt-4 border-t border-white/5">
+          <button onClick={() => onNavigate("home")} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all w-full cursor-pointer">
+            <LogOut size={18} />Back to Store
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

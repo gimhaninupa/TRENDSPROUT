@@ -131,18 +131,18 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-add-product" onNavigate={onNavigate} />
-      <div className="p-8">
-        <div className="flex items-center gap-3 mb-8">
-          <button onClick={() => onNavigate("vendor-products")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 transition-colors">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <button onClick={() => onNavigate("vendor-products")} className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-400 hover:text-purple-600 transition-colors cursor-pointer">
             <ChevronLeft size={14} />Products
           </button>
           <ChevronRight size={14} className="text-gray-300" />
-          <span className="text-sm font-medium text-gray-700">Add New Product</span>
+          <span className="text-xs sm:text-sm font-medium text-gray-700">Add New Product</span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Column */}
           <div className="lg:col-span-2 flex flex-col gap-5">
             {/* Product Information */}

@@ -20,21 +20,34 @@ import {
 } from '../../components/shared';
 
 export function VendorAnalyticsScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  const stats = [
+    { label: "Total Revenue", val: "LKR 12.6M", change: "+24.5%" },
+    { label: "Orders Delivered", val: "263", change: "+18.2%" },
+    { label: "Conversion Rate", val: "3.8%", change: "+0.4%" },
+    { label: "Store Visitors", val: "14.2K", change: "+32%" },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-analytics" onNavigate={onNavigate} />
-      <div className="p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Analytics</h1>
-          <select className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Analytics</h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Real-time performance and AI trend insights</p>
+          </div>
+          <select className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none self-start sm:self-auto cursor-pointer">
             {["Last 7 days", "Last 30 days", "Last 3 months", "This year"].map(o => <option key={o}>{o}</option>)}
           </select>
         </div>
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          {([] as any[]).map(s => (
-            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
-              <div className="text-2xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Clash Display', sans-serif" }}>{s.val}</div>
-              <div className="flex items-center justify-between"><span className="text-xs text-gray-400">{s.label}</span><span className="text-xs font-semibold text-emerald-600">{s.change}</span></div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+          {stats.map(s => (
+            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 shadow-sm">
+              <div className="text-xl sm:text-2xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Clash Display', sans-serif" }}>{s.val}</div>
+              <div className="flex items-center justify-between gap-1 flex-wrap">
+                <span className="text-xs text-gray-400">{s.label}</span>
+                <span className="text-xs font-semibold text-emerald-600">{s.change}</span>
+              </div>
             </div>
           ))}
         </div>

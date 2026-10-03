@@ -72,21 +72,21 @@ export function VendorAIPricingScreen({ onNavigate }: { onNavigate: (s: Screen) 
   const highPrice = pricingData?.competitorRange?.max || 18500;
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-ai-pricing" onNavigate={onNavigate} />
-      <div className="p-8 max-w-3xl">
-        <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 mb-6 cursor-pointer"><ChevronLeft size={14} />Back</button>
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}><DollarSign size={18} /></div>
-          <div><h1 className="text-2xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>AI Pricing Advisor</h1><p className="text-gray-500 text-sm">Data-driven pricing recommendations</p></div>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
+        <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-400 hover:text-purple-600 mb-6 cursor-pointer"><ChevronLeft size={14} />Back</button>
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}><DollarSign size={18} /></div>
+          <div><h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>AI Pricing Advisor</h1><p className="text-gray-500 text-xs sm:text-sm">Data-driven pricing recommendations</p></div>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 mb-5 shadow-sm">
           <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Your price (LKR)" placeholder="12500" value={yourPrice} onChange={e => setYourPrice(e.target.value)} />
               <Input label="Production cost (LKR)" placeholder="5500" value={prodCost} onChange={e => setProdCost(e.target.value)} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><label className="text-sm font-medium text-gray-700 block mb-1.5">Category</label><select value={category} onChange={e => setCategory(e.target.value)} className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option>Blazers</option><option>Dresses</option><option>Knitwear</option><option>Accessories</option></select></div>
               <div><label className="text-sm font-medium text-gray-700 block mb-1.5">Brand tier</label><select className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm"><option>Emerging</option><option>Established</option><option>Luxury</option></select></div>
             </div>
@@ -95,16 +95,16 @@ export function VendorAIPricingScreen({ onNavigate }: { onNavigate: (s: Screen) 
         </div>
         {analyzed && (
           <div className="flex flex-col gap-5">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-5">Market Analysis</h3>
-              <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-5 text-base">Market Analysis</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 {[
                   { label: "Market Low", val: lkr(lowPrice), sub: "Budget tier" }, 
                   { label: "Recommended", val: lkr(recommendedPrice), sub: "Optimal margin", highlight: true }, 
                   { label: "Market High", val: lkr(highPrice), sub: "Luxury tier" }
                 ].map(p => (
-                  <div key={p.label} className={`rounded-xl p-4 text-center ${p.highlight ? "text-white" : "bg-gray-50"}`} style={p.highlight ? { background: `linear-gradient(135deg, ${purple}, #9333ea)` } : {}}>
-                    <div className={`text-2xl font-black ${p.highlight ? "text-white" : "text-gray-900"}`} style={{ fontFamily: "'Clash Display', sans-serif" }}>{p.val}</div>
+                  <div key={p.label} className={`rounded-xl p-4 text-center ${p.highlight ? "text-white shadow-md" : "bg-gray-50"}`} style={p.highlight ? { background: `linear-gradient(135deg, ${purple}, #9333ea)` } : {}}>
+                    <div className={`text-xl sm:text-2xl font-black ${p.highlight ? "text-white" : "text-gray-900"}`} style={{ fontFamily: "'Clash Display', sans-serif" }}>{p.val}</div>
                     <div className={`text-xs font-semibold mt-1 ${p.highlight ? "text-purple-200" : "text-gray-500"}`}>{p.label}</div>
                     <div className={`text-xs mt-0.5 ${p.highlight ? "text-purple-300" : "text-gray-400"}`}>{p.sub}</div>
                   </div>

@@ -253,9 +253,9 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
               </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700 block mb-3">Budget</label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {["Under LKR 66K", "LKR 66K–165K", "LKR 165K+", "No limit"].map(b => (
-                    <button key={b} onClick={() => setBudget(b)} className={`flex-1 py-2 rounded-xl text-xs font-medium border-2 transition-all cursor-pointer ${budget === b ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-purple-300"}`} style={budget === b ? { background: purple } : {}}>{b}</button>
+                    <button key={b} onClick={() => setBudget(b)} className={`py-2 px-2 rounded-xl text-xs font-medium border-2 transition-all cursor-pointer ${budget === b ? "text-white border-transparent" : "border-gray-200 text-gray-600 hover:border-purple-300"}`} style={budget === b ? { background: purple } : {}}>{b}</button>
                   ))}
                 </div>
               </div>
