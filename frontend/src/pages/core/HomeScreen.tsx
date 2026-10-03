@@ -210,17 +210,56 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
         </div>
       </section>
 
-      {/* Vendor CTA */}
-      <section className="py-20 bg-white">
+      {/* Vendor CTA - Option 3 */}
+      <section id="sell-section" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="rounded-3xl p-12 lg:p-16 text-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>
+          <div className="rounded-3xl p-10 lg:p-14 text-center relative overflow-hidden shadow-2xl shadow-purple-900/20" style={{ background: `linear-gradient(135deg, #1e1035 0%, #3b1464 50%, #6d28d9 100%)` }}>
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white, transparent 40%), radial-gradient(circle at 80% 20%, white, transparent 40%)" }} />
-            <div className="relative">
-              <h2 className="text-4xl font-black text-white mb-4" style={{ fontFamily: "'Clash Display', sans-serif" }}>Launch Your Fashion Brand</h2>
-              <p className="text-purple-200 text-lg mb-8 max-w-xl mx-auto">Set up your store in minutes, use AI to write listings, and reach thousands of fashion-forward customers.</p>
+            <div className="relative max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-purple-200 text-xs font-bold uppercase tracking-wider mb-6 border border-white/15">
+                <Store size={14} className="text-purple-300" />
+                TRENDSPROUT Vendor Portal
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                Launch Your Fashion Brand with AI
+              </h2>
+              <p className="text-purple-200 text-base lg:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                Set up your store in minutes, auto-generate AI product shoots & listings, and reach thousands of fashion-forward shoppers with instant PayHere & COD payouts.
+              </p>
+
+              {/* Vendor Feature Badges */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 text-left">
+                {[
+                  { icon: <Sparkles size={16} className="text-yellow-400" />, title: "AI Photo Studio", desc: "1-Click BG magic" },
+                  { icon: <FileText size={16} className="text-purple-300" />, title: "AI Copywriter", desc: "Auto SEO descriptions" },
+                  { icon: <TrendingUp size={16} className="text-emerald-400" />, title: "Smart Pricing", desc: "Market auto-pricing" },
+                  { icon: <CreditCard size={16} className="text-blue-300" />, title: "PayHere LK & COD", desc: "Direct daily payouts" },
+                ].map((feat, idx) => (
+                  <div key={idx} className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10">
+                    <div className="flex items-center gap-2 mb-1">
+                      {feat.icon}
+                      <span className="text-white text-xs font-bold">{feat.title}</span>
+                    </div>
+                    <p className="text-[11px] text-purple-200">{feat.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 justify-center">
-                <button onClick={() => onNavigate("register")} className="px-8 py-4 rounded-2xl bg-white font-bold text-purple-700 text-base hover:shadow-xl hover:shadow-purple-900/30 transition-all">Start Selling Free</button>
-                <button onClick={() => onNavigate("vendor-dashboard")} className="px-8 py-4 rounded-2xl border-2 border-white/30 font-bold text-white text-base hover:bg-white/10 transition-all">View Vendor Demo</button>
+                <button 
+                  onClick={() => onNavigate("vendor-dashboard")} 
+                  className="px-8 py-4 rounded-2xl bg-white font-extrabold text-purple-900 text-base hover:bg-purple-50 hover:shadow-2xl hover:shadow-black/30 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Store size={18} />
+                  Open Vendor Studio
+                </button>
+                <button 
+                  onClick={() => onNavigate("register")} 
+                  className="px-8 py-4 rounded-2xl border-2 border-white/30 font-bold text-white text-base hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  Start Selling Free <ArrowRight size={18} />
+                </button>
               </div>
             </div>
           </div>
