@@ -262,7 +262,18 @@ class ApiClient {
     });
   }
 
-  async updateVendorStore(storeData: { storeName?: string; storeDescription?: string; bannerImage?: string; logoImage?: string }) {
+  async getVendorWallet() {
+    return this.request<{ status: string; data: any }>('/vendor/wallet');
+  }
+
+  async requestVendorPayout(amount: number, bankDetails?: any) {
+    return this.request<{ status: string; message: string; data: any }>('/vendor/payouts', {
+      method: 'POST',
+      body: JSON.stringify({ amount, bankDetails }),
+    });
+  }
+
+  async updateVendorStore(storeData: { storeName?: string; storeDescription?: string; bannerImage?: string; logoImage?: string; bankDetails?: any }) {
     return this.request<{ status: string; data: any }>('/vendor/store', {
       method: 'PUT',
       body: JSON.stringify(storeData),
@@ -282,6 +293,17 @@ class ApiClient {
     return this.request<{ status: string; data: any }>(`/admin/vendors/${vendorId}/verify`, {
       method: 'PUT',
       body: JSON.stringify({ isVerified }),
+    });
+  }
+
+  async getAdminPayouts() {
+    return this.request<{ status: string; results: number; data: any[] }>('/admin/payouts');
+  }
+
+  async updatePayoutStatus(payoutId: string, status: string, referenceNumber?: string, notes?: string) {
+    return this.request<{ status: string; message: string; data: any }>(`/admin/payouts/${payoutId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, referenceNumber, notes }),
     });
   }
 

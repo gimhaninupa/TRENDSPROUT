@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/user.js';
 import Product from '../models/product.js';
 import Order from '../models/order.js';
+import Payout from '../models/payout.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -91,6 +92,57 @@ router.put('/vendors/:id/verify', async (req, res) => {
     });
   } catch (error) {
     console.error('Vendor verification error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    Get all vendor payout requests for admin settlement
+// @route   GET /api/admin/payouts
+// @access  Private (Admin)
+router.get('/payouts', async (req, res) => {
+  try {
+    const payouts = await Payout.find()
+      .populate('vendor', 'username email vendorStore')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      status: 'success',
+      results: payouts.length,
+      data: payouts,
+    });
+  } catch (error) {
+    console.error('Admin payouts fetch error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    Approve, Process, or Reject a Vendor Payout
+// @route   PUT /api/admin/payouts/:id/status
+// @access  Private (Admin)
+router.put('/payouts/:id/status', async (req, res) => {
+  try {
+    const { status, referenceNumber, notes } = req.body;
+    const updatePayload = { status, notes };
+    if (referenceNumber) updatePayload.referenceNumber = referenceNumber;
+    if (status === 'Completed') updatePayload.processedAt = new Date();
+
+    const payout = await Payout.findByIdAndUpdate(
+      req.params.id,
+      updatePayload,
+      { new: true }
+    ).populate('vendor', 'username email vendorStore');
+
+    if (!payout) {
+      return res.status(404).json({ status: 'fail', message: 'Payout request not found' });
+    }
+
+    res.json({
+      status: 'success',
+      message: `Payout marked as ${status}`,
+      data: payout,
+    });
+  } catch (error) {
+    console.error('Admin payout status error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 });

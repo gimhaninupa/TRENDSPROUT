@@ -23,7 +23,7 @@ export type Screen =
   | "profile" | "profile-settings"
   | "ai-chatbot" | "ai-outfit" | "text-to-design"
   | "vendor-dashboard" | "vendor-products" | "vendor-analytics" | "vendor-add-product"
-  | "vendor-ai-description" | "vendor-ai-pricing" | "store-customization"
+  | "vendor-ai-description" | "vendor-ai-pricing" | "store-customization" | "vendor-payouts"
   | "admin-dashboard"
   | "error-404" | "error-payment" | "seller-store" | "search-results" | "coupons";
 
@@ -662,6 +662,7 @@ export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavi
     { screen: "vendor-dashboard" as Screen, icon: <Home size={18} />, label: "Dashboard" },
     { screen: "vendor-products" as Screen, icon: <Package size={18} />, label: "Products" },
     { screen: "vendor-add-product" as Screen, icon: <Plus size={18} />, label: "Add Product (AI BG)" },
+    { screen: "vendor-payouts" as Screen, icon: <CreditCard size={18} />, label: "Payouts & Wallet" },
     { screen: "vendor-ai-description" as Screen, icon: <FileText size={18} />, label: "AI Copywriter" },
     { screen: "vendor-ai-pricing" as Screen, icon: <DollarSign size={18} />, label: "AI Smart Pricing" },
     { screen: "vendor-analytics" as Screen, icon: <BarChart2 size={18} />, label: "Analytics" },
@@ -759,7 +760,7 @@ export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavi
 }
 
 export function FloatingNav({ current, onNavigate }: { current: Screen; onNavigate: (s: Screen) => void }) {
-  const isVendor = ["vendor-dashboard", "vendor-products", "vendor-analytics", "vendor-add-product", "vendor-ai-description", "vendor-ai-pricing", "store-customization"].includes(current);
+  const isVendor = ["vendor-dashboard", "vendor-products", "vendor-analytics", "vendor-add-product", "vendor-ai-description", "vendor-ai-pricing", "store-customization", "vendor-payouts"].includes(current);
   const isAdmin = current === "admin-dashboard";
   const isFullscreen = ["splash", "payment", "error-404", "error-payment"].includes(current);
   if (isVendor || isAdmin || isFullscreen) return null;
@@ -793,6 +794,7 @@ export function QuickNav({ current, onNavigate }: { current: Screen; onNavigate:
     { group: "AI", label: "Text to Design", screen: "text-to-design" },
     { group: "Vendor", label: "Vendor Dashboard", screen: "vendor-dashboard" },
     { group: "Vendor", label: "Products", screen: "vendor-products" },
+    { group: "Vendor", label: "Payouts & Wallet", screen: "vendor-payouts" },
     { group: "Vendor", label: "Analytics", screen: "vendor-analytics" },
     { group: "Vendor", label: "Add Product", screen: "vendor-add-product" },
     { group: "Vendor", label: "AI Description", screen: "vendor-ai-description" },

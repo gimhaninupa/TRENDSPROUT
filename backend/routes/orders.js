@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Stripe from 'stripe';
 import crypto from 'crypto';
 import Order from '../models/order.js';
@@ -150,7 +151,7 @@ router.post('/create-payment-intent', optionalAuth, async (req, res) => {
   }
 });
 
-// @desc    Create new order
+// @desc    Create new order with multi-vendor split-accounting
 // @route   POST /api/orders
 // @access  Private
 router.post('/', protect, async (req, res) => {
@@ -173,11 +174,55 @@ router.post('/', protect, async (req, res) => {
       return res.status(400).json({ status: 'fail', message: 'Valid totalAmount is required' });
     }
 
+    // Process and enrich each item with vendor attribution and 10% platform commission calculation
+    const processedItems = await Promise.all(
+      items.map(async (item) => {
+        let vendorId = item.vendor;
+        let pName = item.name || 'Product Item';
+        let pBrand = item.brand || 'Atelier Label';
+        let pImage = item.image || '';
+        let pPrice = Number(item.price || 0);
+
+        if (item.product && mongoose.isValidObjectId(item.product)) {
+          const dbProd = await Product.findById(item.product);
+          if (dbProd) {
+            vendorId = dbProd.vendor;
+            pName = dbProd.name;
+            pBrand = dbProd.brand;
+            pImage = dbProd.image;
+            pPrice = dbProd.price;
+          }
+        }
+
+        const qty = Number(item.quantity || 1);
+        const itemTotal = pPrice * qty;
+        const commRate = 0.10; // Standard 10% marketplace commission
+        const commAmount = Math.round(itemTotal * commRate);
+        const vendorEarning = itemTotal - commAmount;
+
+        return {
+          product: item.product && mongoose.isValidObjectId(item.product) ? item.product : undefined,
+          vendor: vendorId,
+          name: pName,
+          brand: pBrand,
+          image: pImage,
+          quantity: qty,
+          price: pPrice,
+          commissionRate: commRate,
+          commissionAmount: commAmount,
+          vendorEarning,
+          size: item.size || 'M',
+          color: item.color || 'Default',
+          status: 'Processing',
+        };
+      })
+    );
+
     const trackingNumber = generateTrackingNumber();
 
     const order = await Order.create({
       customer: req.user._id,
-      items,
+      items: processedItems,
       totalAmount,
       shippingAddress: shippingAddress || {
         street: '123 Galle Road',
@@ -194,7 +239,7 @@ router.post('/', protect, async (req, res) => {
     });
 
     // Reduce stock for each product in order
-    for (const item of items) {
+    for (const item of processedItems) {
       if (item.product) {
         await Product.findByIdAndUpdate(item.product, {
           $inc: { stock: -Number(item.quantity || 1) },
@@ -207,14 +252,14 @@ router.post('/', protect, async (req, res) => {
       await Cart.findOneAndUpdate({ user: req.user._id }, { items: [] });
     }
 
-    await order.populate({
-      path: 'items.product',
-      select: 'name price image brand',
-    });
+    await order.populate([
+      { path: 'items.product', select: 'name price image brand' },
+      { path: 'items.vendor', select: 'username email vendorStore' },
+    ]);
 
     res.status(201).json({
       status: 'success',
-      message: 'Order placed successfully',
+      message: 'Order placed and vendor splits allocated successfully',
       data: order,
     });
   } catch (error) {

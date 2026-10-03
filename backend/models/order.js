@@ -4,7 +4,23 @@ const orderItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
-    required: true,
+    required: false,
+  },
+  vendor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  name: {
+    type: String,
+    default: 'Product Item',
+  },
+  brand: {
+    type: String,
+    default: 'Atelier Label',
+  },
+  image: {
+    type: String,
+    default: '',
   },
   quantity: {
     type: Number,
@@ -16,7 +32,18 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
     min: 0,
   },
-  // Production Real-time additions
+  commissionRate: {
+    type: Number,
+    default: 0.10, // 10% marketplace fee
+  },
+  commissionAmount: {
+    type: Number,
+    default: 0,
+  },
+  vendorEarning: {
+    type: Number,
+    default: 0,
+  },
   size: {
     type: String,
     default: 'M',
@@ -24,6 +51,11 @@ const orderItemSchema = new mongoose.Schema({
   color: {
     type: String,
     default: 'Default',
+  },
+  status: {
+    type: String,
+    enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
+    default: 'Processing',
   },
 });
 
