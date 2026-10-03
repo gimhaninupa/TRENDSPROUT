@@ -549,62 +549,72 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer - Partial Screen Floating Card with Backdrop */}
       {mobileOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-2xl border-t border-gray-100 px-4 py-5 flex flex-col gap-2 max-h-[85vh] overflow-y-auto shadow-2xl">
-          {/* Quick Vendor CTA for Mobile */}
-          <button 
-            onClick={() => { onNavigate("vendor-dashboard"); setMobileOpen(false); }}
-            className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white font-bold text-sm shadow-md mb-2 cursor-pointer"
+        <>
+          <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40 md:hidden" 
+            onClick={() => setMobileOpen(false)} 
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.18 }}
+            className="md:hidden fixed top-16 right-3 w-[290px] max-w-[85vw] max-h-[calc(100dvh-5rem)] bg-white/95 backdrop-blur-2xl rounded-3xl border border-gray-100 shadow-2xl p-4 flex flex-col gap-1.5 overflow-y-auto z-50"
           >
-            <div className="flex items-center gap-2.5">
-              <Store size={18} className="text-purple-300" />
-              <span>Open Vendor Studio</span>
-            </div>
-            <ChevronRight size={16} className="text-purple-300" />
-          </button>
-
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-1">Shopping & Explore</p>
-          {[
-            { label: "Shop Catalog", screen: "browse" as Screen, icon: <ShoppingBag size={16} /> },
-            { label: "Search Products", screen: "search-results" as Screen, icon: <Search size={16} /> },
-            { label: "Saved Wishlist", screen: "wishlist" as Screen, icon: <Heart size={16} /> },
-            { label: "Brand Stores", screen: "seller-store" as Screen, icon: <Store size={16} /> },
-            { label: "Active Orders", screen: "orders" as Screen, icon: <Package size={16} /> },
-          ].map(item => (
-            <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
-              <span className="text-gray-400">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-3">AI Fashion Tools</p>
-          {aiTools.map(item => (
-            <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
-              <span className="text-purple-600">{item.icon}</span>
-              <div>
-                <p className="text-sm font-semibold">{item.label}</p>
-                <p className="text-xs text-gray-400">{item.desc}</p>
+            {/* Quick Vendor CTA */}
+            <button 
+              onClick={() => { onNavigate("vendor-dashboard"); setMobileOpen(false); }}
+              className="w-full flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white font-bold text-xs shadow-md mb-1 cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <Store size={16} className="text-purple-300" />
+                <span>Open Vendor Studio</span>
               </div>
+              <ChevronRight size={14} className="text-purple-300" />
             </button>
-          ))}
 
-          <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between px-2">
-            {effectiveRole === "guest" ? (
-              <PrimaryBtn onClick={() => { onNavigate("login"); setMobileOpen(false); }} className="w-full !py-2.5 !text-sm">Sign In / Register</PrimaryBtn>
-            ) : (
-              <button onClick={() => { onNavigate("profile"); setMobileOpen(false); }} className="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-2">
-                  <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-7 h-7 rounded-full object-cover" />
-                  <span className="text-xs font-bold text-gray-800">{user?.username || "My Account"}</span>
-                </div>
-                <span className="text-xs text-purple-600 font-semibold">View Profile →</span>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-1">Shopping</p>
+            {[
+              { label: "Shop Catalog", screen: "browse" as Screen, icon: <ShoppingBag size={15} /> },
+              { label: "Search Products", screen: "search-results" as Screen, icon: <Search size={15} /> },
+              { label: "Saved Wishlist", screen: "wishlist" as Screen, icon: <Heart size={15} /> },
+              { label: "Brand Stores", screen: "seller-store" as Screen, icon: <Store size={15} /> },
+              { label: "Active Orders", screen: "orders" as Screen, icon: <Package size={15} /> },
+            ].map(item => (
+              <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
+                <span className="text-gray-400">{item.icon}</span>
+                <span>{item.label}</span>
               </button>
-            )}
-          </div>
-        </div>
+            ))}
+
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 mt-2">AI Tools</p>
+            {aiTools.map(item => (
+              <button key={item.label} onClick={() => { onNavigate(item.screen); setMobileOpen(false); }}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-medium transition-all ${current === item.screen ? "bg-purple-50 text-purple-700 font-bold" : "text-gray-700 hover:bg-gray-50"}`}>
+                <span className="text-purple-600">{item.icon}</span>
+                <div>
+                  <p className="text-xs font-semibold">{item.label}</p>
+                </div>
+              </button>
+            ))}
+
+            <div className="pt-2.5 mt-1 border-t border-gray-100 flex items-center justify-between">
+              {effectiveRole === "guest" ? (
+                <PrimaryBtn onClick={() => { onNavigate("login"); setMobileOpen(false); }} className="w-full !py-2 !text-xs">Sign In / Register</PrimaryBtn>
+              ) : (
+                <button onClick={() => { onNavigate("profile"); setMobileOpen(false); }} className="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-6 h-6 rounded-full object-cover" />
+                    <span className="text-xs font-bold text-gray-800">{user?.username || "My Account"}</span>
+                  </div>
+                  <span className="text-[11px] text-purple-600 font-semibold">Profile →</span>
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </>
       )}
     </nav>
   );
@@ -635,7 +645,7 @@ export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavi
         <div className="flex items-center gap-2">
           <button 
             onClick={() => onNavigate("home")} 
-            className="px-2.5 py-1.5 rounded-lg bg-white/10 text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-lg bg-white/10 text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
           >
             <LogOut size={13} />
             <span>Store</span>
@@ -650,24 +660,35 @@ export function VendorSidebar({ current, onNavigate }: { current: Screen; onNavi
         </div>
       </div>
 
-      {/* Mobile Vendor Drawer */}
+      {/* Mobile Vendor Partial Drawer */}
       {vendorMobileOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-16 bg-[#0a0a0f]/95 backdrop-blur-2xl z-40 p-4 border-b border-white/10 shadow-2xl flex flex-col gap-1 max-h-[80vh] overflow-y-auto">
-          {items.map(item => (
-            <button
-              key={item.screen}
-              onClick={() => { onNavigate(item.screen); setVendorMobileOpen(false); }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${current === item.screen ? "text-white bg-purple-900/40 border-l-2 border-purple-500 font-bold" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
-            >
-              {item.icon}{item.label}
-            </button>
-          ))}
-          <div className="pt-3 mt-2 border-t border-white/10">
-            <button onClick={() => { onNavigate("home"); setVendorMobileOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-purple-300 hover:text-white hover:bg-white/5 transition-all w-full">
-              <LogOut size={18} />Return to Customer Storefront
-            </button>
-          </div>
-        </div>
+        <>
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40" 
+            onClick={() => setVendorMobileOpen(false)} 
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.18 }}
+            className="lg:hidden fixed top-16 right-3 w-[290px] max-w-[85vw] max-h-[calc(100dvh-5rem)] bg-[#0a0a0f]/95 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-4 flex flex-col gap-1 overflow-y-auto z-50"
+          >
+            {items.map(item => (
+              <button
+                key={item.screen}
+                onClick={() => { onNavigate(item.screen); setVendorMobileOpen(false); }}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left ${current === item.screen ? "text-white bg-purple-900/40 border-l-2 border-purple-500 font-bold" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+              >
+                {item.icon}{item.label}
+              </button>
+            ))}
+            <div className="pt-2.5 mt-1 border-t border-white/10">
+              <button onClick={() => { onNavigate("home"); setVendorMobileOpen(false); }} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-white/5 transition-all w-full cursor-pointer">
+                <LogOut size={15} />Return to Storefront
+              </button>
+            </div>
+          </motion.div>
+        </>
       )}
 
       {/* Desktop Fixed Left Sidebar */}
