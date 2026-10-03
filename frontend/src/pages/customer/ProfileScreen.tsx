@@ -48,10 +48,30 @@ export function ProfileScreen({ onNavigate }: { onNavigate: (s: Screen) => void 
               ))}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => onNavigate("vendor-dashboard")} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 shadow-sm transition-all cursor-pointer"><Store size={14} />Vendor Studio</button>
             <button onClick={() => onNavigate("profile-settings")} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-purple-300 hover:text-purple-700 transition-all cursor-pointer"><Settings size={14} />Settings</button>
             <button onClick={() => { logout(); onNavigate("login"); }} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-100 bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-all cursor-pointer"><LogOut size={13} />Sign Out</button>
           </div>
+        </div>
+
+        {/* Vendor Portal Quick Access Banner */}
+        <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-2xl p-6 mb-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shadow-purple-950/10">
+          <div className="flex items-center gap-4 text-center sm:text-left">
+            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-purple-200 shrink-0">
+              <Store size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">Sell on Trendsprout / Vendor Portal</h3>
+              <p className="text-purple-200 text-xs sm:text-sm">Manage products, view analytics, and use AI Smart Pricing & Copywriting tools.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => onNavigate("vendor-dashboard")}
+            className="px-5 py-2.5 rounded-xl bg-white text-purple-900 font-bold text-xs uppercase tracking-wider hover:bg-purple-50 transition-all shrink-0 cursor-pointer shadow"
+          >
+            Open Vendor Studio →
+          </button>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           {[

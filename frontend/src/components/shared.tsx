@@ -512,12 +512,18 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
             )}
           </div>
           <button onClick={() => onNavigate("seller-store")} className={`hover:text-purple-600 transition-colors ${current === "seller-store" ? "text-purple-600" : ""}`}>Brands</button>
-          <button onClick={() => onNavigate(effectiveRole === "vendor" ? "vendor-dashboard" : "vendor-dashboard")} className="hover:text-purple-600 transition-colors">Sell</button>
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <button onClick={() => onNavigate("search-results")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all"><Search size={18} /></button>
-          <button onClick={() => onNavigate("wishlist")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all"><Heart size={18} /></button>
-          <button onClick={() => onNavigate("cart")} className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all">
+          <button 
+            onClick={() => onNavigate("vendor-dashboard")} 
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white shadow-sm"
+          >
+            <Store size={14} />
+            <span>Vendor Studio</span>
+          </button>
+          <button onClick={() => onNavigate("search-results")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Search"><Search size={18} /></button>
+          <button onClick={() => onNavigate("wishlist")} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Wishlist"><Heart size={18} /></button>
+          <button onClick={() => onNavigate("cart")} className="relative w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:bg-purple-50 hover:text-purple-600 transition-all" title="Cart">
             <ShoppingCart size={18} />
             {cartCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center animate-pulse" style={{ background: purple }}>
@@ -527,7 +533,7 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
           </button>
           {effectiveRole === "guest"
             ? <PrimaryBtn onClick={() => onNavigate("login")} className="!py-2 !px-4 !text-xs">Sign In</PrimaryBtn>
-            : <button onClick={() => onNavigate("profile")} className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all">
+            : <button onClick={() => onNavigate("profile")} className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all" title="My Profile">
                 <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-full h-full object-cover" />
               </button>
           }
