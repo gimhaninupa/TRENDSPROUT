@@ -475,12 +475,24 @@ export function ProductCard({ product, onNavigate }: { product: typeof products[
 export function Navbar({ current, onNavigate, role: explicitRole }: { current: Screen; onNavigate: (s: Screen) => void; role?: "customer" | "vendor" | "admin" | "guest" }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const aiDropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, role: authRole } = useAuth();
   const { cartCount } = useCart();
   const effectiveRole = explicitRole || (isAuthenticated ? authRole : "guest");
 
   const aiScreens: Screen[] = ["ai-chatbot", "ai-outfit", "text-to-design"];
   const isAiActive = aiScreens.includes(current);
+
+  // Close AI dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (aiDropdownRef.current && !aiDropdownRef.current.contains(event.target as Node)) {
+        setAiOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm shadow-black/5">
@@ -495,25 +507,49 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
           <button onClick={() => onNavigate("browse")} className={`hover:text-purple-600 transition-colors ${current === "browse" || current === "search-results" ? "text-purple-600 font-semibold" : ""}`}>Shop</button>
           
           {/* AI dropdown */}
-          <div className="relative" onMouseEnter={() => setAiOpen(true)} onMouseLeave={() => setAiOpen(false)}>
-            <button className={`flex items-center gap-1 hover:text-purple-600 transition-colors ${isAiActive ? "text-purple-600 font-semibold" : ""}`}>
-              <Sparkles size={14} />AI Tools<ChevronDown size={12} className={`transition-transform ${aiOpen ? "rotate-180" : ""}`} />
+          <div 
+            ref={aiDropdownRef} 
+            className="relative py-2" 
+            onMouseEnter={() => setAiOpen(true)} 
+            onMouseLeave={() => setAiOpen(false)}
+          >
+            <button 
+              type="button"
+              onClick={() => setAiOpen(prev => !prev)}
+              className={`flex items-center gap-1.5 hover:text-purple-600 transition-colors cursor-pointer select-none ${isAiActive ? "text-purple-600 font-semibold" : ""}`}
+            >
+              <Sparkles size={14} className={isAiActive ? "text-purple-600" : "text-purple-500"} />
+              <span>AI Tools</span>
+              <ChevronDown size={12} className={`transition-transform duration-200 ${aiOpen ? "rotate-180 text-purple-600" : ""}`} />
             </button>
-            {aiOpen && (
-              <div className="absolute top-8 left-1/2 -translate-x-1/2 w-64 bg-white border border-gray-200 rounded-2xl shadow-2xl shadow-black/10 py-3 px-2 z-50">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">AI Features</p>
-                {aiTools.map(t => (
-                  <button key={t.screen} onClick={() => { onNavigate(t.screen); setAiOpen(false); }}
-                    className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-purple-50 transition-all group ${current === t.screen ? "bg-purple-50" : ""}`}>
-                    <span className={`mt-0.5 ${current === t.screen ? "text-purple-600" : "text-gray-400 group-hover:text-purple-500"} transition-colors`}>{t.icon}</span>
-                    <div>
-                      <p className={`text-sm font-semibold ${current === t.screen ? "text-purple-700" : "text-gray-800"}`}>{t.label}</p>
-                      <p className="text-xs text-gray-400">{t.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+            <AnimatePresence>
+              {aiOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 z-50"
+                >
+                  <div className="w-64 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl shadow-purple-950/15 p-2 ring-1 ring-black/5">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 py-1 mb-1">AI Features</p>
+                    {aiTools.map(t => (
+                      <button 
+                        key={t.screen} 
+                        onClick={() => { onNavigate(t.screen); setAiOpen(false); }}
+                        className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-purple-50 transition-all group cursor-pointer ${current === t.screen ? "bg-purple-50" : ""}`}
+                      >
+                        <span className={`mt-0.5 p-1 rounded-lg ${current === t.screen ? "bg-purple-100 text-purple-600" : "bg-gray-50 text-gray-400 group-hover:bg-purple-100 group-hover:text-purple-600"} transition-colors`}>{t.icon}</span>
+                        <div>
+                          <p className={`text-sm font-semibold ${current === t.screen ? "text-purple-700" : "text-gray-800 group-hover:text-purple-700"} transition-colors`}>{t.label}</p>
+                          <p className="text-xs text-gray-400 group-hover:text-gray-500">{t.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <button onClick={() => onNavigate("seller-store")} className={`hover:text-purple-600 transition-colors ${current === "seller-store" ? "text-purple-600 font-semibold" : ""}`}>Brands</button>
         </div>
