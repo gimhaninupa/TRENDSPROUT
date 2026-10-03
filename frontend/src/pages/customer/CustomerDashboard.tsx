@@ -21,30 +21,30 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 export function CustomerDashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const { user } = useAuth();
-  const displayName = user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : "Sophia";
+  const { user, isAuthenticated } = useAuth();
+  const displayName = user?.username ? user.username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Shopper";
 
   const wishlistCount = (() => {
     try {
       const saved = localStorage.getItem('ts_wishlist');
-      return saved ? JSON.parse(saved).length : 2;
+      return saved ? JSON.parse(saved).length : 0;
     } catch {
-      return 2;
+      return 0;
     }
   })();
 
   const activeOrdersCount = (() => {
     try {
       const saved = localStorage.getItem('ts_last_order');
-      return saved ? 1 : 2;
+      return saved ? 1 : 0;
     } catch {
-      return 2;
+      return 0;
     }
   })();
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="customer-dashboard" onNavigate={onNavigate} role="customer" />
+      <Navbar current="customer-dashboard" onNavigate={onNavigate} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <div className="flex items-center justify-between mb-8">
           <div>

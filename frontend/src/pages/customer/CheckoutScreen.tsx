@@ -20,19 +20,19 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
-  const [firstName, setFirstName] = useState("Sophia");
-  const [lastName, setLastName] = useState("Laurent");
-  const [email, setEmail] = useState(user?.email || "sophia@trendsprout.com");
-  const [phone, setPhone] = useState(user?.phone || "+94 77 123 4567");
-  const [street, setStreet] = useState("45/2 Galle Road, Bambalapitiya");
+  const [firstName, setFirstName] = useState(() => user?.username ? user.username.split('_')[0] : "");
+  const [lastName, setLastName] = useState(() => user?.username ? (user.username.split('_')[1] || "") : "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [street, setStreet] = useState("");
   const [city, setCity] = useState("Colombo");
   const [state, setState] = useState("Western");
-  const [zip, setZip] = useState("00400");
+  const [zip, setZip] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("PayHere");
 
   // Payment Details State
-  const [cardHolder, setCardHolder] = useState("Sophia Laurent");
-  const [cardNumber, setCardNumber] = useState("4532 8920 1849 8821");
+  const [cardHolder, setCardHolder] = useState(() => user?.username || "");
+  const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("10/28");
   const [cardCvv, setCardCvv] = useState("842");
   const [cardBrand, setCardBrand] = useState("Visa");

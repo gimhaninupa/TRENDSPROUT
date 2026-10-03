@@ -24,10 +24,10 @@ import { GoogleLogin } from '@react-oauth/google';
 
 export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | "otp" | "forgot-password"; onNavigate: (s: Screen) => void }) {
   const { login, register, googleLogin, isLoading } = useAuth();
-  const [email, setEmail] = useState("sophia@trendsprout.com");
-  const [password, setPassword] = useState("password123");
-  const [firstName, setFirstName] = useState("Sophia");
-  const [lastName, setLastName] = useState("Laurent");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [selectedRole, setSelectedRole] = useState<"customer" | "vendor">("customer");
   const [error, setError] = useState("");
   const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
