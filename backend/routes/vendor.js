@@ -262,11 +262,6 @@ router.get('/wallet', async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
-  } catch (error) {
-    console.error('Vendor wallet fetch error:', error);
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-});
 
 // @desc    Submit a vendor payout request
 // @route   POST /api/vendor/payouts
