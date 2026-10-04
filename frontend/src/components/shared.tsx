@@ -29,14 +29,14 @@ export type Screen =
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 export const categories = [
-  { name: 'Dresses', slug: 'dresses', count: 48, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Blazers', slug: 'blazers', count: 32, image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Accessories', slug: 'accessories', count: 64, image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Activewear', slug: 'activewear', count: 28, image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Denim', slug: 'denim', count: 41, image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Footwear', slug: 'footwear', count: 35, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Knitwear', slug: 'knitwear', count: 22, image: 'https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Outerwear', slug: 'outerwear', count: 19, image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Dresses', slug: 'dresses', count: 0, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Blazers', slug: 'blazers', count: 0, image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Accessories', slug: 'accessories', count: 0, image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Activewear', slug: 'activewear', count: 0, image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Denim', slug: 'denim', count: 0, image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Footwear', slug: 'footwear', count: 0, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Knitwear', slug: 'knitwear', count: 0, image: 'https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=400&q=80' },
+  { name: 'Outerwear', slug: 'outerwear', count: 0, image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80' },
 ];
 
 export const products: any[] = [];

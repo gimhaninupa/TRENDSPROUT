@@ -70,6 +70,15 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
     return () => { isMounted = false; };
   }, []);
 
+  const getCategoryCount = (categoryName: string) => {
+    return trendingList.filter(p => {
+      const cat = (typeof p.category === 'string' ? p.category : p.category?.name || '').toLowerCase();
+      const name = (p.name || '').toLowerCase();
+      const target = categoryName.toLowerCase();
+      return cat.includes(target) || target.includes(cat) || name.includes(target);
+    }).length;
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="home" onNavigate={onNavigate} role="guest" />
@@ -105,8 +114,8 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
             <GlassCard className="absolute -bottom-4 -left-8 p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: purple }}><Bot size={18} /></div>
               <div>
-                <div className="text-xs font-bold text-gray-900">AI Outfit Ready</div>
-                <div className="text-xs text-gray-500">3 looks generated for you</div>
+                <div className="text-xs font-bold text-gray-900">AI Stylist</div>
+                <div className="text-xs text-gray-500">Custom style recommendations</div>
               </div>
             </GlassCard>
             <GlassCard className="absolute top-8 -right-6 p-3 flex items-center gap-3">
@@ -116,8 +125,8 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
                 ))}
               </div>
               <div className="text-xs">
-                <span className="font-bold text-gray-900">2.4K</span>
-                <span className="text-gray-500"> shopping now</span>
+                <span className="font-bold text-gray-900">Live</span>
+                <span className="text-gray-500"> Marketplace</span>
               </div>
             </GlassCard>
           </motion.div>
@@ -159,7 +168,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
           <div className="flex items-end justify-between mb-10">
             <div>
               <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Shop by Category</h2>
-              <p className="text-gray-500 mt-2">Curated collections from 1,200+ independent brands</p>
+              <p className="text-gray-500 mt-2">Curated collections from emerging designers</p>
             </div>
             <button onClick={() => onNavigate("browse")} className="hidden md:flex items-center gap-2 text-sm font-semibold text-purple-600 hover:gap-3 transition-all">View all <ArrowRight size={16} /></button>
           </div>
@@ -170,7 +179,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
                 <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7))" }} />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <h3 className="text-white font-bold text-lg">{cat.name}</h3>
-                  <p className="text-white/70 text-xs mt-0.5">{cat.count} items</p>
+                  <p className="text-white/70 text-xs mt-0.5">{getCategoryCount(cat.name)} items</p>
                 </div>
               </motion.div>
             ))}
