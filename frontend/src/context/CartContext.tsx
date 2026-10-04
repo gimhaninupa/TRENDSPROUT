@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from './AuthContext';
+import { AuthModal } from '../components/AuthModal';
 
 export interface CartItem {
   id: string;
@@ -29,6 +30,8 @@ interface CartContextType {
   clearCart: () => void;
   applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
   removeCoupon: () => void;
+  authModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -37,6 +40,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user, isAuthenticated } = useAuth();
   const userId = user?._id || 'guest';
   const cartStorageKey = `ts_cart_${userId}`;
+
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingCartItem, setPendingCartItem] = useState<{ product: any; qty: number; size: string; color: string } | null>(null);
 
   // User-scoped initial cart load (clean empty default)
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
@@ -95,7 +101,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(activeKey, JSON.stringify(cartItems));
   }, [cartItems, user?._id]);
 
-  const addToCart = (product: any, qty = 1, size = 'M', color = 'Default') => {
+  const executeAddToCart = (product: any, qty = 1, size = 'M', color = 'Default') => {
     setCartItems((prev) => {
       const pId = product._id || product.id || String(Date.now());
       const existingIdx = prev.findIndex(
@@ -114,10 +120,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: 'item_' + Date.now() + Math.random().toString(36).substring(2, 5),
           productId: pId,
           name: product.name,
-          brand: product.brand || 'Sprout Collection',
+          brand: product.brand || product.vendor?.vendorStore?.storeName || 'Sprout Collection',
           price: Number(product.price),
           originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
-          image: product.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
+          image: product.image || product.images?.[0] || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
           size,
           color,
           qty,
@@ -127,8 +133,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     // If logged in, sync with user's MongoDB cart
-    if (isAuthenticated && product._id) {
-      api.addToCart({ productId: product._id, quantity: qty, size, color }).catch(() => {});
+    if (isAuthenticated && (product._id || product.id)) {
+      api.addToCart({ productId: product._id || product.id, quantity: qty, size, color }).catch(() => {});
+    }
+  };
+
+  const addToCart = (product: any, qty = 1, size = 'M', color = 'Default') => {
+    if (!isAuthenticated) {
+      setPendingCartItem({ product, qty, size, color });
+      setAuthModalOpen(true);
+      return;
+    }
+    executeAddToCart(product, qty, size, color);
+  };
+
+  const handleAuthSuccess = () => {
+    if (pendingCartItem) {
+      executeAddToCart(pendingCartItem.product, pendingCartItem.qty, pendingCartItem.size, pendingCartItem.color);
+      setPendingCartItem(null);
     }
   };
 
@@ -231,9 +253,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         applyCoupon,
         removeCoupon,
+        authModalOpen,
+        setAuthModalOpen,
       }}
     >
       {children}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </CartContext.Provider>
   );
 };

@@ -24,10 +24,10 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
 
   // Bank Details Modal
   const [showBankModal, setShowBankModal] = useState(false);
-  const [bankName, setBankName] = useState("Commercial Bank of Ceylon");
-  const [accountName, setAccountName] = useState(user?.username || "Store Owner");
-  const [accountNumber, setAccountNumber] = useState("8004592011");
-  const [branch, setBranch] = useState("Colombo 03");
+  const [bankName, setBankName] = useState("");
+  const [accountName, setAccountName] = useState(user?.username || "");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [branch, setBranch] = useState("");
   const [isSavingBank, setIsSavingBank] = useState(false);
 
   const fetchWallet = async () => {
@@ -37,10 +37,10 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
       if (res?.data) {
         setWalletData(res.data);
         if (res.data.bankDetails) {
-          setBankName(res.data.bankDetails.bankName || "Commercial Bank of Ceylon");
-          setAccountName(res.data.bankDetails.accountName || user?.username || "Store Owner");
-          setAccountNumber(res.data.bankDetails.accountNumber || "8004592011");
-          setBranch(res.data.bankDetails.branch || "Colombo 03");
+          setBankName(res.data.bankDetails.bankName || "");
+          setAccountName(res.data.bankDetails.accountName || user?.username || "");
+          setAccountNumber(res.data.bankDetails.accountNumber || "");
+          setBranch(res.data.bankDetails.branch || "");
         }
       }
     } catch {
@@ -52,12 +52,7 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
         pendingEarnings: 0,
         availableBalance: 0,
         totalPaidOut: 0,
-        bankDetails: {
-          bankName: "",
-          accountName: user?.username || "",
-          accountNumber: "",
-          branch: "",
-        },
+        bankDetails: null,
         soldItems: [],
         payouts: []
       });
@@ -249,16 +244,22 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-base">Settlement Bank Account (Sri Lanka)</h3>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  <span className="font-semibold text-gray-800">{bankName}</span> · Branch: {branch} · Account: <span className="font-mono font-semibold">{accountNumber}</span> ({accountName})
-                </p>
+                {bankName && accountNumber ? (
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    <span className="font-semibold text-gray-800">{bankName}</span> · Branch: {branch || "General"} · Account: <span className="font-mono font-semibold">{accountNumber}</span> ({accountName || user?.username})
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    No settlement bank account linked yet. Add your bank details to receive automated payouts.
+                  </p>
+                )}
               </div>
             </div>
             <button
               onClick={() => setShowBankModal(true)}
               className="px-4 py-2 bg-gray-50 hover:bg-purple-50 hover:text-purple-700 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 transition-all cursor-pointer self-start sm:self-auto"
             >
-              Update Bank Details
+              {bankName && accountNumber ? "Update Bank Details" : "+ Add Bank Details"}
             </button>
           </div>
         </div>
@@ -276,38 +277,52 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3.5 divide-y divide-gray-100 max-h-[500px] overflow-y-auto pr-1">
-                {walletData?.soldItems && walletData.soldItems.map((item: any, idx: number) => (
-                  <div key={idx} className="flex items-center gap-4 pt-3.5 first:pt-0">
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 p-1 shrink-0">
-                      <img src={item.image} alt={item.productName} className="w-full h-full object-contain rounded-xl" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-gray-900 truncate">{item.productName}</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          item.orderStatus === 'Delivered' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                        }`}>
-                          {item.orderStatus}
-                        </span>
+              {(!walletData?.soldItems || walletData.soldItems.length === 0) ? (
+                <div className="text-center py-12 px-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                  <CreditCard size={28} className="text-gray-300 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-gray-700">No sold items recorded yet</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">When customers order your products, itemized commission breakdowns will appear here.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3.5 divide-y divide-gray-100 max-h-[500px] overflow-y-auto pr-1">
+                  {walletData.soldItems.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center gap-4 pt-3.5 first:pt-0">
+                      <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 p-1 shrink-0">
+                        {item.image ? (
+                          <img src={item.image} alt={item.productName} className="w-full h-full object-contain rounded-xl" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <CreditCard size={18} />
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Order #{item.trackingNumber || item.orderId?.slice(-6)} · Qty {item.quantity}
-                      </p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                        <span>Sale: <strong>{lkr(item.grossTotal)}</strong></span>
-                        <span className="text-red-500">Fee (-10%): <strong>-{lkr(item.platformFee)}</strong></span>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-gray-900 truncate">{item.productName}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            item.orderStatus === 'Delivered' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                          }`}>
+                            {item.orderStatus}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Order #{item.trackingNumber || item.orderId?.slice(-6)} · Qty {item.quantity}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                          <span>Sale: <strong>{lkr(item.grossTotal)}</strong></span>
+                          <span className="text-red-500">Fee (-10%): <strong>-{lkr(item.platformFee)}</strong></span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-xs uppercase font-bold text-gray-400 block">Net Payout</span>
-                      <span className="text-sm font-black text-emerald-600">{lkr(item.netPayout)}</span>
+                      <div className="text-right shrink-0">
+                        <span className="text-xs uppercase font-bold text-gray-400 block">Net Payout</span>
+                        <span className="text-sm font-black text-emerald-600">{lkr(item.netPayout)}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -321,28 +336,36 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1 divide-y divide-gray-100">
-                {walletData?.payouts && walletData.payouts.map((p: any) => (
-                  <div key={p._id} className="pt-3.5 first:pt-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-sm text-gray-900">{lkr(p.amount)}</span>
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                        p.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                        p.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-blue-50 text-blue-700 border border-blue-200'
-                      }`}>
-                        {p.status}
-                      </span>
+              {(!walletData?.payouts || walletData.payouts.length === 0) ? (
+                <div className="text-center py-12 px-4 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                  <Building2 size={28} className="text-gray-300 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-gray-700">No disbursements yet</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Your submitted payout requests and bank transfer receipts will appear here.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1 divide-y divide-gray-100">
+                  {walletData.payouts.map((p: any) => (
+                    <div key={p._id} className="pt-3.5 first:pt-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-sm text-gray-900">{lkr(p.amount)}</span>
+                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                          p.status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                          p.status === 'Pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                          'bg-blue-50 text-blue-700 border border-blue-200'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Ref: <span className="font-mono font-semibold text-gray-700">{p.referenceNumber || 'PAY-REF-PENDING'}</span>
+                      </p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        {p.bankDetails?.bankName} · {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-LK', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      Ref: <span className="font-mono font-semibold text-gray-700">{p.referenceNumber || 'PAY-REF-PENDING'}</span>
-                    </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      {p.bankDetails?.bankName} · {p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-LK', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

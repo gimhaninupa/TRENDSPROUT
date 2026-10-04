@@ -18,7 +18,7 @@ import {
 } from "recharts";
 import { 
     Screen, purple, purpleLight, purpleDark, lkr, 
-    products as sampleProducts, categories, testimonials, analyticsData, pieData,
+    categories, testimonials,
     Badge, PrimaryBtn, GhostBtn
 } from '../../components/shared';
 import { api } from "../../services/api";
@@ -192,8 +192,25 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
   // Metric Computations
   const pendingPayoutTotal = payouts.filter(p => p.status === "Pending").reduce((acc, p) => acc + (p.amount || 0), 0);
   const completedPayoutTotal = payouts.filter(p => p.status === "Completed").reduce((acc, p) => acc + (p.amount || 0), 0);
-  const totalGMV = orders.reduce((acc, o) => acc + (o.totalAmount || 0), 0) || 7920000;
+  const totalGMV = orders.reduce((acc, o) => acc + (o.totalAmount || 0), 0);
   const platformRevenue = Math.round(totalGMV * (commissionRate / 100));
+
+  // Dynamic Category Market Share computed from actual products in catalog
+  const categoryDistribution = Object.entries(
+    productsList.reduce((acc: Record<string, number>, p: any) => {
+      const cat = p.category?.name || p.category || "General";
+      acc[cat] = (acc[cat] || 0) + 1;
+      return acc;
+    }, {})
+  ).map(([name, value]) => ({ name, value }));
+
+  // Dynamic Monthly aggregates from orders
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+  const dynamicAnalyticsData = monthNames.map((month, idx) => {
+    const monthOrders = orders.filter(o => new Date(o.createdAt).getMonth() === idx);
+    const monthRev = monthOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    return { month, revenue: monthRev, orders: monthOrders.length };
+  });
 
   // --- 1. ADMIN AUTHENTICATION GATE ---
   if (!isAdminAuthenticated) {
@@ -417,15 +434,15 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
               {/* Stat Cards */}
               <div className="grid grid-cols-4 gap-4">
                 {[
-                  { label: "Platform GMV", val: lkr(totalGMV), change: "+34.2%", icon: <DollarSign size={18} /> },
-                  { label: "10% Platform Fee Earned", val: lkr(platformRevenue), change: "+28.1%", icon: <TrendingUp size={18} /> },
-                  { label: "Active Vendors", val: vendors.length || 14, change: "+12%", icon: <Store size={18} /> },
-                  { label: "Pending Wire Approvals", val: lkr(pendingPayoutTotal), change: "Action Req", icon: <CreditCard size={18} /> },
+                  { label: "Platform GMV", val: lkr(totalGMV), change: totalGMV > 0 ? "+100%" : "0.0%", icon: <DollarSign size={18} /> },
+                  { label: "10% Platform Fee Earned", val: lkr(platformRevenue), change: platformRevenue > 0 ? "+100%" : "0.0%", icon: <TrendingUp size={18} /> },
+                  { label: "Active Vendors", val: vendors.length, change: vendors.length > 0 ? `+${vendors.length}` : "0", icon: <Store size={18} /> },
+                  { label: "Pending Wire Approvals", val: lkr(pendingPayoutTotal), change: pendingPayoutTotal > 0 ? "Action Req" : "Clear", icon: <CreditCard size={18} /> },
                 ].map(s => (
                   <div key={s.label} className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-purple-400">{s.icon}</span>
-                      <span className={`text-xs font-semibold ${s.change.includes("+") ? "text-emerald-400" : "text-amber-400"}`}>{s.change}</span>
+                      <span className={`text-xs font-semibold ${s.change.includes("+") ? "text-emerald-400" : s.change === "Action Req" ? "text-amber-400" : "text-gray-400"}`}>{s.change}</span>
                     </div>
                     <div className="text-2xl font-black text-white" style={{ fontFamily: "'Clash Display', sans-serif" }}>{s.val}</div>
                     <div className="text-xs text-gray-500 mt-1">{s.label}</div>
@@ -441,7 +458,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     <span className="text-xs text-purple-400 font-semibold">Monthly Aggregates</span>
                   </h3>
                   <ResponsiveContainer width="100%" height={220}>
-                    <AreaChart data={analyticsData}>
+                    <AreaChart data={dynamicAnalyticsData}>
                       <defs>
                         <linearGradient id="gradAdminDash" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor={purple} stopOpacity={0.3} />
@@ -463,25 +480,31 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     <span className="text-xs text-purple-400 font-semibold">Sales Distribution</span>
                   </h3>
                   <div className="flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RePieChart>
-                        <Pie
-                          data={pieData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={55}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ background: "#1a1a2e", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
-                        <Legend wrapperStyle={{ fontSize: 11, color: "#9ca3af" }} />
-                      </RePieChart>
-                    </ResponsiveContainer>
+                    {categoryDistribution.length === 0 ? (
+                      <div className="h-[220px] flex items-center justify-center text-xs text-gray-500">
+                        No category catalog items available yet
+                      </div>
+                    ) : (
+                      <ResponsiveContainer width="100%" height={220}>
+                        <RePieChart>
+                          <Pie
+                            data={categoryDistribution}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {categoryDistribution.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip contentStyle={{ background: "#1a1a2e", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+                          <Legend wrapperStyle={{ fontSize: 11, color: "#9ca3af" }} />
+                        </RePieChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </div>
               </div>
@@ -634,16 +657,19 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {(vendors.length === 0 ? [
-                      { _id: "v1", username: "aura_boutique", email: "vendor1@trendsprout.com", phone: "+94 77 222 3331", isVerified: true, vendorStore: { storeName: "Aura Boutique" } },
-                      { _id: "v2", username: "nouveau_wear", email: "vendor2@trendsprout.com", phone: "+94 77 222 3332", isVerified: true, vendorStore: { storeName: "Nouveau Wear" } },
-                      { _id: "v3", username: "ecothread_labs", email: "vendor3@trendsprout.com", phone: "+94 77 222 3333", isVerified: false, vendorStore: { storeName: "EcoThread Labs" } }
-                    ] : vendors).filter(v => 
-                      !searchQuery || 
-                      v.vendorStore?.storeName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                      v.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                      v.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map((v) => (
+                    {vendors.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-5 py-12 text-center text-gray-500 text-sm">
+                          No registered vendors yet. Newly onboarded stores will appear here.
+                        </td>
+                      </tr>
+                    ) : (
+                      vendors.filter(v => 
+                        !searchQuery || 
+                        v.vendorStore?.storeName?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        v.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        v.email?.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map((v) => (
                       <tr key={v._id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-4">
                           <div className="font-bold text-white flex items-center gap-2">
@@ -680,7 +706,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )))}
                   </tbody>
                 </table>
               </div>
@@ -864,7 +890,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
                   />
                 </div>
-                <span className="text-xs text-gray-400">{usersList.length || 15} Platform Users</span>
+                <span className="text-xs text-gray-400">{usersList.length} Platform Users</span>
               </div>
 
               <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -878,16 +904,18 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {(usersList.length === 0 ? [
-                      { _id: "u1", username: "admin_master", email: "admin1@trendsprout.com", role: "admin" },
-                      { _id: "u2", username: "aura_boutique", email: "vendor1@trendsprout.com", role: "vendor" },
-                      { _id: "u3", username: "kasun_shopper", email: "shopper1@gmail.com", role: "customer" },
-                      { _id: "u4", username: "nimesha_buyer", email: "shopper2@gmail.com", role: "customer" }
-                    ] : usersList).filter(u => 
-                      !searchQuery || 
-                      u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                      u.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map((u) => (
+                    {usersList.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-5 py-12 text-center text-gray-500 text-sm">
+                          No registered users found in the system.
+                        </td>
+                      </tr>
+                    ) : (
+                      usersList.filter(u => 
+                        !searchQuery || 
+                        u.username?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map((u) => (
                       <tr key={u._id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-4">
                           <div className="font-bold text-white flex items-center gap-2">
@@ -924,7 +952,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )))}
                   </tbody>
                 </table>
               </div>
@@ -949,7 +977,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                   </div>
                   <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
                     <span className="text-xs text-gray-400">Disbursed to Sri Lankan Vendors</span>
-                    <div className="text-xl font-bold text-emerald-400 mt-1">{lkr(completedPayoutTotal || totalGMV * 0.9)}</div>
+                    <div className="text-xl font-bold text-emerald-400 mt-1">{lkr(completedPayoutTotal)}</div>
                   </div>
                 </div>
 

@@ -218,28 +218,6 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20" style={{ background: `linear-gradient(135deg, #0a0a0f 0%, #1a0a3e 100%)` }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-4xl font-black text-white mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>Loved by Fashion Insiders</h2>
-          <p className="text-gray-400 mb-14">Join over 50,000 shoppers and 1,200 brands</p>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map(t => (
-              <GlassCard key={t.name} className="p-6 bg-white/5 border-white/10 text-left">
-                <StarRating rating={t.rating} />
-                <p className="text-gray-300 text-sm leading-relaxed my-4">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover border-2 border-purple-500" />
-                  <div>
-                    <div className="text-white text-sm font-semibold">{t.name}</div>
-                    <div className="text-gray-500 text-xs">{t.role}</div>
-                  </div>
-                </div>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Vendor CTA - Option 3 */}
       <section id="sell-section" className="py-20 bg-white">

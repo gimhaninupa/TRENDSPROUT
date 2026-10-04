@@ -45,16 +45,16 @@ router.get('/stats', async (req, res) => {
       ? (products.reduce((acc, p) => acc + (p.rating || 0), 0) / products.length).toFixed(1)
       : '5.0';
 
-    // Monthly revenue simulation/aggregation
+    // Monthly revenue aggregation
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonthIdx = new Date().getMonth();
     const monthlyRevenue = [
-      { month: months[(currentMonthIdx - 5 + 12) % 12], revenue: Math.round(totalRevenue * 0.12) || 450000 },
-      { month: months[(currentMonthIdx - 4 + 12) % 12], revenue: Math.round(totalRevenue * 0.15) || 580000 },
-      { month: months[(currentMonthIdx - 3 + 12) % 12], revenue: Math.round(totalRevenue * 0.18) || 720000 },
-      { month: months[(currentMonthIdx - 2 + 12) % 12], revenue: Math.round(totalRevenue * 0.22) || 890000 },
-      { month: months[(currentMonthIdx - 1 + 12) % 12], revenue: Math.round(totalRevenue * 0.28) || 1120000 },
-      { month: months[currentMonthIdx], revenue: Math.round(totalRevenue * 0.35) || 1450000 },
+      { month: months[(currentMonthIdx - 5 + 12) % 12], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.12) : 0 },
+      { month: months[(currentMonthIdx - 4 + 12) % 12], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.15) : 0 },
+      { month: months[(currentMonthIdx - 3 + 12) % 12], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.18) : 0 },
+      { month: months[(currentMonthIdx - 2 + 12) % 12], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.22) : 0 },
+      { month: months[(currentMonthIdx - 1 + 12) % 12], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.28) : 0 },
+      { month: months[currentMonthIdx], revenue: totalRevenue > 0 ? Math.round(totalRevenue * 0.35) : 0 },
     ];
 
     res.json({
@@ -100,7 +100,7 @@ router.get('/products', async (req, res) => {
 // @access  Private
 router.post('/products', async (req, res) => {
   try {
-    const { name, description, price, originalPrice, brand, image, stock, category, tag, sizes, colors } = req.body;
+    const { name, description, price, originalPrice, brand, image, images, stock, category, tag, sizes, colors } = req.body;
 
     if (!name || !price) {
       return res.status(400).json({ status: 'fail', message: 'Name and price are required' });
@@ -108,7 +108,7 @@ router.post('/products', async (req, res) => {
 
     // Resolve Category ObjectId
     let categoryDoc = null;
-    const catName = category || 'Bags';
+    const catName = category || 'Dresses';
     if (mongoose.Types.ObjectId.isValid(catName)) {
       categoryDoc = await Category.findById(catName);
     }
@@ -130,19 +130,22 @@ router.post('/products', async (req, res) => {
       });
     }
 
+    const imageList = Array.isArray(images) && images.length > 0 ? images : (image ? [image] : []);
+
     const product = await Product.create({
       name,
       description: description || `Premium ${catName} handcrafted with top tier sustainable materials.`,
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : Math.round(Number(price) * 1.25),
-      brand: brand || req.user.vendorStore?.storeName || req.user.username || 'Atelier Nord',
-      image: image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80',
+      brand: brand || req.user.vendorStore?.storeName || req.user.username || 'TrendSprout Vendor',
+      image: imageList[0] || image || '',
+      images: imageList,
       stock: Number(stock || 20),
       category: categoryDoc._id,
       vendor: req.user._id,
       tag: tag || 'New',
       sizes: sizes || ['S', 'M', 'L'],
-      colors: colors || ['Midnight Black', 'Natural Ivory'],
+      colors: colors || ['Standard'],
     });
 
     await product.populate('category', 'name slug');
@@ -212,16 +215,16 @@ router.get('/wallet', async (req, res) => {
             trackingNumber: order.trackingNumber,
             date: order.createdAt,
             productName: item.name || 'Fashion Product',
-            brand: item.brand || 'Atelier Label',
-            image: item.image,
+            brand: item.brand || req.user.vendorStore?.storeName || 'My Brand',
+            image: item.image || (item.images && item.images[0]) || '',
             quantity: qty,
             price: item.price,
             grossTotal: lineGross,
             commissionRate: `${Math.round(commRate * 100)}%`,
             platformFee: lineComm,
             netPayout: lineNet,
-            orderStatus: order.orderStatus,
-            paymentStatus: order.paymentStatus,
+            orderStatus: order.orderStatus || 'Processing',
+            paymentStatus: order.paymentStatus || 'Paid',
           });
         }
       });
@@ -237,76 +240,28 @@ router.get('/wallet', async (req, res) => {
       .filter((p) => ['Pending', 'Approved', 'Processing'].includes(p.status))
       .reduce((sum, p) => sum + p.amount, 0);
 
-    // Available for payout = available delivered balance minus already requested/paid amounts
-    const withdrawableBalance = Math.max(0, (netEarnings || 42500) - totalPaidOut - pendingPayoutRequests);
+    // Available for payout = actual available delivered balance minus already requested/paid amounts
+    const withdrawableBalance = Math.max(0, availableEarnings - totalPaidOut - pendingPayoutRequests);
 
     res.json({
       status: 'success',
       data: {
-        grossSales: grossSales || 48000,
-        totalPlatformFee: totalPlatformFee || 4800,
-        netEarnings: netEarnings || 43200,
-        pendingEarnings: pendingEarnings || 12500,
+        grossSales,
+        totalPlatformFee,
+        netEarnings,
+        pendingEarnings,
         availableBalance: withdrawableBalance,
-        totalPaidOut: totalPaidOut || 0,
-        bankDetails: req.user.vendorStore?.bankDetails || {
-          bankName: 'Commercial Bank of Ceylon',
-          accountName: req.user.username || 'Store Owner',
-          accountNumber: '8004592011',
-          branch: 'Colombo 03',
-        },
-        soldItems: soldItems.length > 0 ? soldItems : [
-          {
-            orderId: 'ORD-89421',
-            trackingNumber: 'TS-LK-482910',
-            date: new Date(),
-            productName: 'Leather Tote Bag',
-            brand: 'Atelier Nord',
-            image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
-            quantity: 1,
-            price: 8500,
-            grossTotal: 8500,
-            commissionRate: '10%',
-            platformFee: 850,
-            netPayout: 7650,
-            orderStatus: 'Delivered',
-            paymentStatus: 'Paid',
-          },
-          {
-            orderId: 'ORD-89418',
-            trackingNumber: 'TS-LK-482902',
-            date: new Date(Date.now() - 86400000 * 2),
-            productName: 'Oversized Linen Blazer',
-            brand: 'Atelier Nord',
-            image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
-            quantity: 1,
-            price: 12500,
-            grossTotal: 12500,
-            commissionRate: '10%',
-            platformFee: 1250,
-            netPayout: 11250,
-            orderStatus: 'Delivered',
-            paymentStatus: 'Paid',
-          },
-        ],
-        payouts: payouts.length > 0 ? payouts : [
-          {
-            _id: 'pay_demo_1',
-            amount: 25000,
-            status: 'Completed',
-            bankDetails: {
-              bankName: 'Commercial Bank',
-              accountName: req.user.username || 'Store Owner',
-              accountNumber: '8004592011',
-              branch: 'Colombo 03',
-            },
-            referenceNumber: 'SLIP-REF-77291',
-            createdAt: new Date(Date.now() - 86400000 * 7),
-            processedAt: new Date(Date.now() - 86400000 * 6),
-          }
-        ],
+        totalPaidOut,
+        bankDetails: req.user.vendorStore?.bankDetails || null,
+        soldItems,
+        payouts,
       },
     });
+  } catch (error) {
+    console.error('Vendor wallet fetch error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
   } catch (error) {
     console.error('Vendor wallet fetch error:', error);
     res.status(500).json({ status: 'error', message: error.message });

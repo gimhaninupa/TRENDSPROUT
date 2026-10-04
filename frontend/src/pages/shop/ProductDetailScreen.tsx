@@ -81,6 +81,53 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
   });
   const [added, setAdded] = useState(false);
 
+  const handleAddToCart = () => {
+    if (!p) return;
+    addToCart(p, qty, size, color);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
+  const handleToggleWishlist = () => {
+    if (!p) return;
+    try {
+      const savedWish = localStorage.getItem('ts_wishlist');
+      let list = savedWish ? JSON.parse(savedWish) : [];
+      const pId = p._id || p.id;
+      if (wished) {
+        list = list.filter((item: any) => (item._id || item.id) !== pId);
+        setWished(false);
+      } else {
+        list.push(p);
+        setWished(true);
+      }
+      localStorage.setItem('ts_wishlist', JSON.stringify(list));
+    } catch {}
+  };
+
+  const handleAddReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReviewComment.trim()) return;
+    setSubmittingReview(true);
+    try {
+      const prodId = p._id || p.id;
+      if (prodId) {
+        await api.addProductReview(prodId, newReviewRating, newReviewComment).catch(() => {});
+        setReviewsList(prev => [{
+          _id: String(Date.now()),
+          rating: newReviewRating,
+          comment: newReviewComment,
+          user: { username: "You" }
+        }, ...prev]);
+        setNewReviewComment("");
+      }
+    } catch (err: any) {
+      console.warn("Review note:", err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (!p) {
     return (
       <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>

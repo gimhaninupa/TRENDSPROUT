@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import {
-  Sparkles, RefreshCw, Download, ShoppingCart, Wand2,
-  ChevronRight, CheckCircle2, Eye, Palette, Scissors
+  Sparkles, RefreshCw, Download, Wand2,
+  ChevronRight, CheckCircle2, Bookmark, Share2, PlusCircle, Store, Check
 } from "lucide-react";
 import { 
     Screen, purple, purpleLight, lkr, 
-    Badge, StarRating, PrimaryBtn, Navbar
+    Badge, PrimaryBtn, GhostBtn, Navbar
 } from '../../components/shared';
-import { useCart } from '../../context/CartContext';
 import api from '../../services/api';
 
 export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const { addToCart } = useCart();
   const [stage, setStage] = useState<"prompt" | "generating" | "preview">("prompt");
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("Editorial");
@@ -19,6 +17,8 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
   const [colorPalette, setColorPalette] = useState("Jewel Tones");
   const [progress, setProgress] = useState(0);
   const [generatedResult, setGeneratedResult] = useState<any>(null);
+  const [savedToLookbook, setSavedToLookbook] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     if (stage === "generating") {
@@ -39,6 +39,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     if (!prompt.trim()) return;
     setStage("generating");
     setProgress(15);
+    setSavedToLookbook(false);
 
     try {
       const res = await api.generateDesign(prompt, style, fabric, colorPalette);
@@ -46,7 +47,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
         setGeneratedResult(res.data);
       }
     } catch (err) {
-      console.warn("Backend unavailable, generating via direct AI engine:", err);
+      console.warn("Generating via AI visual engine:", err);
       const enhanced = `${prompt.trim()}, ${fabric} fabric, ${style} aesthetic, ${colorPalette} colors, full-length fashion apparel photography, studio lighting, crisp fabric details, 8k`;
       const encoded = encodeURIComponent(enhanced);
       const seed = Math.floor(Math.random() * 9999999);
@@ -58,7 +59,6 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
         fabric,
         colorPalette,
         prompt,
-        priceSuggestion: 15800,
         categorySuggestion: prompt.toLowerCase().includes('trouser') || prompt.toLowerCase().includes('pant') ? 'Bottoms' : 'Dresses',
       });
     } finally {
@@ -67,19 +67,48 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     }
   };
 
-  const handleOrderCustom = (vendorPrice: number) => {
-    const customItem = {
-      id: 'custom_' + Date.now(),
-      name: `Custom AI ${fabric} Design (${style})`,
-      brand: 'Sprout Atelier (Custom Tailored)',
-      price: vendorPrice,
-      image: generatedResult?.imageUrl || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
-      size: 'M (Tailored)',
-      color: colorPalette,
-      qty: 1,
-    };
-    addToCart(customItem);
-    onNavigate("cart");
+  const handleSaveToLookbook = () => {
+    if (!generatedResult) return;
+    try {
+      const saved = localStorage.getItem('ts_saved_lookbook');
+      const list = saved ? JSON.parse(saved) : [];
+      const item = {
+        id: 'lookbook_' + Date.now(),
+        prompt: prompt,
+        image: generatedResult.imageUrl,
+        style,
+        fabric,
+        colorPalette,
+        createdAt: new Date().toISOString()
+      };
+      list.unshift(item);
+      localStorage.setItem('ts_saved_lookbook', JSON.stringify(list));
+      setSavedToLookbook(true);
+      setTimeout(() => setSavedToLookbook(false), 2500);
+    } catch {}
+  };
+
+  const handlePublishAsProduct = () => {
+    if (!generatedResult) return;
+    try {
+      // Pre-fill vendor draft with generated design
+      const draft = {
+        name: `${style} ${fabric} Concept`,
+        description: `Original AI generated design concept: ${prompt}. Tailored with premium ${fabric} material.`,
+        image: generatedResult.imageUrl,
+        category: generatedResult.categorySuggestion || 'Apparel',
+      };
+      localStorage.setItem('ts_vendor_draft', JSON.stringify(draft));
+      onNavigate("vendor-add-product");
+    } catch {
+      onNavigate("vendor-add-product");
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   return (
@@ -91,19 +120,19 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
             <Sparkles size={13} /> Generative AI Fashion Studio
           </div>
           <h1 className="text-4xl font-black text-gray-900 mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>Design with Words</h1>
-          <p className="text-gray-500 max-w-md mx-auto">Describe your vision. Generate original high-fashion concepts powered by AI generative diffusion models.</p>
+          <p className="text-gray-500 max-w-md mx-auto">Describe your aesthetic vision. Generate original high-fashion concepts powered by AI generative diffusion models.</p>
         </div>
 
         {stage === "prompt" && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+          <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
             <div className="flex flex-col gap-6">
               <div>
-                <label className="text-sm font-semibold text-gray-800 block mb-2">Describe your vision</label>
+                <label className="text-sm font-semibold text-gray-800 block mb-2">Describe your fashion concept</label>
                 <textarea
                   value={prompt}
                   onChange={e => setPrompt(e.target.value)}
                   rows={4}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none transition-all"
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none transition-all"
                   placeholder="e.g. Minimalist botanical streetwear piece with Japanese calligraphy and subtle lavender gradient…"
                 />
               </div>
@@ -150,7 +179,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
         )}
 
         {stage === "generating" && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm">
+          <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center shadow-sm">
             <div className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center text-white shadow-xl shadow-purple-200" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>
               <Wand2 size={32} className="animate-pulse" />
             </div>
@@ -166,14 +195,14 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
         {stage === "preview" && (
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Visual Display: High Resolution AI Generated Concept */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col">
-              <div className="p-3.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+            <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm flex flex-col">
+              <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
                   <Sparkles size={14} className="text-purple-600" />
-                  Photorealistic AI Generated Piece
+                  AI Concept Render
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-100 text-purple-800">
-                  8K Resolution
+                  8K Studio Model
                 </span>
               </div>
 
@@ -207,7 +236,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
                   href={generatedResult?.imageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  download="trendsprout-fashion.png"
+                  download="trendsprout-fashion-concept.png"
                   className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:border-purple-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Download size={14} /> Download
@@ -215,49 +244,65 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
               </div>
             </div>
 
-            {/* Right Column: Specifications & Production */}
+            {/* Right Column: Concept Specifications & Studio Actions */}
             <div className="flex flex-col gap-5">
-              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-1">Generated Design Specifications</h3>
-                <p className="text-sm text-gray-600 mb-4">{prompt}</p>
-                <div className="flex flex-wrap gap-2">
-                  {[style, fabric, colorPalette, "Made-to-Order", "Colombo Artisans"].map(t => (
-                    <span key={t} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: purpleLight, color: purple }}>
-                      {t}
-                    </span>
-                  ))}
+              <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-purple-600">Design Specifications</span>
+                  <button onClick={handleShare} className="text-xs text-gray-400 hover:text-purple-600 flex items-center gap-1">
+                    <Share2 size={13} /> {copiedLink ? "Link Copied!" : "Share"}
+                  </button>
                 </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-1">Tailoring & Production Quotes</h3>
-                <p className="text-xs text-gray-400 mb-4">Select an artisan partner to manufacture your custom piece:</p>
-                {[
-                  { brand: "Atelier Nord", price: 15800, delivery: "5–7 days", rating: 4.9 },
-                  { brand: "Nouveau Collective", price: 18500, delivery: "3–4 days", rating: 5.0 },
-                  { brand: "Veloce Tailoring", price: 13200, delivery: "7–10 days", rating: 4.8 },
-                ].map(v => (
-                  <div key={v.brand} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{v.brand}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <StarRating rating={v.rating} />
-                        <span className="text-xs text-gray-400">Est. {v.delivery}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-gray-900">{lkr(v.price)}</p>
-                      <button onClick={() => handleOrderCustom(v.price)} className="text-xs font-semibold text-purple-600 hover:underline cursor-pointer">
-                        Order Quote →
-                      </button>
-                    </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{prompt}</h3>
+                
+                <div className="grid grid-cols-2 gap-3 my-4">
+                  <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                    <span className="text-[11px] text-gray-400 font-medium block">Aesthetic Style</span>
+                    <span className="text-xs font-bold text-gray-800">{style}</span>
                   </div>
-                ))}
+                  <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                    <span className="text-[11px] text-gray-400 font-medium block">Target Fabric</span>
+                    <span className="text-xs font-bold text-gray-800">{fabric}</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                    <span className="text-[11px] text-gray-400 font-medium block">Color Harmony</span>
+                    <span className="text-xs font-bold text-gray-800">{colorPalette}</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
+                    <span className="text-[11px] text-gray-400 font-medium block">Garment Type</span>
+                    <span className="text-xs font-bold text-gray-800">{generatedResult?.categorySuggestion || 'Apparel'}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  This original concept was synthesized using neural fashion diffusion. Save it to your lookbook or export it directly into your Vendor Studio to set real inventory and publish for sale.
+                </p>
               </div>
 
-              <PrimaryBtn onClick={() => handleOrderCustom(15800)} className="w-full !py-4 !rounded-2xl !text-base" icon={<ShoppingCart size={18} />}>
-                Order Custom Piece ({lkr(15800)})
-              </PrimaryBtn>
+              {/* Action Cards */}
+              <div className="space-y-3">
+                <button
+                  onClick={handleSaveToLookbook}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-800 font-bold text-xs transition-all flex items-center justify-between cursor-pointer shadow-sm"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Bookmark size={16} className={savedToLookbook ? "text-purple-600 fill-purple-600" : "text-purple-600"} />
+                    <span>{savedToLookbook ? "Saved to Lookbook & Moodboard!" : "Save Concept to Lookbook"}</span>
+                  </div>
+                  {savedToLookbook && <Check size={16} className="text-emerald-500" />}
+                </button>
+
+                <button
+                  onClick={handlePublishAsProduct}
+                  className="w-full py-4 px-5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition-all flex items-center justify-between cursor-pointer shadow-xl shadow-purple-500/20"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Store size={16} />
+                    <span>Publish as Store Product in Vendor Studio</span>
+                  </div>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -265,3 +310,4 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     </div>
   );
 }
+export default TextToDesignScreen;
