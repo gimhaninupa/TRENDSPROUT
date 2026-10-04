@@ -26,6 +26,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
   const initialDraft = getSavedDraft();
 
   const [title, setTitle] = useState(initialDraft?.title || "");
+  const [brand, setBrand] = useState(initialDraft?.brand || user?.vendorStore?.storeName || "");
   const [desc, setDesc] = useState(initialDraft?.desc || "");
   const [category, setCategory] = useState(initialDraft?.category || "Dresses");
   const [price, setPrice] = useState(initialDraft?.price || "");
@@ -62,6 +63,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     try {
       const draftData = {
         title,
+        brand,
         desc,
         category,
         price,
@@ -73,7 +75,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
       };
       localStorage.setItem('ts_vendor_product_draft', JSON.stringify(draftData));
     } catch {}
-  }, [title, desc, category, price, comparePrice, stock, sku, selectedSizes, images]);
+  }, [title, brand, desc, category, price, comparePrice, stock, sku, selectedSizes, images]);
 
   // Check if standalone AI screen generated anything
   useEffect(() => {
@@ -203,6 +205,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
   const handleClearForm = () => {
     if (confirm("Clear all typed product details and start fresh?")) {
       setTitle("");
+      setBrand(user?.vendorStore?.storeName || user?.username || "");
       setDesc("");
       setPrice("");
       setComparePrice("");
@@ -222,7 +225,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     }
 
     setIsPublishing(true);
-    const storeBrand = user?.vendorStore?.storeName || user?.username || "My Store";
+    const storeBrand = brand.trim() || user?.vendorStore?.storeName || user?.username || "My Store";
     const newProduct = {
       id: 'vp-' + Date.now(),
       name: title.trim(),
@@ -292,12 +295,20 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h3 className="font-bold text-gray-900 mb-5 text-base">Product Information</h3>
               <div className="flex flex-col gap-4">
-                <Input 
-                  label="Product name" 
-                  placeholder="e.g. Oversized Linen Blazer" 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)} 
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input 
+                    label="Product Name" 
+                    placeholder="e.g. Oversized Linen Blazer" 
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
+                  />
+                  <Input 
+                    label="Brand / Label Name" 
+                    placeholder="e.g. Maison Atelier" 
+                    value={brand} 
+                    onChange={e => setBrand(e.target.value)} 
+                  />
+                </div>
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-sm font-medium text-gray-700">Description</label>

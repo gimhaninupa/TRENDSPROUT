@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Search, ChevronDown, Grid, List, Camera, Upload, X,
-  Sparkles, CheckCircle2, RefreshCw, Sliders, ArrowRight, Plus
+  Sparkles, CheckCircle2, RefreshCw, Sliders, ArrowRight, Plus, Filter
 } from "lucide-react";
 import { 
     Screen, purple, purpleLight, lkr, 
@@ -12,10 +12,12 @@ import api from '../../services/api';
 export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s: Screen) => void; isSearch?: boolean }) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [activeFilters, setActiveFilters] = useState<string[]>(["All"]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortOpen, setSortOpen] = useState(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sort, setSort] = useState("Trending");
   const filters = ["All", "Dresses", "Blazers", "Knitwear", "Pants", "Skirts", "Bags"];
-  const [priceRange, setPriceRange] = useState([0, 99000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000]);
   const [searchTerm, setSearchTerm] = useState(isSearch ? "Silk dress" : "");
   const [allProducts, setAllProducts] = useState<any[]>(() => {
     try {
@@ -178,6 +180,19 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
     }
   };
 
+  const availableBrands = useMemo(() => {
+    const brandSet = new Set<string>();
+    allProducts.forEach(p => {
+      if (p.brand && typeof p.brand === 'string') {
+        const trimmed = p.brand.trim();
+        if (trimmed && trimmed !== 'Independent Label' && trimmed !== 'TrendSprout Brand') {
+          brandSet.add(trimmed);
+        }
+      }
+    });
+    return Array.from(brandSet).sort();
+  }, [allProducts]);
+
   const filteredProducts = allProducts.filter(p => {
     const pCat = typeof p.category === 'string' ? p.category : (p.category?.name || '');
     const matchesCategory = activeFilters.includes("All") || activeFilters.some(f => 
@@ -190,8 +205,9 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
       p.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
+    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
 
-    return matchesCategory && matchesSearch && matchesPrice;
+    return matchesCategory && matchesSearch && matchesPrice && matchesBrand;
   });
 
   return (
@@ -524,7 +540,18 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
           {/* Sidebar filters */}
           <aside className="hidden lg:block w-56 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-gray-100 p-5 sticky top-24 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-4 text-sm">Filters</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-900 text-sm">Filters</h3>
+                {(activeFilters.length > 1 || !activeFilters.includes("All") || selectedBrands.length > 0 || priceRange[1] < 30000 || priceRange[0] > 0) && (
+                  <button 
+                    onClick={() => { setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 30000]); }}
+                    className="text-[11px] font-semibold text-purple-600 hover:text-purple-700"
+                  >
+                    Reset All
+                  </button>
+                )}
+              </div>
+
               <div className="mb-5">
                 <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Category</h4>
                 {filters.map(f => (
@@ -533,35 +560,70 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                       type="checkbox" 
                       checked={activeFilters.includes(f)} 
                       onChange={() => setActiveFilters(p => p.includes(f) ? p.filter(x => x !== f) : [...p, f])} 
-                      className="accent-purple-600" 
+                      className="accent-purple-600 rounded" 
                     />
                     <span className="text-sm text-gray-600 group-hover:text-purple-600 transition-colors">{f}</span>
                   </label>
                 ))}
               </div>
+
               <div className="mb-5">
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Price</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Price Range</h4>
+                  <span className="text-xs font-bold text-purple-600">{lkr(priceRange[1])}</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="30000" 
+                  step="500"
+                  value={priceRange[1]} 
+                  onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
+                  className="w-full accent-purple-600 cursor-pointer h-1.5 bg-gray-200 rounded-lg mb-2"
+                />
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[0].toLocaleString()}</div>
+                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700 font-medium">LKR {priceRange[0].toLocaleString()}</div>
                   <span className="text-gray-400 text-xs">–</span>
-                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[1].toLocaleString()}</div>
+                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700 font-medium">LKR {priceRange[1].toLocaleString()}</div>
                 </div>
               </div>
+
               <div>
-                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Brands</h4>
-                {["Atelier Nord", "Maison Éclat", "Studio Voss", "Nordic Thread", "Aura Label", "Nouveau Collective"].map(b => (
-                  <label key={b} className="flex items-center gap-2.5 py-1.5 cursor-pointer">
-                    <input type="checkbox" className="accent-purple-600" />
-                    <span className="text-sm text-gray-600">{b}</span>
-                  </label>
-                ))}
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Brands</h4>
+                  {selectedBrands.length > 0 && (
+                    <button 
+                      onClick={() => setSelectedBrands([])}
+                      className="text-[10px] text-purple-600 hover:text-purple-700 font-semibold"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {availableBrands.length === 0 ? (
+                  <p className="text-xs text-gray-400 leading-relaxed italic bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                    No vendor brands added yet. When vendors list products, their brands will automatically appear here.
+                  </p>
+                ) : (
+                  availableBrands.map(b => (
+                    <label key={b} className="flex items-center gap-2.5 py-1.5 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedBrands.includes(b)} 
+                        onChange={() => setSelectedBrands(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b])}
+                        className="accent-purple-600 rounded" 
+                      />
+                      <span className="text-sm text-gray-600 group-hover:text-purple-600 transition-colors">{b}</span>
+                    </label>
+                  ))
+                )}
               </div>
             </div>
           </aside>
 
           {/* Catalog View */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
               <div className="flex gap-2 flex-wrap">
                 {filters.map(f => (
                   <button 
@@ -577,6 +639,16 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                 ))}
               </div>
               <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setMobileFilterOpen(true)}
+                  className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-medium text-gray-700 hover:border-purple-300 transition-all cursor-pointer"
+                >
+                  <Filter size={13} className="text-purple-600" />
+                  <span>Filters</span>
+                  {(selectedBrands.length > 0 || priceRange[1] < 30000 || priceRange[0] > 0) && (
+                    <span className="w-2 h-2 rounded-full bg-purple-600 inline-block" />
+                  )}
+                </button>
                 <div className="relative">
                   <button 
                     onClick={() => setSortOpen(!sortOpen)} 
@@ -615,6 +687,88 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
               </div>
             </div>
 
+            {/* Mobile Filter Drawer / Modal */}
+            {mobileFilterOpen && (
+              <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden flex items-end sm:items-center justify-center">
+                <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
+                  <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+                    <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
+                      <Filter size={16} className="text-purple-600" />
+                      Filter Products
+                    </h3>
+                    <button 
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Price Range (0 – 30,000 LKR)</h4>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-500">Max Budget:</span>
+                        <span className="text-xs font-bold text-purple-600">{lkr(priceRange[1])}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="30000" 
+                        step="500"
+                        value={priceRange[1]} 
+                        onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
+                        className="w-full accent-purple-600 cursor-pointer h-2 bg-gray-200 rounded-lg mb-2"
+                      />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[0].toLocaleString()}</div>
+                        <span className="text-gray-400 text-xs">–</span>
+                        <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[1].toLocaleString()}</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Vendor Brands</h4>
+                      {availableBrands.length === 0 ? (
+                        <p className="text-xs text-gray-400 italic bg-gray-50 p-3 rounded-xl">
+                          No vendor brands added yet. Newly added brands will appear here.
+                        </p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {availableBrands.map(b => (
+                            <label key={b} className="flex items-center gap-2.5 py-1.5 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedBrands.includes(b)} 
+                                onChange={() => setSelectedBrands(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b])}
+                                className="accent-purple-600 rounded" 
+                              />
+                              <span className="text-sm text-gray-700">{b}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-gray-100 flex gap-3">
+                    <GhostBtn 
+                      onClick={() => { setSelectedBrands([]); setPriceRange([0, 30000]); }} 
+                      className="flex-1 !py-2.5 !text-xs"
+                    >
+                      Reset
+                    </GhostBtn>
+                    <PrimaryBtn 
+                      onClick={() => setMobileFilterOpen(false)} 
+                      className="flex-1 !py-2.5 !text-xs"
+                    >
+                      Apply Filters ({filteredProducts.length})
+                    </PrimaryBtn>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {filteredProducts.length === 0 ? (
               <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
                 <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
@@ -622,13 +776,13 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">No items found</h3>
                 <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-                  {searchTerm || activeFilters.length > 0 && !activeFilters.includes("All")
+                  {searchTerm || activeFilters.length > 0 && !activeFilters.includes("All") || selectedBrands.length > 0 || priceRange[1] < 30000
                     ? "Try adjusting your filters, category, or search term to discover available pieces."
                     : "No products are listed in this category yet. You can list new items as a vendor."}
                 </p>
                 <div className="flex justify-center gap-3">
-                  {(searchTerm || (!activeFilters.includes("All") && activeFilters.length > 0)) && (
-                    <GhostBtn onClick={() => { setSearchTerm(""); setActiveFilters(["All"]); setPriceRange([0, 50000]); }}>
+                  {(searchTerm || (!activeFilters.includes("All") && activeFilters.length > 0) || selectedBrands.length > 0 || priceRange[1] < 30000) && (
+                    <GhostBtn onClick={() => { setSearchTerm(""); setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 30000]); }}>
                       Clear Filters
                     </GhostBtn>
                   )}
