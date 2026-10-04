@@ -90,7 +90,7 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="ai-outfit" onNavigate={onNavigate} role="customer" />
+      <Navbar current="ai-outfit" onNavigate={onNavigate} />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-4" style={{ background: purpleLight, color: purple }}><Wand2 size={12} />AI Outfit Generator</div>

@@ -187,7 +187,7 @@ export function CheckoutScreen({ onNavigate }: { onNavigate: (s: Screen) => void
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="checkout" onNavigate={onNavigate} role="customer" />
+      <Navbar current="checkout" onNavigate={onNavigate} />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         
         {/* Progress Stepper */}

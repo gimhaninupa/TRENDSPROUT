@@ -196,7 +196,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="browse" onNavigate={onNavigate} role="customer" />
+      <Navbar current="browse" onNavigate={onNavigate} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         
         {/* Search & Visual Search Header Bar */}

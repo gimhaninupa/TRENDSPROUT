@@ -81,7 +81,7 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="home" onNavigate={onNavigate} role="guest" />
+      <Navbar current="home" onNavigate={onNavigate} />
       {/* Hero */}
       <section className="relative pt-24 pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">

@@ -77,9 +77,7 @@ export const pieData: { name: string; value: number; color: string }[] = [];
 export const vendorProducts: any[] = [];
 
 export const chatMessages = [
-  { role: "ai", text: "Hello! I'm your TRENDSPROUT AI Stylist ✨ Tell me where you're heading, your preferred vibe, or any style questions, and I'll curate the perfect look for you." },
-  { role: "user", text: "I need an outfit for an outdoor dinner party in Colombo this Friday. Something chic and modern under LKR 15,000." },
-  { role: "ai", text: "For a warm Colombo evening, I recommend pairing our Linen Slip Dress in Sage Green (LKR 8,500) with minimalist gold drop earrings and strappy block heels. Effortlessly stylish and breathable! Would you like me to add it to your cart?" }
+  { role: "ai", text: "Hello! I'm your TRENDSPROUT AI Stylist ✨ Tell me what occasion you're preparing for, your preferred aesthetic, or budget, and I'll curate looks from our catalog for you." }
 ];
 
 export const faqs = [
@@ -276,7 +274,7 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
   const aiDropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, role: authRole } = useAuth();
   const { cartCount } = useCart();
-  const effectiveRole = explicitRole || (isAuthenticated ? authRole : "guest");
+  const effectiveRole = isAuthenticated ? (explicitRole || authRole || "customer") : "guest";
 
   const aiScreens: Screen[] = ["ai-chatbot", "ai-outfit", "text-to-design"];
   const isAiActive = aiScreens.includes(current);
@@ -371,10 +369,14 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
               </span>
             )}
           </button>
-          {effectiveRole === "guest"
+          {effectiveRole === "guest" || !isAuthenticated
             ? <PrimaryBtn onClick={() => onNavigate("login")} className="!py-1.5 sm:!py-2 !px-3 sm:!px-4 !text-xs">Sign In</PrimaryBtn>
-            : <button onClick={() => onNavigate("profile")} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all cursor-pointer" title="My Profile">
-                <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-full h-full object-cover" />
+            : <button onClick={() => onNavigate("profile")} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-purple-200 hover:border-purple-400 transition-all cursor-pointer flex items-center justify-center bg-purple-100 text-purple-700 font-bold text-xs" title="My Profile">
+                {user?.profileImage ? (
+                  <img src={user.profileImage} alt={user?.name || "avatar"} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user?.name ? user.name.charAt(0).toUpperCase() : (user?.username ? user.username.charAt(0).toUpperCase() : "U")}</span>
+                )}
               </button>
           }
           <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded-xl transition-all cursor-pointer ml-1" aria-label="Toggle Menu">
@@ -435,13 +437,19 @@ export function Navbar({ current, onNavigate, role: explicitRole }: { current: S
             ))}
 
             <div className="pt-2.5 mt-1 border-t border-gray-100 flex items-center justify-between">
-              {effectiveRole === "guest" ? (
+              {effectiveRole === "guest" || !isAuthenticated ? (
                 <PrimaryBtn onClick={() => { onNavigate("login"); setMobileOpen(false); }} className="w-full !py-2 !text-xs">Sign In / Register</PrimaryBtn>
               ) : (
                 <button onClick={() => { onNavigate("profile"); setMobileOpen(false); }} className="w-full flex items-center justify-between p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div className="flex items-center gap-2">
-                    <img src={user?.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt="avatar" className="w-6 h-6 rounded-full object-cover" />
-                    <span className="text-xs font-bold text-gray-800">{user?.username || "My Account"}</span>
+                    {user?.profileImage ? (
+                      <img src={user.profileImage} alt="avatar" className="w-6 h-6 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center">
+                        {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                      </div>
+                    )}
+                    <span className="text-xs font-bold text-gray-800">{user?.name || user?.username || "My Account"}</span>
                   </div>
                   <span className="text-[11px] text-purple-600 font-semibold">Profile →</span>
                 </button>

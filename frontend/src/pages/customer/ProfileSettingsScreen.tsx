@@ -24,7 +24,7 @@ export function ProfileSettingsScreen({ onNavigate }: { onNavigate: (s: Screen) 
   const [notifications, setNotifications] = useState({ orders: true, promotions: false, ai: true, brands: true });
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="profile" onNavigate={onNavigate} role="customer" />
+      <Navbar current="profile" onNavigate={onNavigate} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <button onClick={() => onNavigate("profile")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 mb-6"><ChevronLeft size={14} />Profile</button>
         <h1 className="text-3xl font-black text-gray-900 mb-8" style={{ fontFamily: "'Clash Display', sans-serif" }}>Account Settings</h1>

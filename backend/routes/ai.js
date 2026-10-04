@@ -56,7 +56,7 @@ router.post('/chat', async (req, res) => {
     let catalogSnippets = [];
     if (mongoose.connection && mongoose.connection.readyState === 1) {
       try {
-        const dbProducts = await Product.find().limit(8).select('name price brand tag images category');
+        const dbProducts = await Product.find({ isActive: { $ne: false } }).limit(10).select('_id name price brand tag images category');
         catalogSnippets = dbProducts;
       } catch {
         // Fallback
@@ -69,11 +69,16 @@ router.post('/chat', async (req, res) => {
 
     if (ai) {
       try {
+        const catalogContext = catalogSnippets.length > 0 
+          ? `Available catalog items in store: ${catalogSnippets.map(p => `"${p.name}" (LKR ${p.price}, Brand: ${p.brand || 'TrendSprout'})`).join(', ')}.`
+          : `Note: The store catalog is currently waiting for vendors to add new seasonal products. Provide general styling, color pairing, and fashion advice without fabricating specific store product names.`;
+
         const model = ai.getGenerativeModel({
           model: 'gemini-2.5-flash',
           systemInstruction: `You are SproutStylist, the AI luxury personal fashion stylist for TrendSprout in Sri Lanka.
 Tone: Chic, friendly, expert, and conversational. Keep responses concise (2 to 4 sentences).
 Store Context: Sri Lankan Rupees (LKR).
+${catalogContext}
 Give genuine fashion styling advice for whatever the user asks (events, casual, trends, colors, fabrics).`
         });
 
@@ -82,7 +87,7 @@ Give genuine fashion styling advice for whatever the user asks (events, casual, 
         if (Array.isArray(history)) {
           history.slice(-6).forEach(h => {
             contents.push({
-              role: h.sender === 'user' ? 'user' : 'model',
+              role: h.sender === 'user' || h.role === 'user' ? 'user' : 'model',
               parts: [{ text: h.text || '' }]
             });
           });
@@ -100,19 +105,19 @@ Give genuine fashion styling advice for whatever the user asks (events, casual, 
     if (!reply) {
       const lower = message.toLowerCase();
       if (lower.includes('dinner') || lower.includes('party') || lower.includes('cocktail') || lower.includes('evening')) {
-        reply = "For an evening dinner or party, I recommend a Silk or Linen Slip Dress (LKR 8,500) paired with an Oversized Wool Blazer (LKR 14,500) draped over your shoulders. Add minimalist gold jewelry and open-toe block heels for effortless contemporary elegance.";
+        reply = "For an evening dinner or party in Sri Lanka, a breathable silk or linen slip dress with delicate gold jewelry and minimalist strappy heels creates an effortlessly chic and timeless aesthetic.";
       } else if (lower.includes('wedding') || lower.includes('formal') || lower.includes('ceremony')) {
-        reply = "For a formal wedding celebration, an editorial floor-length piece with clean architectural lines will stand out beautifully. Pair with our Leather Crossbody Bag in Cognac Tan (LKR 9,500) and delicate accessories.";
+        reply = "For a formal wedding celebration, an elegant floor-length silhouette with rich textures and tailored drape pairs wonderfully with statement earrings and a classic clutch bag.";
       } else if (lower.includes('gym') || lower.includes('workout') || lower.includes('active') || lower.includes('casual')) {
-        reply = "Our Seamless Gym Leggings (LKR 4,200) paired with Minimalist Vegan Sneakers (LKR 11,200) create the ultimate athleisure ensemble—both breathable and sculpt-enhancing for tropical comfort.";
+        reply = "For activewear and casual weekend comfort, high-waist moisture-wicking leggings paired with an oversized cotton tee and clean sneakers will keep you effortlessly stylish and cool.";
       } else if (lower.includes('budget') || lower.includes('cheap') || lower.includes('under') || lower.includes('price')) {
-        reply = "Looking for premium style on a budget? We have pieces starting under LKR 5,000, like our Seamless Leggings (LKR 4,200) and Cable Knit Cardigans. You can also use coupon code 'TREND10' at checkout for 10% off!";
+        reply = "Looking for premium style on a budget? Check out our trending arrivals for versatile staples. You can also apply coupon code 'TREND10' at checkout for 10% off your entire order!";
       } else {
-        reply = `Hello! I'm your TrendSprout AI Stylist. How can I help you elevate your look today? Feel free to ask me for outfit ideas, color matching, or styling for any upcoming event!`;
+        reply = `Hello! I'm your TrendSprout AI Stylist. How can I help you elevate your look today? Feel free to ask me for outfit ideas, color matching, or styling advice for any upcoming occasion!`;
       }
     }
 
-    // Attach relevant product recommendations from catalog
+    // Attach relevant product recommendations only if real catalog items exist
     if (catalogSnippets.length > 0) {
       const lower = message.toLowerCase();
       let matched = catalogSnippets.filter(p => {
@@ -123,16 +128,14 @@ Give genuine fashion styling advice for whatever the user asks (events, casual, 
       });
       if (matched.length === 0) matched = catalogSnippets.slice(0, 2);
       recommendedProducts = matched.slice(0, 2).map(p => ({
+        id: p._id ? p._id.toString() : p.id,
         name: p.name,
         price: p.price,
-        brand: p.brand || 'Sprout Studio',
-        image: (p.images && p.images[0]) || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80'
-      }));
+        brand: p.brand || 'TrendSprout Brand',
+        image: (p.images && p.images[0]) || ''
+      })).filter(p => p.image);
     } else {
-      recommendedProducts = [
-        { name: "Linen Slip Dress", price: 8500, brand: "Aura Label", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" },
-        { name: "Oversized Wool Blazer", price: 14500, brand: "Nouveau Collective", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80" }
-      ];
+      recommendedProducts = [];
     }
 
     res.json({

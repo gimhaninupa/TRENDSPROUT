@@ -72,7 +72,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="seller-store" onNavigate={onNavigate} role="customer" />
+      <Navbar current="seller-store" onNavigate={onNavigate} />
       <div className="pt-16">
         <div className="relative h-72 overflow-hidden">
           <img src={storeInfo.banner} alt="Store banner" className="w-full h-full object-cover" />

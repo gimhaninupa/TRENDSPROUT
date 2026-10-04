@@ -51,10 +51,8 @@ export function AIChatbotScreen({ onNavigate }: { onNavigate: (s: Screen) => voi
         ...prev,
         {
           role: "ai",
-          text: "For a chic Colombo event, our Linen Slip Dress (LKR 8,500) paired with an Oversized Blazer (LKR 14,500) and minimalist jewelry will keep you cool and elegantly styled!",
-          recommendedProducts: [
-            { name: "Linen Slip Dress", price: 8500, brand: "Aura Label", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" }
-          ]
+          text: "I'm here to give you tailored styling and fashion advice. Feel free to ask about outfit combinations, color coordination, or looks for your upcoming events!",
+          recommendedProducts: []
         }
       ]);
     } finally {
@@ -71,7 +69,7 @@ export function AIChatbotScreen({ onNavigate }: { onNavigate: (s: Screen) => voi
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif", background: "#f8f7ff" }}>
-      <Navbar current="ai-chatbot" onNavigate={onNavigate} role="customer" />
+      <Navbar current="ai-chatbot" onNavigate={onNavigate} />
       <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full pt-20 pb-0">
         <div className="px-4 py-4 border-b border-gray-100 bg-white flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">

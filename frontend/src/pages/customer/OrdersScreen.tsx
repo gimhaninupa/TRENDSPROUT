@@ -97,7 +97,7 @@ export function OrdersScreen({ onNavigate }: { onNavigate: (s: Screen) => void }
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="orders" onNavigate={onNavigate} role="customer" />
+      <Navbar current="orders" onNavigate={onNavigate} />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <div className="flex items-center justify-between mb-8">
           <div>
