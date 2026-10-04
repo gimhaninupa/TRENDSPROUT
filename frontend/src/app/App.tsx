@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { QuickNav, Screen } from '../components/shared';
+import { Preloader } from '../components/Preloader';
 import { AboutScreen } from '../pages/company/AboutScreen';
 import { BlogScreen } from '../pages/company/BlogScreen';
 import { CareersScreen } from '../pages/company/CareersScreen';
@@ -84,6 +86,12 @@ const screenToPath: Record<string, string> = {
 
 function RouterWrapper() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isAppLoading, setIsAppLoading] = useState(true);
+
+  // If directly navigating to splash page "/", skip double preloader
+  const isDirectSplash = location.pathname === '/';
+
   const onNavigate = (s: Screen) => {
     const path = screenToPath[s] || '/';
     navigate(path);
@@ -92,6 +100,9 @@ function RouterWrapper() {
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      {isAppLoading && !isDirectSplash && (
+        <Preloader onFinish={() => setIsAppLoading(false)} minDurationMs={600} />
+      )}
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/" element={<SplashScreen onNavigate={onNavigate} />} />

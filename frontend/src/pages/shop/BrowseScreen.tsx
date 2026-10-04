@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search, ChevronDown, Grid, List, Camera, Upload, X,
-  Sparkles, CheckCircle2, RefreshCw, Sliders, ArrowRight
+  Sparkles, CheckCircle2, RefreshCw, Sliders, ArrowRight, Plus
 } from "lucide-react";
 import { 
     Screen, purple, purpleLight, lkr, 

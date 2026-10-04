@@ -8,13 +8,66 @@
       <title>TRENDSPROUT</title>
       <meta name="description" content="An AI-driven fashion marketplace enabling startup brands to create stores, manage inventory, and offer personalized shopping experiences for customers." />
       <meta name="robots" content="noindex, nofollow" />
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+      <style>
+        html, body { 
+          height: 100%; 
+          margin: 0; 
+          background-color: #0a0a0f;
+          color-scheme: dark;
+        } 
+        #root { 
+          min-height: 100%; 
+          display: flex;
+          flex-direction: column;
+        }
+        .initial-loader {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: radial-gradient(circle at 50% 40%, #170932 0%, #0a0a0f 70%, #050508 100%);
+          z-index: 999999;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .initial-logo {
+          width: 72px;
+          height: 72px;
+          border-radius: 20px;
+          background: linear-gradient(135deg, #6C4DF6, #9333ea);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          font-size: 28px;
+          color: #ffffff;
+          box-shadow: 0 0 35px rgba(108, 77, 246, 0.4);
+          animation: pulse 1.8s infinite ease-in-out;
+        }
+        .initial-title {
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 800;
+          letter-spacing: -0.5px;
+          margin-top: 16px;
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 0.95; }
+          50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px #6C4DF6); }
+        }
+      </style>
       
     </head>
 
     <body>
       
-      <div id="root"></div>
+      <div id="root">
+        <div class="initial-loader">
+          <div class="initial-logo">TS</div>
+          <div class="initial-title">TRENDSPROUT</div>
+        </div>
+      </div>
       <!-- PayHere Official Payment Gateway SDK -->
       <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
       <script type="module" src="/src/main.tsx"></script>
