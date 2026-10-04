@@ -20,12 +20,28 @@ import {
 } from '../../components/shared';
 
 export function VendorAnalyticsScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const stats = [
-    { label: "Total Revenue", val: "LKR 12.6M", change: "+24.5%" },
-    { label: "Orders Delivered", val: "263", change: "+18.2%" },
-    { label: "Conversion Rate", val: "3.8%", change: "+0.4%" },
-    { label: "Store Visitors", val: "14.2K", change: "+32%" },
-  ];
+  const [stats, setStats] = useState([
+    { label: "Total Revenue", val: "LKR 0", change: "0%" },
+    { label: "Orders Delivered", val: "0", change: "0%" },
+    { label: "Conversion Rate", val: "0%", change: "0%" },
+    { label: "Store Products", val: "0", change: "0 active" },
+  ]);
+
+  useEffect(() => {
+    api.getVendorWallet()
+      .then(res => {
+        if (res?.data) {
+          const w = res.data;
+          setStats([
+            { label: "Total Revenue", val: lkr(w.grossSales || 0), change: "+0%" },
+            { label: "Orders Delivered", val: String(w.soldItems?.length || 0), change: "+0%" },
+            { label: "Available Balance", val: lkr(w.availableBalance || 0), change: "Ready to withdraw" },
+            { label: "Total Paid Out", val: lkr(w.totalPaidOut || 0), change: "Settled" },
+          ]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>

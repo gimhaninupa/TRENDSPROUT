@@ -44,86 +44,22 @@ export function VendorPayoutsScreen({ onNavigate }: { onNavigate: (s: Screen) =>
         }
       }
     } catch {
-      // Fallback demo state
+      // Fallback empty state
       setWalletData({
-        grossSales: 48500,
-        totalPlatformFee: 4850,
-        netEarnings: 43650,
-        pendingEarnings: 12500,
-        availableBalance: 31150,
-        totalPaidOut: 25000,
+        grossSales: 0,
+        totalPlatformFee: 0,
+        netEarnings: 0,
+        pendingEarnings: 0,
+        availableBalance: 0,
+        totalPaidOut: 0,
         bankDetails: {
-          bankName: "Commercial Bank of Ceylon",
-          accountName: user?.username || "Store Owner",
-          accountNumber: "8004592011",
-          branch: "Colombo 03",
+          bankName: "",
+          accountName: user?.username || "",
+          accountNumber: "",
+          branch: "",
         },
-        soldItems: [
-          {
-            orderId: "ORD-99201",
-            trackingNumber: "TS-LK-849201",
-            date: new Date(),
-            productName: "Leather Tote Bag",
-            brand: "Atelier Nord",
-            image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80",
-            quantity: 1,
-            price: 8500,
-            grossTotal: 8500,
-            commissionRate: "10%",
-            platformFee: 850,
-            netPayout: 7650,
-            orderStatus: "Delivered",
-            paymentStatus: "Paid",
-          },
-          {
-            orderId: "ORD-99184",
-            trackingNumber: "TS-LK-849177",
-            date: new Date(Date.now() - 86400000 * 2),
-            productName: "Oversized Linen Blazer",
-            brand: "Atelier Nord",
-            image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80",
-            quantity: 1,
-            price: 12500,
-            grossTotal: 12500,
-            commissionRate: "10%",
-            platformFee: 1250,
-            netPayout: 11250,
-            orderStatus: "Delivered",
-            paymentStatus: "Paid",
-          },
-          {
-            orderId: "ORD-99150",
-            trackingNumber: "TS-LK-849102",
-            date: new Date(Date.now() - 86400000 * 4),
-            productName: "Silk Slip Maxi Dress",
-            brand: "Atelier Nord",
-            image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80",
-            quantity: 2,
-            price: 13750,
-            grossTotal: 27500,
-            commissionRate: "10%",
-            platformFee: 2750,
-            netPayout: 24750,
-            orderStatus: "Processing",
-            paymentStatus: "Paid",
-          }
-        ],
-        payouts: [
-          {
-            _id: "pay_1",
-            amount: 25000,
-            status: "Completed",
-            bankDetails: {
-              bankName: "Commercial Bank of Ceylon",
-              accountName: user?.username || "Store Owner",
-              accountNumber: "8004592011",
-              branch: "Colombo 03",
-            },
-            referenceNumber: "SLIP-TX-882910",
-            createdAt: new Date(Date.now() - 86400000 * 5),
-            processedAt: new Date(Date.now() - 86400000 * 4),
-          }
-        ]
+        soldItems: [],
+        payouts: []
       });
     } finally {
       setIsLoading(false);

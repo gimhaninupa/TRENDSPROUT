@@ -717,11 +717,13 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {(orders.length === 0 ? [
-                      { _id: "ord_1001", createdAt: new Date(), customer: { username: "kasun_perera", email: "kasun@gmail.com" }, totalAmount: 18500, paymentStatus: "Paid", orderStatus: "Processing" },
-                      { _id: "ord_1002", createdAt: new Date(), customer: { username: "nimesha_s", email: "nimesha@gmail.com" }, totalAmount: 9200, paymentStatus: "Paid", orderStatus: "Shipped" },
-                      { _id: "ord_1003", createdAt: new Date(), customer: { username: "dilshan_k", email: "dilshan@gmail.com" }, totalAmount: 24000, paymentStatus: "Paid", orderStatus: "Delivered" },
-                    ] : orders).filter(o => 
+                    {orders.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-12 text-center text-gray-500 text-sm">
+                          No customer orders placed yet. Orders placed on the store will appear here in real time.
+                        </td>
+                      </tr>
+                    ) : orders.filter(o => 
                       !searchQuery || 
                       o._id?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                       o.customer?.username?.toLowerCase().includes(searchQuery.toLowerCase())

@@ -14,66 +14,27 @@ export function OrdersScreen({ onNavigate }: { onNavigate: (s: Screen) => void }
   const [filter, setFilter] = useState("All");
   const [orders, setOrders] = useState<any[]>(() => {
     try {
-      const stored = localStorage.getItem('ts_last_order');
+      const stored = localStorage.getItem('ts_orders');
       if (stored) {
-        const order = JSON.parse(stored);
-        return [
-          {
-            id: order.orderId || '#TS-LK-842910',
-            trackingNumber: order.trackingNumber || 'TS-LK-842910',
-            status: 'Processing',
-            date: order.date || 'Today',
-            items: order.items?.length || 1,
-            total: order.totalAmount || 23000,
-            img: order.items?.[0]?.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
-          },
-          {
-            id: '#TS-LK-519283',
-            trackingNumber: 'TS-LK-519283',
-            status: 'Delivered',
-            date: '3 days ago',
-            items: 2,
-            total: 18700,
-            img: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
-          }
-        ];
+        return JSON.parse(stored);
       }
     } catch {}
-    return [
-      {
-        id: '#TS-LK-842910',
-        trackingNumber: 'TS-LK-842910',
-        status: 'Shipping',
-        date: 'Yesterday',
-        items: 1,
-        total: 8500,
-        img: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
-      },
-      {
-        id: '#TS-LK-519283',
-        trackingNumber: 'TS-LK-519283',
-        status: 'Delivered',
-        date: 'Jul 18, 2026',
-        items: 2,
-        total: 18700,
-        img: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
     if (isAuthenticated) {
       api.getMyOrders()
         .then(res => {
-          if (res?.data && res.data.length > 0) {
+          if (res?.data && Array.isArray(res.data)) {
             const formatted = res.data.map((o: any) => ({
-              id: o.trackingNumber ? `#${o.trackingNumber}` : `#TS-LK-${o._id.slice(-6)}`,
-              trackingNumber: o.trackingNumber || `TS-LK-${o._id.slice(-6)}`,
+              id: o.trackingNumber ? `#${o.trackingNumber}` : `#TS-LK-${o._id?.slice(-6) || '1001'}`,
+              trackingNumber: o.trackingNumber || `TS-LK-${o._id?.slice(-6) || '1001'}`,
               status: o.orderStatus || 'Processing',
-              date: new Date(o.createdAt).toLocaleDateString('en-LK', { month: 'short', day: 'numeric', year: 'numeric' }),
+              date: o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-LK', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent',
               items: o.items?.length || 1,
-              total: o.totalAmount,
-              img: o.items?.[0]?.product?.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
+              total: o.totalAmount || 0,
+              img: o.items?.[0]?.product?.image || o.items?.[0]?.image || '',
             }));
             setOrders(formatted);
           }
