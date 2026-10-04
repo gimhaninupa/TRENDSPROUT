@@ -787,7 +787,7 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
                   />
                 </div>
-                <span className="text-xs text-gray-400">{productsList.length || sampleProducts.length} Active Catalog Items</span>
+                <span className="text-xs text-gray-400">{productsList.length} Active Catalog Items</span>
               </div>
 
               <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -802,38 +802,46 @@ export function AdminDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) =
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {(productsList.length === 0 ? sampleProducts : productsList).filter(p => 
-                      !searchQuery || 
-                      p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                      p.brand?.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map((p) => (
-                      <tr key={p._id || p.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4 flex items-center gap-3">
-                          <img src={p.image || p.imageUrl} alt={p.name} className="w-10 h-10 rounded-xl object-cover border border-white/10" />
-                          <div>
-                            <div className="font-semibold text-white text-xs">{p.name}</div>
-                            <div className="text-[11px] text-gray-500">{p.category?.name || p.category || "Apparel"}</div>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 text-xs">
-                          <div className="text-white font-medium">{p.vendor?.vendorStore?.storeName || p.brand || "TrendSprout"}</div>
-                        </td>
-                        <td className="px-5 py-4 font-bold text-white text-xs">
-                          {lkr(p.price)}
-                        </td>
-                        <td className="px-5 py-4 text-xs">
-                          <span className="text-emerald-400 font-semibold">{p.stock || 45} in stock</span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <button
-                            onClick={() => handleDeleteProduct(p._id || p.id)}
-                            className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition-colors flex items-center gap-1"
-                          >
-                            <Trash2 size={12} /> Remove
-                          </button>
+                    {productsList.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-5 py-12 text-center text-xs text-gray-500">
+                          No products found in the catalog. Products published by vendors will appear here.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      productsList.filter(p => 
+                        !searchQuery || 
+                        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        p.brand?.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).map((p) => (
+                        <tr key={p._id || p.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-4 flex items-center gap-3">
+                            <img src={p.image || p.images?.[0] || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80"} alt={p.name} className="w-10 h-10 rounded-xl object-cover border border-white/10" />
+                            <div>
+                              <div className="font-semibold text-white text-xs">{p.name}</div>
+                              <div className="text-[11px] text-gray-500">{p.category?.name || p.category || "Apparel"}</div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 text-xs">
+                            <div className="text-white font-medium">{p.vendor?.vendorStore?.storeName || p.brand || "Independent Brand"}</div>
+                          </td>
+                          <td className="px-5 py-4 font-bold text-white text-xs">
+                            {lkr(p.price)}
+                          </td>
+                          <td className="px-5 py-4 text-xs">
+                            <span className="text-emerald-400 font-semibold">{p.stock ?? 0} in stock</span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <button
+                              onClick={() => handleDeleteProduct(p._id || p.id)}
+                              className="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition-colors flex items-center gap-1"
+                            >
+                              <Trash2 size={12} /> Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

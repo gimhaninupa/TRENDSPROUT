@@ -44,24 +44,9 @@ export function TrackingScreen({ onNavigate }: { onNavigate: (s: Screen) => void
     }
   };
 
-  const trackingCode = trackingData?.trackingNumber || lastOrder?.trackingNumber || "TS-LK-842910";
-  const placedDate = lastOrder?.date || "Jul 22, 2026";
-  const items = trackingData?.items || lastOrder?.items || [
-    {
-      name: "Linen Slip Dress",
-      brand: "Aura Label",
-      price: 8500,
-      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=300&q=80",
-      size: "M",
-    },
-    {
-      name: "Oversized Wool Blazer",
-      brand: "Nouveau Collective",
-      price: 14500,
-      image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=300&q=80",
-      size: "L",
-    }
-  ];
+  const trackingCode = trackingData?.trackingNumber || lastOrder?.trackingNumber || "";
+  const placedDate = lastOrder?.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const items = trackingData?.items || lastOrder?.items || [];
 
   const steps = [
     { label: "Order Placed & Verified", date: placedDate + ", 10:14 AM", done: true },

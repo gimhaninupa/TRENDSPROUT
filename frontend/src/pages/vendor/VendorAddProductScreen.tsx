@@ -10,7 +10,10 @@ import {
 } from '../../components/shared';
 import api from '../../services/api';
 
+import { useAuth } from '../../context/AuthContext';
+
 export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  const { user } = useAuth();
   // Load draft if available
   const getSavedDraft = () => {
     try {
@@ -24,17 +27,15 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
 
   const [title, setTitle] = useState(initialDraft?.title || "");
   const [desc, setDesc] = useState(initialDraft?.desc || "");
-  const [category, setCategory] = useState(initialDraft?.category || "Blazers");
+  const [category, setCategory] = useState(initialDraft?.category || "Dresses");
   const [price, setPrice] = useState(initialDraft?.price || "");
   const [comparePrice, setComparePrice] = useState(initialDraft?.comparePrice || "");
   const [stock, setStock] = useState(initialDraft?.stock || "20");
-  const [sku, setSku] = useState(initialDraft?.sku || "ALB-001");
+  const [sku, setSku] = useState(initialDraft?.sku || "");
   const [selectedSizes, setSelectedSizes] = useState<string[]>(initialDraft?.selectedSizes || ["S", "M", "L"]);
   
   // Images state
-  const [images, setImages] = useState<string[]>(initialDraft?.images || [
-    "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80"
-  ]);
+  const [images, setImages] = useState<string[]>(initialDraft?.images || []);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isRemovingBg, setIsRemovingBg] = useState(false);
   const [bgRemovedSuccess, setBgRemovedSuccess] = useState(false);
@@ -206,10 +207,10 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
       setPrice("");
       setComparePrice("");
       setStock("20");
-      setSku("ALB-001");
-      setCategory("Blazers");
+      setSku("");
+      setCategory("Dresses");
       setSelectedSizes(["S", "M", "L"]);
-      setImages(["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80"]);
+      setImages([]);
       localStorage.removeItem('ts_vendor_product_draft');
     }
   };
@@ -221,23 +222,24 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     }
 
     setIsPublishing(true);
+    const storeBrand = user?.vendorStore?.storeName || user?.username || "My Store";
     const newProduct = {
       id: 'vp-' + Date.now(),
       name: title.trim(),
-      description: desc.trim() || "Modern runway design crafted with sustainable luxury fabrics.",
-      category: category || "Blazers",
+      description: desc.trim() || "Fresh design crafted with sustainable luxury fabrics.",
+      category: category || "Dresses",
       price: Number(price) || 12500,
       originalPrice: comparePrice ? Number(comparePrice) : Math.round((Number(price) || 12500) * 1.25),
       stock: Number(stock) || 20,
       sku: sku || ('SKU-' + Math.floor(1000 + Math.random() * 9000)),
-      brand: "Atelier Nord",
+      brand: storeBrand,
       tag: "New",
       rating: 5.0,
       reviewsCount: 0,
-      image: images[0] || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80",
+      image: images[0] || "",
       images: images,
       sizes: selectedSizes,
-      colors: ["Midnight Black", "Natural Ivory"],
+      colors: ["Standard"],
     };
 
     try {

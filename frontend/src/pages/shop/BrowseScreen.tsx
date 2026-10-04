@@ -20,10 +20,9 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
   const [allProducts, setAllProducts] = useState<any[]>(() => {
     try {
       const vendorSaved = localStorage.getItem('ts_vendor_products');
-      const vendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
-      return [...vendorItems, ...products];
+      return vendorSaved ? JSON.parse(vendorSaved) : [];
     } catch {
-      return products;
+      return [];
     }
   });
 
@@ -31,21 +30,21 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
     let isMounted = true;
     api.getProducts()
       .then(res => {
-        if (isMounted && res?.data && res.data.length > 0) {
-          const formatted = res.data.map(item => ({
+        if (isMounted) {
+          const formatted = (res?.data || []).map(item => ({
             id: item._id || item.id,
             name: item.name,
             price: item.price,
             originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-            brand: item.brand || 'Aura Label',
+            brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
             tag: item.tag || 'New',
-            rating: item.rating || 4.9,
-            reviews: item.reviewsCount || 18,
-            image: item.images?.[0] || item.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80',
-            category: item.category?.name || item.category || 'Dresses',
+            rating: item.rating || 5.0,
+            reviews: item.reviewsCount || 0,
+            image: item.images?.[0] || item.image || '',
+            category: item.category?.name || item.category || 'Apparel',
             description: item.description,
             sizes: item.sizes || ['S', 'M', 'L'],
-            colors: item.colors || ['Black', 'Ivory'],
+            colors: item.colors || ['Standard'],
           }));
           
           // Merge with custom vendor products if any and deduplicate
@@ -62,7 +61,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
         }
       })
       .catch(err => {
-        console.warn('Using local catalog fallback:', err.message);
+        console.warn('API getProducts note:', err.message);
       });
 
     return () => { isMounted = false; };
@@ -616,7 +615,29 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
               </div>
             </div>
 
-            {view === "grid" ? (
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
+                  <Search size={28} />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No items found</h3>
+                <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
+                  {searchTerm || activeFilters.length > 0 && !activeFilters.includes("All")
+                    ? "Try adjusting your filters, category, or search term to discover available pieces."
+                    : "No products are listed in this category yet. You can list new items as a vendor."}
+                </p>
+                <div className="flex justify-center gap-3">
+                  {(searchTerm || (!activeFilters.includes("All") && activeFilters.length > 0)) && (
+                    <GhostBtn onClick={() => { setSearchTerm(""); setActiveFilters(["All"]); setPriceRange([0, 50000]); }}>
+                      Clear Filters
+                    </GhostBtn>
+                  )}
+                  <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={16} />}>
+                    Add New Product
+                  </PrimaryBtn>
+                </div>
+              </div>
+            ) : view === "grid" ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
                 {filteredProducts.map(p => (
                   <ProductCard key={p.id} product={p} onNavigate={onNavigate} />
@@ -625,7 +646,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
             ) : (
               <div className="flex flex-col gap-3">
                 {filteredProducts.map(p => (
-                  <div key={p.id} onClick={() => onNavigate("product-detail")} className="bg-white rounded-2xl border border-gray-100 p-4 flex gap-5 cursor-pointer hover:border-purple-200 hover:shadow-lg hover:shadow-purple-100/30 transition-all">
+                  <div key={p.id} onClick={() => { localStorage.setItem('ts_selected_product', JSON.stringify(p)); onNavigate("product-detail"); }} className="bg-white rounded-2xl border border-gray-100 p-4 flex gap-5 cursor-pointer hover:border-purple-200 hover:shadow-lg hover:shadow-purple-100/30 transition-all">
                     <img src={p.image} alt={p.name} className="w-24 h-24 rounded-xl object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-purple-600 font-medium mb-1">{p.brand}</p>
@@ -638,7 +659,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                     </div>
                     <div className="flex flex-col gap-2 justify-center">
                       <PrimaryBtn onClick={e => e.stopPropagation()} className="!py-2 !px-4 !text-xs">Add to Cart</PrimaryBtn>
-                      <GhostBtn onClick={e => { e.stopPropagation(); onNavigate("product-detail"); }} className="!py-2 !px-4 !text-xs">View</GhostBtn>
+                      <GhostBtn onClick={e => { e.stopPropagation(); localStorage.setItem('ts_selected_product', JSON.stringify(p)); onNavigate("product-detail"); }} className="!py-2 !px-4 !text-xs">View</GhostBtn>
                     </div>
                   </div>
                 ))}

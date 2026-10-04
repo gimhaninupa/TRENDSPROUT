@@ -18,10 +18,22 @@ import {
     products, categories, testimonials, analyticsData, pieData, vendorProducts, chatMessages, faqs,
     Badge, StarRating, PrimaryBtn, GhostBtn, Input, GlassCard, ProductCard, Navbar, VendorSidebar, FloatingNav, QuickNav
 } from '../../components/shared';
+import { useAuth } from '../../context/AuthContext';
 
 export function StoreCustomizationScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  const { user } = useAuth();
   const [tab, setTab] = useState("theme");
   const [primaryColor, setPrimaryColor] = useState("#6C4DF6");
+  const [previewProducts, setPreviewProducts] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('ts_vendor_products');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const storeName = user?.vendorStore?.storeName || user?.username || "My Store";
   return (
     <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="store-customization" onNavigate={onNavigate} />
@@ -117,15 +129,21 @@ export function StoreCustomizationScreen({ onNavigate }: { onNavigate: (s: Scree
                 {["#f87171", "#fbbf24", "#34d399"].map(c => <div key={c} className="w-3 h-3 rounded-full" style={{ background: c }} />)}
               </div>
               <div className="p-4">
-                <div className="h-24 rounded-xl mb-4 flex items-center justify-center text-white text-lg font-black" style={{ background: `linear-gradient(135deg, ${primaryColor}, #9333ea)` }}>Atelier Nord</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {products.slice(0, 4).map(p => (
-                    <div key={p.id} className="rounded-xl overflow-hidden border border-gray-100">
-                      <div className="aspect-square bg-gray-50"><img src={p.image} alt={p.name} className="w-full h-full object-cover" /></div>
-                      <div className="p-2"><p className="text-xs font-semibold text-gray-900 truncate">{p.name}</p><p className="text-xs font-bold mt-0.5" style={{ color: primaryColor }}>{lkr(p.price)}</p></div>
-                    </div>
-                  ))}
-                </div>
+                <div className="h-24 rounded-xl mb-4 flex items-center justify-center text-white text-lg font-black" style={{ background: `linear-gradient(135deg, ${primaryColor}, #9333ea)` }}>{storeName}</div>
+                {previewProducts.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {previewProducts.slice(0, 4).map(p => (
+                      <div key={p.id} className="rounded-xl overflow-hidden border border-gray-100">
+                        <div className="aspect-square bg-gray-50"><img src={p.image || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80"} alt={p.name} className="w-full h-full object-cover" /></div>
+                        <div className="p-2"><p className="text-xs font-semibold text-gray-900 truncate">{p.name}</p><p className="text-xs font-bold mt-0.5" style={{ color: primaryColor }}>{lkr(p.price)}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-xs text-gray-400 bg-gray-50 rounded-xl">
+                    Add products in Vendor Portal to view live storefront preview
+                  </div>
+                )}
               </div>
             </div>
           </div>

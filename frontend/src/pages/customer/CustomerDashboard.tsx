@@ -20,9 +20,47 @@ import {
 } from '../../components/shared';
 import { useAuth } from '../../context/AuthContext';
 
+import { api } from "../../services/api";
+
 export function CustomerDashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const { user, isAuthenticated } = useAuth();
+  const [recommended, setRecommended] = useState<any[]>([]);
   const displayName = user?.username ? user.username.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Shopper";
+
+  useEffect(() => {
+    let isMounted = true;
+    const vendorSaved = localStorage.getItem('ts_vendor_products');
+    const localVendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
+
+    api.getProducts({ limit: 4 })
+      .then(res => {
+        if (isMounted) {
+          const formatted = (res?.data || []).map((item: any) => ({
+            id: item._id || item.id,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.originalPrice || Math.round(item.price * 1.25),
+            brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Brand',
+            rating: item.rating || 5.0,
+            image: item.images?.[0] || item.image || '',
+            category: item.category?.name || item.category || 'Apparel',
+          }));
+          const combined = [...localVendorItems, ...formatted];
+          const uniqueMap = new Map();
+          combined.forEach(p => {
+            if (p && p.id && !uniqueMap.has(p.id)) {
+              uniqueMap.set(p.id, p);
+            }
+          });
+          setRecommended(Array.from(uniqueMap.values()).slice(0, 4));
+        }
+      })
+      .catch(() => {
+        if (isMounted) setRecommended(localVendorItems.slice(0, 4));
+      });
+
+    return () => { isMounted = false; };
+  }, []);
 
   const wishlistCount = (() => {
     try {
@@ -40,6 +78,17 @@ export function CustomerDashboard({ onNavigate }: { onNavigate: (s: Screen) => v
     } catch {
       return 0;
     }
+  })();
+
+  const totalSpent = (() => {
+    try {
+      const saved = localStorage.getItem('ts_last_order');
+      if (saved) {
+        const order = JSON.parse(saved);
+        return lkr(order.total || 0);
+      }
+    } catch {}
+    return "LKR 0";
   })();
 
   return (
@@ -61,8 +110,8 @@ export function CustomerDashboard({ onNavigate }: { onNavigate: (s: Screen) => v
           {[
             { label: "Active Orders", value: String(activeOrdersCount), sub: "Tracking live", icon: <Package size={20} />, screen: "orders" as Screen },
             { label: "Wishlist Items", value: String(wishlistCount), sub: "In your collection", icon: <Heart size={20} />, screen: "wishlist" as Screen },
-            { label: "Total Spent", value: "LKR 408,600", sub: "This year", icon: <CreditCard size={20} />, screen: "orders" as Screen },
-            { label: "Style Score", value: "94", sub: "Top 5%", icon: <Sparkles size={20} />, screen: "ai-outfit" as Screen },
+            { label: "Total Spent", value: totalSpent, sub: "This year", icon: <CreditCard size={20} />, screen: "orders" as Screen },
+            { label: "Style Score", value: "98", sub: "Top 5%", icon: <Sparkles size={20} />, screen: "ai-outfit" as Screen },
           ].map(s => (
             <div key={s.label} onClick={() => onNavigate(s.screen)} className="bg-white rounded-2xl p-5 border border-gray-100 cursor-pointer hover:border-purple-200 hover:shadow-lg hover:shadow-purple-100/30 transition-all group">
               <div className="flex items-center justify-between mb-3">
@@ -81,9 +130,20 @@ export function CustomerDashboard({ onNavigate }: { onNavigate: (s: Screen) => v
               <h2 className="font-bold text-gray-900">Recommended For You</h2>
               <button onClick={() => onNavigate("browse")} className="text-xs font-semibold text-purple-600 flex items-center gap-1">See all <ArrowRight size={12} /></button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              {products.slice(0, 4).map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
-            </div>
+            {recommended.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4">
+                {recommended.map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
+              </div>
+            ) : (
+              <div className="text-center py-12 px-4 bg-white rounded-2xl border border-gray-100">
+                <ShoppingBag size={24} className="text-purple-400 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-gray-800">Fresh recommendations are on the way</p>
+                <p className="text-xs text-gray-400 mt-1 mb-4">Discover new fashion arrivals or try the AI Stylist</p>
+                <GhostBtn onClick={() => onNavigate("browse")} className="!py-1.5 !px-4 !text-xs mx-auto">
+                  Browse Catalog
+                </GhostBtn>
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-4">
             <div className="bg-white rounded-2xl border border-gray-100 p-5">

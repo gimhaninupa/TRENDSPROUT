@@ -26,10 +26,9 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   const [trendingList, setTrendingList] = useState<any[]>(() => {
     try {
       const vendorSaved = localStorage.getItem('ts_vendor_products');
-      const vendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
-      return [...vendorItems, ...products].slice(0, 4);
+      return vendorSaved ? JSON.parse(vendorSaved) : [];
     } catch {
-      return products.slice(0, 4);
+      return [];
     }
   });
 
@@ -37,21 +36,21 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
     let isMounted = true;
     api.getProducts({ limit: 12 })
       .then(res => {
-        if (isMounted && res?.data && res.data.length > 0) {
-          const formatted = res.data.map(item => ({
+        if (isMounted) {
+          const formatted = (res?.data || []).map(item => ({
             id: item._id || item.id,
             name: item.name,
             price: item.price,
             originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-            brand: item.brand || 'Aura Label',
-            tag: item.tag || 'Trending',
-            rating: item.rating || 4.9,
-            reviews: item.reviewsCount || 24,
-            image: item.images?.[0] || item.image || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80',
-            category: item.category?.name || item.category || 'Dresses',
+            brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
+            tag: item.tag || 'New',
+            rating: item.rating || 5.0,
+            reviews: item.reviewsCount || 0,
+            image: item.images?.[0] || item.image || '',
+            category: item.category?.name || item.category || 'Apparel',
             description: item.description,
             sizes: item.sizes || ['S', 'M', 'L'],
-            colors: item.colors || ['Black', 'Ivory'],
+            colors: item.colors || ['Standard'],
           }));
 
           const vendorSaved = localStorage.getItem('ts_vendor_products');
@@ -186,9 +185,27 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
             <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Trending Now</h2>
             <button onClick={() => onNavigate("browse")} className="flex items-center gap-2 text-sm font-semibold text-purple-600">See all <ArrowRight size={16} /></button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5">
-            {trendingList.map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
-          </div>
+          {trendingList.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5">
+              {trendingList.map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
+            </div>
+          ) : (
+            <div className="text-center py-16 px-6 bg-white rounded-3xl border border-gray-100 shadow-sm max-w-2xl mx-auto">
+              <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
+                <ShoppingBag size={28} />
+              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fresh Catalog Ready for New Drops</h3>
+              <p className="text-sm text-gray-500 mb-6">No products have been listed yet. Open a store or add your first fashion collection from the vendor portal.</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={16} />}>
+                  Add First Product
+                </PrimaryBtn>
+                <GhostBtn onClick={() => onNavigate("browse")}>
+                  Explore Categories
+                </GhostBtn>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

@@ -12,6 +12,7 @@ import api from '../../services/api';
 export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const { addToCart } = useCart();
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [reviewsList, setReviewsList] = useState<any[]>([]);
   const [newReviewComment, setNewReviewComment] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5);
@@ -43,18 +44,31 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
             })
             .catch(() => {});
         }
-      } else {
-        setSelectedProduct(products[0]);
       }
-    } catch {
-      setSelectedProduct(products[0]);
-    }
+    } catch {}
+
+    api.getProducts({ limit: 4 })
+      .then(res => {
+        if (res?.data) {
+          setRelatedProducts(res.data.map((item: any) => ({
+            id: item._id || item.id,
+            name: item.name,
+            price: item.price,
+            originalPrice: item.originalPrice || Math.round(item.price * 1.25),
+            brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Brand',
+            rating: item.rating || 5.0,
+            image: item.images?.[0] || item.image || '',
+            category: item.category?.name || item.category || 'Apparel',
+          })));
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  const p = selectedProduct || products[0];
+  const p = selectedProduct;
   const [qty, setQty] = useState(1);
   const [size, setSize] = useState("M");
-  const [color, setColor] = useState(p?.colors?.[0] || "Default");
+  const [color, setColor] = useState("Default");
   const [tab, setTab] = useState("details");
   const [wished, setWished] = useState(() => {
     try {
@@ -67,73 +81,28 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
   });
   const [added, setAdded] = useState(false);
 
+  if (!p) {
+    return (
+      <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <Navbar current="product-detail" onNavigate={onNavigate} role="customer" />
+        <div className="max-w-3xl mx-auto px-4 pt-32 pb-16 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
+            <ShoppingCart size={28} />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">No Product Selected</h1>
+          <p className="text-sm text-gray-500 mb-6">Explore the marketplace catalog to discover and view detailed garment specs, 3D mockups, and reviews.</p>
+          <div className="flex justify-center">
+            <PrimaryBtn onClick={() => onNavigate("browse")}>
+              Browse Catalog
+            </PrimaryBtn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const availableSizes = p.sizes && p.sizes.length > 0 ? p.sizes : ["XS", "S", "M", "L", "XL"];
-  const availableColors = p.colors && p.colors.length > 0 ? p.colors : ["Midnight Black", "Natural Linen"];
-
-  const handleToggleWishlist = () => {
-    try {
-      const savedWish = localStorage.getItem('ts_wishlist');
-      let list = savedWish ? JSON.parse(savedWish) : [];
-      const prodId = p.id || p._id;
-      if (wished) {
-        list = list.filter((item: any) => (item.id || item._id) !== prodId);
-        setWished(false);
-      } else {
-        list.push(p);
-        setWished(true);
-      }
-      localStorage.setItem('ts_wishlist', JSON.stringify(list));
-    } catch (e) {
-      console.warn("Could not save wishlist:", e);
-    }
-  };
-
-  const handleAddToCart = () => {
-    addToCart(p, qty, size, color);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
-
-  const handleAddReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newReviewComment.trim()) return;
-    setSubmittingReview(true);
-    try {
-      const prodId = p._id || p.id;
-      await api.submitReview({
-        productId: prodId,
-        rating: newReviewRating,
-        comment: newReviewComment.trim(),
-      });
-      setReviewsList(prev => [
-        {
-          _id: 'temp-' + Date.now(),
-          user: { username: 'You' },
-          rating: newReviewRating,
-          comment: newReviewComment.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-      setNewReviewComment("");
-    } catch {
-      // Local fallback display
-      setReviewsList(prev => [
-        {
-          _id: 'temp-' + Date.now(),
-          user: { username: 'You' },
-          rating: newReviewRating,
-          comment: newReviewComment.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-      setNewReviewComment("");
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
+  const availableColors = p.colors && p.colors.length > 0 ? p.colors : ["Standard"];
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -310,14 +279,16 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
         </div>
 
         {/* Related Products */}
-        <div className="mt-20">
-          <h2 className="text-2xl font-black text-gray-900 mb-6" style={{ fontFamily: "'Clash Display', sans-serif" }}>Complete the Look</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {products.slice(1, 5).map(item => (
-              <ProductCard key={item.id} product={item} onNavigate={onNavigate} />
-            ))}
+        {relatedProducts.length > 0 && (
+          <div className="mt-20">
+            <h2 className="text-2xl font-black text-gray-900 mb-6" style={{ fontFamily: "'Clash Display', sans-serif" }}>Complete the Look</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {relatedProducts.map(item => (
+                <ProductCard key={item.id} product={item} onNavigate={onNavigate} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

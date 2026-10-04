@@ -18,22 +18,9 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
   const [items, setItems] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('ts_vendor_products');
-      const vendorSaved = saved ? JSON.parse(saved) : [];
-      
-      const defaultVendorList = vendorProducts.map(p => ({
-        id: p.id,
-        name: p.name,
-        sku: p.sku,
-        stock: p.stock,
-        price: p.price,
-        sales: p.sales,
-        status: p.status,
-        image: products[p.id - 1]?.image || 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
-      }));
-
-      return [...vendorSaved, ...defaultVendorList];
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return vendorProducts;
+      return [];
     }
   });
 
@@ -41,22 +28,29 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
     if (isAuthenticated) {
       api.getVendorProducts()
         .then(res => {
-          if (res?.data && res.data.length > 0) {
+          if (res?.data) {
             const formatted = res.data.map((p: any) => ({
               id: p._id || p.id,
               name: p.name,
-              sku: p.sku || `VP-${p._id.slice(-4)}`,
-              stock: p.stock || 25,
+              sku: p.sku || `VP-${String(p._id || p.id).slice(-4)}`,
+              stock: p.stock ?? 0,
               price: p.price,
-              sales: p.salesCount || 12,
+              sales: p.salesCount || 0,
               status: p.stock > 10 ? 'Active' : p.stock > 0 ? 'Low Stock' : 'Out of Stock',
-              image: p.images?.[0] || p.image || 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80',
+              image: p.images?.[0] || p.image || '',
             }));
 
             // Merge with local newly created products
             const saved = localStorage.getItem('ts_vendor_products');
             const vendorSaved = saved ? JSON.parse(saved) : [];
-            setItems([...vendorSaved, ...formatted]);
+            const combined = [...vendorSaved, ...formatted];
+            const uniqueMap = new Map();
+            combined.forEach(p => {
+              if (p && p.id && !uniqueMap.has(p.id)) {
+                uniqueMap.set(p.id, p);
+              }
+            });
+            setItems(Array.from(uniqueMap.values()));
           }
         })
         .catch(() => {});
@@ -128,44 +122,59 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
                 </tr>
               </thead>
               <tbody>
-              {filteredItems.map(p => (
-                <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={p.image || products[0]?.image} alt={p.name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-gray-100" />
-                      <span className="text-sm font-semibold text-gray-900">{p.name}</span>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-16 px-4">
+                    <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-3">
+                      <Package size={22} />
                     </div>
-                  </td>
-                  <td className="px-5 py-4 font-mono text-xs text-gray-500">{p.sku}</td>
-                  <td className="px-5 py-4 text-sm text-gray-700">{p.stock}</td>
-                  <td className="px-5 py-4 text-sm font-semibold text-gray-900">{lkr(p.price)}</td>
-                  <td className="px-5 py-4 text-sm text-gray-700">{p.sales || 0}</td>
-                  <td className="px-5 py-4"><Badge variant={p.status === "Active" ? "green" : p.status === "Low Stock" ? "amber" : "red"}>{p.status}</Badge></td>
-                  <td className="px-5 py-4">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => {
-                          try {
-                            localStorage.setItem('ts_selected_product', JSON.stringify(p));
-                            onNavigate("product-detail");
-                          } catch {}
-                        }} 
-                        className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
-                        title="View live product"
-                      >
-                        <Eye size={12} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(p.id)} 
-                        className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all cursor-pointer"
-                        title="Delete product"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
+                    <div className="text-base font-bold text-gray-900 mb-1">No products in your catalog</div>
+                    <p className="text-xs text-gray-500 mb-4">Start listing your apparel items, setting AI-assisted prices, and generating descriptions.</p>
+                    <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={14} />} className="!py-2 !px-4 !text-xs mx-auto">
+                      Add Product
+                    </PrimaryBtn>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredItems.map(p => (
+                  <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={p.image || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80"} alt={p.name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-gray-100" />
+                        <span className="text-sm font-semibold text-gray-900">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 font-mono text-xs text-gray-500">{p.sku}</td>
+                    <td className="px-5 py-4 text-sm text-gray-700">{p.stock}</td>
+                    <td className="px-5 py-4 text-sm font-semibold text-gray-900">{lkr(p.price)}</td>
+                    <td className="px-5 py-4 text-sm text-gray-700">{p.sales || 0}</td>
+                    <td className="px-5 py-4"><Badge variant={p.status === "Active" ? "green" : p.status === "Low Stock" ? "amber" : "red"}>{p.status}</Badge></td>
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => {
+                            try {
+                              localStorage.setItem('ts_selected_product', JSON.stringify(p));
+                              onNavigate("product-detail");
+                            } catch {}
+                          }} 
+                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
+                          title="View live product"
+                        >
+                          <Eye size={12} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(p.id)} 
+                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all cursor-pointer"
+                          title="Delete product"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
           </div>

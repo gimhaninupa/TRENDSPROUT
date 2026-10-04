@@ -1,25 +1,57 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
-  ShoppingBag, Search, Heart, User, Menu, X, ChevronRight, Star, Zap,
-  Sparkles, TrendingUp, Package, BarChart2, Users, Settings, LogOut,
-  ArrowRight, Check, ShoppingCart, Bell, MessageSquare, Eye, Edit3,
-  Upload, Truck, CreditCard, Lock, Mail, Phone, MapPin, Grid, List,
-  Filter, ChevronDown, Plus, Minus, Trash2, RefreshCw, AlertCircle,
-  CheckCircle, Clock, Store, Bot, Wand2, Image, Tag, DollarSign,
-  Activity, PieChart, FileText, Shield, ChevronLeft, Home, Layers,
-  Camera, Share2, Bookmark, ThumbsUp, MoreHorizontal, Send, Mic,
-  Palette, Layout, Globe, Download, ToggleLeft, Key, Info
+  ShoppingBag, Star, TrendingUp, Package, Plus, Bell, ArrowRight,
+  DollarSign, FileText
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, Pie, Cell } from "recharts";
-import { Link, useNavigate } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { 
-    Screen, purple, purpleLight, purpleDark, lkr, 
-    products, categories, testimonials, analyticsData, pieData, vendorProducts, chatMessages, faqs,
-    Badge, StarRating, PrimaryBtn, GhostBtn, Input, GlassCard, ProductCard, Navbar, VendorSidebar, FloatingNav, QuickNav
+    Screen, purple, lkr, 
+    Badge, VendorSidebar
 } from '../../components/shared';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  const { user } = useAuth();
+  const [stats, setStats] = useState<any>(null);
+  const [localProductsCount, setLocalProductsCount] = useState(0);
+
+  const storeName = user?.vendorStore?.storeName || user?.username || "My Store";
+
+  useEffect(() => {
+    let isMounted = true;
+    try {
+      const saved = localStorage.getItem('ts_vendor_products');
+      if (saved) {
+        setLocalProductsCount(JSON.parse(saved).length);
+      }
+    } catch {}
+
+    api.getVendorStats()
+      .then(res => {
+        if (isMounted && res?.data) {
+          setStats(res.data);
+        }
+      })
+      .catch(() => {});
+
+    return () => { isMounted = false; };
+  }, []);
+
+  const totalRevenue = stats?.totalRevenue || 0;
+  const totalOrders = stats?.totalOrders || 0;
+  const activeProducts = stats?.activeProducts || localProductsCount;
+  const avgRating = stats?.avgRating || "5.0";
+
+  const monthlyRevenueData = stats?.monthlyRevenue || [
+    { month: "Jan", revenue: 0 },
+    { month: "Feb", revenue: 0 },
+    { month: "Mar", revenue: 0 },
+    { month: "Apr", revenue: 0 },
+    { month: "May", revenue: 0 },
+    { month: "Jun", revenue: totalRevenue },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 pt-16 lg:pt-0 lg:pl-60" style={{ fontFamily: "'Inter', sans-serif" }}>
       <VendorSidebar current="vendor-dashboard" onNavigate={onNavigate} />
@@ -27,24 +59,23 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl lg:text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Vendor Dashboard</h1>
-            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">Atelier Nord · Jul 22, 2026</p>
+            <p className="text-gray-500 text-xs sm:text-sm mt-0.5">{storeName} · Live Marketplace Portal</p>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => onNavigate("vendor-add-product")} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer" style={{ background: purple }}><Plus size={16} />Add Product</button>
             <button className="w-10 h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:border-purple-300 bg-white relative shrink-0">
               <Bell size={18} />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">4</span>
             </button>
           </div>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Monthly Revenue", value: "LKR 12.6M", change: "+24%", icon: <DollarSign size={20} />, up: true },
-            { label: "Total Orders", value: "263", change: "+18%", icon: <ShoppingBag size={20} />, up: true },
-            { label: "Active Products", value: "47", change: "+3", icon: <Package size={20} />, up: true },
-            { label: "Avg. Rating", value: "4.9", change: "+0.1", icon: <Star size={20} />, up: true },
+            { label: "Total Revenue", value: lkr(totalRevenue), change: totalRevenue > 0 ? "+100%" : "0%", icon: <DollarSign size={20} />, up: true },
+            { label: "Total Orders", value: String(totalOrders), change: totalOrders > 0 ? "+100%" : "0%", icon: <ShoppingBag size={20} />, up: true },
+            { label: "Active Products", value: String(activeProducts), change: `+${activeProducts}`, icon: <Package size={20} />, up: true },
+            { label: "Store Rating", value: avgRating, change: "Top Tier", icon: <Star size={20} />, up: true },
           ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-gray-400">{s.icon}</span>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.up ? "text-emerald-700 bg-emerald-100" : "text-red-600 bg-red-100"}`}>{s.change}</span>
@@ -55,13 +86,13 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
           ))}
         </div>
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-bold text-gray-900">Revenue Overview</h3>
               <button onClick={() => onNavigate("vendor-analytics")} className="text-xs font-semibold text-purple-600 flex items-center gap-1">Full report <ArrowRight size={12} /></button>
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={analyticsData}>
+              <AreaChart data={monthlyRevenueData}>
                 <defs>
                   <linearGradient id="gradVendorDash" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={purple} stopOpacity={0.2} />
@@ -70,55 +101,41 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} tickFormatter={v => `$${v / 1000}k`} />
-                <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} axisLine={false} tickLine={false} tickFormatter={v => `LKR ${v / 1000}k`} />
+                <Tooltip formatter={(v: number) => [`LKR ${v.toLocaleString()}`, "Revenue"]} contentStyle={{ borderRadius: 12, border: "1px solid #e5e7eb", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }} />
                 <Area type="monotone" dataKey="revenue" stroke={purple} strokeWidth={2.5} fill="url(#gradVendorDash)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 className="font-bold text-gray-900 mb-5">Sales by Category</h3>
-            <ResponsiveContainer width="100%" height={160}>
-              <RePieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={48} outerRadius={72} dataKey="value" strokeWidth={0}>
-                  {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                </Pie>
-              </RePieChart>
-            </ResponsiveContainer>
-            <div className="space-y-2 mt-3">
-              {pieData.map(d => (
-                <div key={d.name} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} /><span className="text-gray-600">{d.name}</span></div>
-                  <span className="font-semibold text-gray-900">{d.value}%</span>
-                </div>
-              ))}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">Store Quick Actions</h3>
+              <p className="text-xs text-gray-500 mb-4">Manage catalog, run AI pricing simulations, or configure your storefront banner.</p>
+            </div>
+            <div className="space-y-3">
+              <button onClick={() => onNavigate("vendor-add-product")} className="w-full py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold flex items-center justify-between transition-colors">
+                <span>Add New Garment</span>
+                <Plus size={14} />
+              </button>
+              <button onClick={() => onNavigate("store-customization")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors">
+                <span>Customize Storefront</span>
+                <ArrowRight size={14} />
+              </button>
+              <button onClick={() => onNavigate("vendor-payouts")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors">
+                <span>Request Payout</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
           </div>
         </div>
-        <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="font-bold text-gray-900">Recent Orders</h3>
+            <h3 className="font-bold text-gray-900">Recent Store Orders</h3>
             <button onClick={() => onNavigate("orders")} className="text-xs font-semibold text-purple-600">View all</button>
           </div>
-          <table className="w-full">
-            <thead>
-              <tr className="text-xs text-gray-400 font-semibold border-b border-gray-100">
-                {["Order ID", "Customer", "Product", "Amount", "Status", "Date"].map(h => <th key={h} className="text-left pb-3 pr-4">{h}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {([] as any[]).map(o => (
-                <tr key={o.id} className="border-b border-gray-50 text-sm hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3 pr-4 font-mono text-xs font-medium text-gray-700">{o.id}</td>
-                  <td className="py-3 pr-4 text-gray-700">{o.customer}</td>
-                  <td className="py-3 pr-4 text-gray-700">{o.product}</td>
-                  <td className="py-3 pr-4 font-semibold text-gray-900">{lkr(o.amount)}</td>
-                  <td className="py-3 pr-4"><Badge variant={o.status === "Delivered" ? "green" : o.status === "Shipping" ? "purple" : "amber"}>{o.status}</Badge></td>
-                  <td className="py-3 text-gray-400 text-xs">{o.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="text-center py-8 text-xs text-gray-400">
+            No customer orders placed yet. Orders will appear here in real-time as shoppers check out your products.
+          </div>
         </div>
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           {[

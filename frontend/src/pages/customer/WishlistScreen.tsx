@@ -18,7 +18,7 @@ export function WishlistScreen({ onNavigate }: { onNavigate: (s: Screen) => void
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch {}
-    return [products[0], products[1]];
+    return [];
   });
 
   const handleRemove = (productId: string) => {
