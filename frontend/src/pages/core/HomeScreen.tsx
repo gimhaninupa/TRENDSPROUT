@@ -80,265 +80,343 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="home" onNavigate={onNavigate} />
-      {/* Hero */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-16 right-0 w-[600px] h-[600px] rounded-full opacity-20 blur-3xl" style={{ background: `radial-gradient(circle, ${purple}, transparent)` }} />
-          <div className="absolute -bottom-20 left-0 w-[400px] h-[400px] rounded-full opacity-10 blur-3xl" style={{ background: `radial-gradient(circle, #9333ea, transparent)` }} />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)]">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-8" style={{ background: purpleLight, color: purple }}>
-              <Sparkles size={12} />AI-Powered Fashion Discovery
-            </div>
-            <h1 className="text-5xl lg:text-7xl font-black text-gray-900 leading-none mb-6" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-              Wear the<br />
-              <span style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Future</span><br />
-              of Fashion
-            </h1>
-            <p className="text-gray-500 text-lg leading-relaxed mb-10 max-w-md">
-              Discover emerging brands, get AI-powered style advice, and design your own pieces. The marketplace built for the next generation of fashion.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <PrimaryBtn onClick={() => onNavigate("browse")} className="!py-4 !px-8 !text-base !rounded-2xl" icon={<ShoppingBag size={18} />}>Shop Now</PrimaryBtn>
-              <GhostBtn onClick={() => onNavigate("ai-outfit")} className="!py-4 !px-8 !text-base !rounded-2xl">Try AI Stylist</GhostBtn>
-            </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:block">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/10">
-              <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80" alt="Fashion hero" className="w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, transparent 60%, ${purple}33)` }} />
-            </div>
-            <GlassCard className="absolute -bottom-4 -left-8 p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: purple }}><Bot size={18} /></div>
-              <div>
-                <div className="text-xs font-bold text-gray-900">AI Stylist</div>
-                <div className="text-xs text-gray-500">Custom style recommendations</div>
-              </div>
-            </GlassCard>
-            <GlassCard className="absolute top-8 -right-6 p-3 flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {["/photo-1494790108377-be9c29b29330", "/photo-1507003211169-0a1dd7228f2d", "/photo-1438761681033-6461ffad8d80"].map((id, i) => (
-                  <img key={i} src={`https://images.unsplash.com${id}?auto=format&fit=crop&w=150&h=150&q=80`} alt="user" className="w-8 h-8 rounded-full border-2 border-white object-cover" />
-                ))}
-              </div>
-              <div className="text-xs">
-                <span className="font-bold text-gray-900">Live</span>
-                <span className="text-gray-500"> Marketplace</span>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-[#faf8ff] relative overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Background Ambient Glowing Refraction Mesh */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-0 right-1/4 w-[700px] h-[700px] rounded-full opacity-30 blur-[140px]" style={{ background: `radial-gradient(circle, #c084fc, #7C3AED, transparent)` }} />
+        <div className="absolute top-1/3 -left-32 w-[600px] h-[600px] rounded-full opacity-20 blur-[130px]" style={{ background: `radial-gradient(circle, #818cf8, #a855f7, transparent)` }} />
+        <div className="absolute bottom-1/4 right-0 w-[550px] h-[550px] rounded-full opacity-25 blur-[140px]" style={{ background: `radial-gradient(circle, #f472b6, #9333ea, transparent)` }} />
+      </div>
 
-      {/* AI Features - 2 cards per row on mobile */}
-      <section className="py-12 sm:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6">
-          <div className="text-center mb-8 sm:mb-14">
-            <Badge variant="purple">Powered by AI</Badge>
-            <h2 className="text-2xl sm:text-4xl font-black text-gray-900 mt-3 sm:mt-4 mb-2 sm:mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fashion Intelligence</h2>
-            <p className="text-gray-500 text-xs sm:text-base max-w-xl mx-auto px-4">Our AI doesn't just recommend — it understands your style DNA and evolves with every interaction.</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            {[
-              { icon: <Bot className="w-5 h-5 sm:w-6 sm:h-6" />, title: "AI Chatbot Stylist", desc: "Real-time fashion advice powered by LLMs trained on decades of runway data.", screen: "ai-chatbot" as Screen },
-              { icon: <Wand2 className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Outfit Generator", desc: "Complete looks built from your wardrobe and our catalog — personalized to your occasion.", screen: "ai-outfit" as Screen },
-              { icon: <Image className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Text to Design", desc: "Describe your dream piece in words and watch our AI bring it to life visually.", screen: "text-to-design" as Screen },
-              { icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" />, title: "Trend Predictor", desc: "Stay ahead with AI-curated trend reports updated weekly from global runway data.", screen: "browse" as Screen },
-            ].map(f => (
-              <motion.div key={f.title} whileHover={{ y: -4 }} onClick={() => onNavigate(f.screen)}
-                className="bg-white rounded-2xl p-3.5 sm:p-6 cursor-pointer border border-gray-100 hover:border-purple-200 hover:shadow-xl hover:shadow-purple-100/50 transition-all group flex flex-col justify-between">
-                <div>
-                  <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl mb-3 sm:mb-5 flex items-center justify-center text-white shrink-0 shadow-sm" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>{f.icon}</div>
-                  <h3 className="font-bold text-gray-900 text-xs sm:text-base mb-1.5 sm:mb-2 group-hover:text-purple-700 transition-colors leading-snug">{f.title}</h3>
-                  <p className="text-[11px] sm:text-sm text-gray-500 leading-relaxed line-clamp-3 sm:line-clamp-none">{f.desc}</p>
-                </div>
-                <div className="flex items-center gap-1 mt-3 sm:mt-4 text-[10px] sm:text-xs font-semibold text-purple-600 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">Try it <ArrowRight size={12} /></div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div className="relative z-10">
+        <Navbar current="home" onNavigate={onNavigate} />
 
-      {/* Categories */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Shop by Category</h2>
-              <p className="text-gray-500 mt-2">Curated collections from emerging designers</p>
-            </div>
-            <button onClick={() => onNavigate("browse")} className="hidden md:flex items-center gap-2 text-sm font-semibold text-purple-600 hover:gap-3 transition-all">View all <ArrowRight size={16} /></button>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {categories.map(cat => (
-              <motion.div key={cat.name} whileHover={{ y: -4 }} onClick={() => onNavigate("browse")} className="group relative rounded-2xl overflow-hidden aspect-[3/4] cursor-pointer bg-gray-100">
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7))" }} />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="text-white font-bold text-lg">{cat.name}</h3>
-                  <p className="text-white/70 text-xs mt-0.5">{getCategoryCount(cat.name)} items</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+        {/* Neat Clean Hero Section */}
+        <section className="relative pt-32 pb-20 lg:pt-36 lg:pb-24 overflow-hidden min-h-[85vh] flex items-center">
+          {/* Subtle Ambient Light Reflections */}
+          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[550px] h-[550px] rounded-full bg-purple-200/35 blur-[130px] pointer-events-none" />
+          <div className="absolute top-16 right-16 w-28 h-28 rounded-full bg-white/70 border border-purple-200/50 shadow-xl shadow-purple-500/10 backdrop-blur-xl pointer-events-none hidden md:block" />
 
-      {/* Products */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-10">
-            <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Trending Now</h2>
-            <button onClick={() => onNavigate("browse")} className="flex items-center gap-2 text-sm font-semibold text-purple-600">See all <ArrowRight size={16} /></button>
-          </div>
-          {trendingList.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5">
-              {trendingList.map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
-            </div>
-          ) : (
-            <div className="text-center py-16 px-6 bg-white rounded-3xl border border-gray-100 shadow-sm max-w-2xl mx-auto">
-              <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
-                <ShoppingBag size={28} />
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 w-full grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left Column: Clean Typography & Pill CTA */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }} 
+              animate={{ opacity: 1, x: 0 }} 
+              transition={{ duration: 0.8 }} 
+              className="lg:col-span-6 flex flex-col items-start text-left z-10"
+            >
+              <span className="text-xs sm:text-sm font-medium tracking-widest text-gray-500 mb-3 capitalize">
+                designer collection for seasonal wear
+              </span>
+
+              <h1 
+                className="text-4xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black text-gray-900 tracking-tight leading-[1.02] mb-8 select-none"
+                style={{ fontFamily: "'Clash Display', 'Inter', sans-serif" }}
+              >
+                FASHION<br />
+                <span style={{ color: "#111827" }}>COLLECTION</span>
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <button 
+                  onClick={() => onNavigate("browse")}
+                  className="px-9 py-4 rounded-full text-white font-bold text-xs uppercase tracking-widest shadow-xl shadow-purple-600/30 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer"
+                  style={{ background: `linear-gradient(135deg, ${purple}, #7C3AED)` }}
+                >
+                  <span>SHOP COLLECTION</span>
+                </button>
+                <button 
+                  onClick={() => onNavigate("ai-outfit")}
+                  className="px-6 py-4 rounded-full text-purple-700 bg-white/80 hover:bg-white border border-purple-200/80 font-bold text-xs uppercase tracking-wider hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/10 transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Sparkles size={14} className="text-purple-600" />
+                  <span>AI STYLIST</span>
+                </button>
               </div>
-              <h3 className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fresh Catalog Ready for New Drops</h3>
-              <p className="text-sm text-gray-500 mb-6">No products have been listed yet. Open a store or add your first fashion collection from the vendor portal.</p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={16} />}>
-                  Add First Product
-                </PrimaryBtn>
-                <GhostBtn onClick={() => onNavigate("browse")}>
-                  Explore Categories
-                </GhostBtn>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+            </motion.div>
 
+            {/* Right Column: High-Fashion Editorial Model Showcase */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, x: 30 }} 
+              animate={{ opacity: 1, scale: 1, x: 0 }} 
+              transition={{ duration: 0.9, delay: 0.15 }} 
+              className="lg:col-span-6 relative flex justify-center lg:justify-end"
+            >
+              <div className="relative w-full max-w-lg lg:max-w-xl">
+                {/* Soft backdrop circle glow matching logo */}
+                <div 
+                  className="absolute -inset-4 rounded-full opacity-35 blur-2xl pointer-events-none" 
+                  style={{ background: `radial-gradient(circle, ${purple}40, transparent 70%)` }} 
+                />
 
-      {/* Vendor CTA - Option 3 */}
-      <section id="sell-section" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="rounded-3xl p-10 lg:p-14 text-center relative overflow-hidden shadow-2xl shadow-purple-900/20" style={{ background: `linear-gradient(135deg, #1e1035 0%, #3b1464 50%, #6d28d9 100%)` }}>
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white, transparent 40%), radial-gradient(circle at 80% 20%, white, transparent 40%)" }} />
-            <div className="relative max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-purple-200 text-xs font-bold uppercase tracking-wider mb-6 border border-white/15">
-                <Store size={14} className="text-purple-300" />
-                TRENDSPROUT Vendor Portal
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-                Launch Your Fashion Brand with AI
-              </h2>
-              <p className="text-purple-200 text-base lg:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
-                Set up your store in minutes, auto-generate AI product shoots & listings, and reach thousands of fashion-forward shoppers with instant PayHere & COD payouts.
-              </p>
+                {/* Editorial Model Image Container */}
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-950/10 border-4 border-white/90 backdrop-blur-sm bg-gradient-to-b from-purple-50/50 to-white/80">
+                  <img 
+                    src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=85" 
+                    alt="Fashion Collection Editorial" 
+                    className="w-full h-[460px] sm:h-[540px] object-cover object-top hover:scale-105 transition-transform duration-700" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
 
-              {/* Vendor Feature Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 text-left">
-                {[
-                  { icon: <Sparkles size={16} className="text-yellow-400" />, title: "AI Photo Studio", desc: "1-Click BG magic" },
-                  { icon: <FileText size={16} className="text-purple-300" />, title: "AI Copywriter", desc: "Auto SEO descriptions" },
-                  { icon: <TrendingUp size={16} className="text-emerald-400" />, title: "Smart Pricing", desc: "Market auto-pricing" },
-                  { icon: <CreditCard size={16} className="text-blue-300" />, title: "PayHere LK & COD", desc: "Direct daily payouts" },
-                ].map((feat, idx) => (
-                  <div key={idx} className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10">
-                    <div className="flex items-center gap-2 mb-1">
-                      {feat.icon}
-                      <span className="text-white text-xs font-bold">{feat.title}</span>
-                    </div>
-                    <p className="text-[11px] text-purple-200">{feat.desc}</p>
+                  {/* Clean Minimalist Season Tag */}
+                  <div className="absolute bottom-4 left-4 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-white/80 text-[11px] font-bold text-gray-900 shadow-sm flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full" style={{ background: purple }} />
+                    <span>SPRING / SUMMER 2026</span>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 justify-center">
-                <button 
-                  onClick={() => onNavigate("vendor-dashboard")} 
-                  className="px-8 py-4 rounded-2xl bg-white font-extrabold text-purple-900 text-base hover:bg-purple-50 hover:shadow-2xl hover:shadow-black/30 transition-all flex items-center gap-2 cursor-pointer"
+                {/* Ambient Minimalist Frosted Orb Accent */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/85 border border-white/90 shadow-lg shadow-purple-500/10 backdrop-blur-xl hidden sm:flex items-center justify-center pointer-events-none">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-purple-700">NEW DROP</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* AI Features Suite - Frosted Glass Aesthetics */}
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12 sm:mb-16">
+              <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-xl border border-purple-200 text-purple-700 text-xs font-bold uppercase tracking-wider mb-3 shadow-sm">
+                <Sparkles size={12} />
+                Next-Gen Fashion Intelligence
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-gray-900 mt-1 mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                Fashion Engineered by AI
+              </h2>
+              <p className="text-gray-500 text-sm sm:text-base max-w-xl mx-auto font-normal">
+                Our neural models understand your aesthetic DNA, occasion requirements, and runway trends in real-time.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                { icon: <Bot className="w-5 h-5" />, title: "AI Chatbot Stylist", desc: "Instant high-fashion styling advice trained on decades of global runway trends.", screen: "ai-chatbot" as Screen, tag: "Interactive" },
+                { icon: <Wand2 className="w-5 h-5" />, title: "Outfit Generator", desc: "Complete head-to-toe outfits tailored to your occasion, vibe, and budget.", screen: "ai-outfit" as Screen, tag: "Smart Match" },
+                { icon: <Image className="w-5 h-5" />, title: "Text to Design", desc: "Describe any dream outfit in natural language and visualize it instantly.", screen: "text-to-design" as Screen, tag: "Generative" },
+                { icon: <TrendingUp className="w-5 h-5" />, title: "Trend Predictor", desc: "Stay ahead with real-time forecasting synthesized directly from global fashion houses.", screen: "browse" as Screen, tag: "Real-Time" },
+              ].map(f => (
+                <motion.div 
+                  key={f.title} 
+                  whileHover={{ y: -6, scale: 1.01 }} 
+                  onClick={() => onNavigate(f.screen)}
+                  className="rounded-3xl p-6 cursor-pointer bg-white/70 backdrop-blur-xl border border-white/80 shadow-xl shadow-purple-900/5 hover:bg-white/95 hover:border-purple-300 hover:shadow-2xl hover:shadow-purple-300/30 transition-all duration-300 group flex flex-col justify-between"
                 >
-                  <Store size={18} />
-                  Open Vendor Studio
-                </button>
-                <button 
-                  onClick={() => onNavigate("register")} 
-                  className="px-8 py-4 rounded-2xl border-2 border-white/30 font-bold text-white text-base hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer"
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md shadow-purple-500/25 group-hover:scale-110 transition-transform" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>
+                        {f.icon}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100/80">
+                        {f.tag}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-base mb-2 group-hover:text-purple-700 transition-colors leading-snug">
+                      {f.title}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-relaxed font-normal">
+                      {f.desc}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-5 text-xs font-bold text-purple-600 group-hover:translate-x-1 transition-transform">
+                    Launch Studio <ArrowRight size={13} />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Categories Section - Glass Look */}
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <div className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Curated Collections</div>
+                <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Shop by Category</h2>
+              </div>
+              <button onClick={() => onNavigate("browse")} className="hidden md:flex items-center gap-2 text-sm font-bold text-purple-600 hover:gap-3 transition-all px-4 py-2 rounded-xl bg-white/60 backdrop-blur-lg border border-purple-100 shadow-sm">
+                View all <ArrowRight size={16} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
+              {categories.slice(0, 5).map(cat => (
+                <motion.div 
+                  key={cat.name} 
+                  whileHover={{ y: -6, scale: 1.02 }} 
+                  onClick={() => onNavigate("browse")} 
+                  className="group relative rounded-3xl overflow-hidden aspect-[3/4] cursor-pointer shadow-lg shadow-purple-950/5 border-2 border-white/80 hover:shadow-2xl hover:shadow-purple-400/20 transition-all duration-300"
                 >
-                  Start Selling Free <ArrowRight size={18} />
-                </button>
-              </div>
+                  <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-gray-950/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3.5 sm:p-4">
+                    <div className="p-3 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
+                      <h3 className="text-white font-bold text-sm sm:text-base leading-snug truncate">{cat.name}</h3>
+                      <p className="text-purple-200 text-xs font-medium mt-0.5">{getCategoryCount(cat.name)} pieces</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <h2 className="text-4xl font-black text-gray-900 text-center mb-12" style={{ fontFamily: "'Clash Display', sans-serif" }}>Frequently Asked</h2>
-          <div className="flex flex-col gap-3">
-            {faqs.map((faq, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full flex items-center justify-between px-6 py-5 text-left text-sm font-semibold text-gray-900 hover:text-purple-700 transition-colors">
-                  {faq.q}
-                  <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ml-4 ${activeFaq === i ? "rotate-180" : ""}`} />
-                </button>
-                {activeFaq === i && <div className="px-6 pb-5 text-sm text-gray-500 leading-relaxed border-t border-gray-50 pt-4">{faq.a}</div>}
+        {/* Products Section - Glass Look */}
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <div className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">Runway & Streetwear</div>
+                <h2 className="text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>Trending Now</h2>
               </div>
-            ))}
+              <button onClick={() => onNavigate("browse")} className="flex items-center gap-2 text-sm font-bold text-purple-600 px-4 py-2 rounded-xl bg-white/60 backdrop-blur-lg border border-purple-100 shadow-sm">
+                See all <ArrowRight size={16} />
+              </button>
+            </div>
+            {trendingList.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-5">
+                {trendingList.map(p => <ProductCard key={p.id} product={p} onNavigate={onNavigate} />)}
+              </div>
+            ) : (
+              <div className="text-center py-16 px-6 bg-white/70 backdrop-blur-2xl rounded-3xl border border-white/80 shadow-xl max-w-2xl mx-auto">
+                <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4">
+                  <ShoppingBag size={28} />
+                </div>
+                <h3 className="text-xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>Fresh Catalog Ready for New Drops</h3>
+                <p className="text-sm text-gray-500 mb-6">No products have been listed yet. Open a store or add your first fashion collection from the vendor portal.</p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <PrimaryBtn onClick={() => onNavigate("vendor-add-product")} icon={<Plus size={16} />}>
+                    Add First Product
+                  </PrimaryBtn>
+                  <GhostBtn onClick={() => onNavigate("browse")}>
+                    Explore Categories
+                  </GhostBtn>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid md:grid-cols-4 gap-10 mb-10">
-            <div>
-              <div className="font-black text-white text-xl mb-3" style={{ fontFamily: "'Clash Display', sans-serif" }}>TRENDSPROUT</div>
-              <p className="text-gray-400 text-sm leading-relaxed">The AI-powered fashion marketplace for the next generation of style.</p>
-            </div>
-            {[
-              ["Shop", [
-                { label: "Dresses", route: "browse" }, 
-                { label: "Blazers", route: "browse" }, 
-                { label: "Accessories", route: "browse" }, 
-                { label: "New Arrivals", route: "browse" }
-              ]],
-              ["Sell", [
-                { label: "Start Selling", route: "register" }, 
-                { label: "Vendor Dashboard", route: "vendor-dashboard" }, 
-                { label: "AI Tools", route: "ai-chatbot" }, 
-                { label: "Pricing", route: "home" }
-              ]],
-              ["Company", [
-                { label: "About", route: "about" }, 
-                { label: "Blog", route: "blog" }, 
-                { label: "Careers", route: "careers" }, 
-                { label: "Press", route: "press" }
-              ]],
-            ].map(([title, links]) => (
-              <div key={title as string}>
-                <div className="font-semibold text-white text-sm mb-4">{title as string}</div>
-                <ul className="flex flex-col gap-2">
-                  {(links as {label: string, route: any}[]).map(l => <li key={l.label}><button onClick={() => onNavigate(l.route)} className="text-gray-400 text-sm hover:text-white transition-colors">{l.label}</button></li>)}
-                </ul>
+        {/* Vendor CTA - Glassmorphism Showcase Banner */}
+        <section id="sell-section" className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div 
+              className="rounded-3xl p-10 lg:p-14 text-center relative overflow-hidden shadow-2xl shadow-purple-950/30 border border-white/20 backdrop-blur-2xl" 
+              style={{ background: `linear-gradient(135deg, rgba(30, 16, 53, 0.95) 0%, rgba(59, 20, 100, 0.95) 50%, rgba(109, 40, 217, 0.9) 100%)` }}
+            >
+              {/* Luminous Inner Glows */}
+              <div className="absolute -top-24 -right-24 w-80 h-80 bg-fuchsia-500/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-400/20 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="relative max-w-3xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-xl text-purple-200 text-xs font-bold uppercase tracking-wider mb-6 border border-white/15">
+                  <Store size={14} className="text-purple-300" />
+                  TRENDSPROUT Vendor Portal
+                </div>
+                <h2 className="text-4xl lg:text-5xl font-black text-white mb-4 leading-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                  Launch Your Fashion Brand with AI
+                </h2>
+                <p className="text-purple-200 text-base lg:text-lg mb-8 max-w-xl mx-auto leading-relaxed font-light">
+                  Set up your store in minutes, auto-generate AI product shoots & listings, and reach thousands of fashion-forward shoppers with instant PayHere & COD payouts.
+                </p>
+
+                {/* Vendor Feature Badges */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 text-left">
+                  {[
+                    { icon: <Sparkles size={16} className="text-yellow-400" />, title: "AI Photo Studio", desc: "1-Click BG magic" },
+                    { icon: <FileText size={16} className="text-purple-300" />, title: "AI Copywriter", desc: "Auto SEO descriptions" },
+                    { icon: <TrendingUp size={16} className="text-emerald-400" />, title: "Smart Pricing", desc: "Market auto-pricing" },
+                    { icon: <CreditCard size={16} className="text-blue-300" />, title: "PayHere LK & COD", desc: "Direct daily payouts" },
+                  ].map((feat, idx) => (
+                    <div key={idx} className="bg-white/10 backdrop-blur-xl rounded-2xl p-3.5 border border-white/15 hover:bg-white/15 transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        {feat.icon}
+                        <span className="text-white text-xs font-bold">{feat.title}</span>
+                      </div>
+                      <p className="text-[11px] text-purple-200">{feat.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <button 
+                    onClick={() => onNavigate("vendor-dashboard")} 
+                    className="px-8 py-4 rounded-2xl bg-white font-black text-purple-900 text-base hover:bg-purple-50 hover:shadow-2xl hover:shadow-purple-950/40 transition-all flex items-center gap-2 cursor-pointer shadow-xl"
+                  >
+                    <Store size={18} />
+                    Open Vendor Studio
+                  </button>
+                  <button 
+                    onClick={() => onNavigate("register")} 
+                    className="px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/30 font-bold text-white text-base hover:bg-white/20 transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    Start Selling Free <ArrowRight size={18} />
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-xs">© 2026 TRENDSPROUT. All rights reserved.</p>
-            <div className="flex gap-4 text-xs text-gray-500">
-              <button onClick={() => onNavigate("privacy")} className="hover:text-white transition-colors">Privacy</button>
-              <button onClick={() => onNavigate("terms")} className="hover:text-white transition-colors">Terms</button>
-              <button onClick={() => onNavigate("cookies")} className="hover:text-white transition-colors">Cookies</button>
             </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* FAQ - Glass Look */}
+        <section className="py-20 relative">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 className="text-4xl font-black text-gray-900 text-center mb-12" style={{ fontFamily: "'Clash Display', sans-serif" }}>Frequently Asked</h2>
+            <div className="flex flex-col gap-3.5">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-white/75 backdrop-blur-xl rounded-3xl border border-white/80 shadow-md shadow-purple-950/5 overflow-hidden">
+                  <button onClick={() => setActiveFaq(activeFaq === i ? null : i)} className="w-full flex items-center justify-between px-6 py-5 text-left text-sm font-bold text-gray-900 hover:text-purple-700 transition-colors">
+                    {faq.q}
+                    <ChevronDown size={16} className={`text-gray-400 transition-transform flex-shrink-0 ml-4 ${activeFaq === i ? "rotate-180" : ""}`} />
+                  </button>
+                  {activeFaq === i && <div className="px-6 pb-5 text-sm text-gray-500 leading-relaxed border-t border-purple-100/40 pt-4 font-normal">{faq.a}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-950 py-14 text-white relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="grid md:grid-cols-3 gap-10 mb-10">
+              <div>
+                <div className="font-black text-white text-xl mb-3 flex items-center gap-2.5" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                  <div className="w-7 h-7 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-xs">TS</div>
+                  TRENDSPROUT
+                </div>
+                <p className="text-gray-400 text-sm leading-relaxed">The AI-powered fashion marketplace for the next generation of style.</p>
+              </div>
+              {[
+                ["Shop", [
+                  { label: "Dresses", route: "browse" }, 
+                  { label: "Blazers", route: "browse" }, 
+                  { label: "Accessories", route: "browse" }, 
+                  { label: "New Arrivals", route: "browse" }
+                ]],
+                ["Sell", [
+                  { label: "Start Selling", route: "register" }, 
+                  { label: "Vendor Dashboard", route: "vendor-dashboard" }, 
+                  { label: "AI Tools", route: "ai-chatbot" }, 
+                  { label: "Pricing", route: "home" }
+                ]],
+              ].map(([title, links]) => (
+                <div key={title as string}>
+                  <div className="font-semibold text-white text-sm mb-4">{title as string}</div>
+                  <ul className="flex flex-col gap-2">
+                    {(links as {label: string, route: any}[]).map(l => <li key={l.label}><button onClick={() => onNavigate(l.route)} className="text-gray-400 text-sm hover:text-white transition-colors">{l.label}</button></li>)}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-gray-900 pt-8 text-center">
+              <p className="text-gray-500 text-xs">© 2026 TRENDSPROUT. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

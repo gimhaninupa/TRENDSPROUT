@@ -57,9 +57,9 @@ export function TrackingScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="tracking" onNavigate={onNavigate} />
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-28 pb-16">
         <button onClick={() => onNavigate("orders")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 transition-colors mb-6"><ChevronLeft size={14} />Back to orders</button>
         
         {/* Search tracking bar */}

@@ -154,7 +154,7 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="product-detail" onNavigate={onNavigate} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-16">
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-8">
           <button onClick={() => onNavigate("home")} className="hover:text-purple-600 transition-colors">Home</button>
           <ChevronRight size={12} />

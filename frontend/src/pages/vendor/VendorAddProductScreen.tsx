@@ -339,7 +339,7 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
                       onChange={e => setCategory(e.target.value)} 
                       className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-700 focus:outline-none focus:border-purple-400"
                     >
-                      {["Blazers", "Dresses", "Pants", "Knitwear", "Skirts", "Bags", "Accessories"].map(o => (
+                      {["Dresses", "T-Shirts", "Shirts", "Blazers", "Jackets & Coats", "Knitwear", "Hoodies & Sweats", "Pants & Trousers", "Jeans & Denim", "Skirts", "Shorts", "Footwear", "Bags", "Accessories"].map(o => (
                         <option key={o} value={o}>{o}</option>
                       ))}
                     </select>
@@ -520,10 +520,10 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
                 </button>
                 <button 
                   type="button"
-                  onClick={() => onNavigate("vendor-analytics")} 
+                  onClick={() => onNavigate("vendor-orders")} 
                   className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-gray-100 text-xs font-medium text-gray-700 hover:border-purple-200 hover:text-purple-700 hover:bg-purple-50 transition-all text-left cursor-pointer"
                 >
-                  <span className="text-purple-600"><TrendingUp size={14} /></span>Trend & Fit Analytics
+                  <span className="text-purple-600"><ShoppingBag size={14} /></span>Store Orders & Fulfillment
                 </button>
               </div>
             </div>

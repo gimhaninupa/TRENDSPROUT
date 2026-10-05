@@ -137,10 +137,10 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
   });
 
   return (
-    <div className="min-h-screen bg-gray-50/50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="seller-store" onNavigate={onNavigate} />
 
-      <div className="pt-20">
+      <div className="pt-28">
         {/* VIEW 1: DEDICATED SINGLE BRAND STORE VIEW */}
         {selectedBrand ? (
           <div>

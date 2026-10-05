@@ -1,91 +1,512 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
-  ShoppingBag, Search, Heart, User, Menu, X, ChevronRight, Star, Zap,
-  Sparkles, TrendingUp, Package, BarChart2, Users, Settings, LogOut,
-  ArrowRight, Check, ShoppingCart, Bell, MessageSquare, Eye, Edit3,
-  Upload, Truck, CreditCard, Lock, Mail, Phone, MapPin, Grid, List,
-  Filter, ChevronDown, Plus, Minus, Trash2, RefreshCw, AlertCircle,
-  CheckCircle, Clock, Store, Bot, Wand2, Image, Tag, DollarSign,
-  Activity, PieChart, FileText, Shield, ChevronLeft, Home, Layers,
-  Camera, Share2, Bookmark, ThumbsUp, MoreHorizontal, Send, Mic,
-  Palette, Layout, Globe, Download, ToggleLeft, Key, Info
+  User, Settings, LogOut, Check, Lock, Mail, Phone, MapPin, 
+  ChevronLeft, Trash2, Key, Store, Calendar, CreditCard,
+  FileText, ShieldCheck, Sparkles, AlertCircle, Building2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, Pie, Cell } from "recharts";
-import { Link, useNavigate } from 'react-router-dom';
 import { 
-    Screen, purple, purpleLight, purpleDark, lkr, 
-    products, categories, testimonials, analyticsData, pieData, vendorProducts, chatMessages, faqs,
-    Badge, StarRating, PrimaryBtn, GhostBtn, Input, GlassCard, ProductCard, Navbar, VendorSidebar, FloatingNav, QuickNav
+    Screen, purple, purpleLight, purpleDark, 
+    Badge, PrimaryBtn, GhostBtn, Input, Navbar
 } from '../../components/shared';
+import { useAuth } from '../../context/AuthContext';
 
 export function ProfileSettingsScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const [tab, setTab] = useState("privacy");
-  const [notifications, setNotifications] = useState({ orders: true, promotions: false, ai: true, brands: true });
+  const { user, isAuthenticated } = useAuth();
+  
+  // Tab state: "buyer-profile", "vendor-profile", "security", "danger"
+  const [activeTab, setActiveTab] = useState<"buyer" | "vendor" | "security" | "danger">(
+    user?.role === "vendor" ? "vendor" : "buyer"
+  );
+  
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Buyer / Customer Profile State
+  const [buyerName, setBuyerName] = useState(() => {
+    return localStorage.getItem("ts_profile_name") || user?.name || user?.username || "Gimhan Inupa";
+  });
+  const [buyerEmail, setBuyerEmail] = useState(user?.email || "gimhanxmax@gmail.com");
+  const [buyerPhone, setBuyerPhone] = useState(() => localStorage.getItem("ts_buyer_phone") || "+94 77 123 4567");
+  const [buyerDob, setBuyerDob] = useState(() => localStorage.getItem("ts_buyer_dob") || "2000-05-18");
+  const [buyerIdType, setBuyerIdType] = useState(() => localStorage.getItem("ts_buyer_id_type") || "National ID (NIC)");
+  const [buyerIdNumber, setBuyerIdNumber] = useState(() => localStorage.getItem("ts_buyer_id_num") || "200013904521");
+  const [buyerGender, setBuyerGender] = useState(() => localStorage.getItem("ts_buyer_gender") || "Male");
+  const [buyerAddress, setBuyerAddress] = useState(() => localStorage.getItem("ts_buyer_address") || "No. 45, Galle Road, Colombo 03");
+  const [buyerCity, setBuyerCity] = useState(() => localStorage.getItem("ts_buyer_city") || "Colombo");
+
+  // Vendor / Store Profile State
+  const [vendorStoreName, setVendorStoreName] = useState(() => localStorage.getItem("ts_vendor_store_name") || "Luxe Atelier Colombo");
+  const [vendorTagline, setVendorTagline] = useState(() => localStorage.getItem("ts_vendor_tagline") || "Handcrafted High-Fashion Silk & Modern Silhouettes");
+  const [vendorOwnerName, setVendorOwnerName] = useState(() => localStorage.getItem("ts_vendor_owner_name") || buyerName);
+  const [vendorOwnerDob, setVendorOwnerDob] = useState(() => localStorage.getItem("ts_vendor_owner_dob") || "1998-11-24");
+  const [vendorOwnerId, setVendorOwnerId] = useState(() => localStorage.getItem("ts_vendor_owner_id") || "199832901124");
+  const [vendorBrn, setVendorBrn] = useState(() => localStorage.getItem("ts_vendor_brn") || "PV-2024-88491");
+  const [vendorTaxId, setVendorTaxId] = useState(() => localStorage.getItem("ts_vendor_tax_id") || "TIN-99201948");
+  const [vendorBusinessEmail, setVendorBusinessEmail] = useState(() => localStorage.getItem("ts_vendor_biz_email") || "sales@luxeatelier.lk");
+  const [vendorPhone, setVendorPhone] = useState(() => localStorage.getItem("ts_vendor_phone") || "+94 11 234 5678");
+  const [vendorBankName, setVendorBankName] = useState(() => localStorage.getItem("ts_vendor_bank") || "Commercial Bank of Ceylon");
+  const [vendorBranch, setVendorBranch] = useState(() => localStorage.getItem("ts_vendor_branch") || "Colombo 07 Branch");
+  const [vendorAccountNum, setVendorAccountNum] = useState(() => localStorage.getItem("ts_vendor_acc") || "8002938102");
+  const [vendorAccountName, setVendorAccountName] = useState(() => localStorage.getItem("ts_vendor_acc_name") || "Luxe Atelier (Pvt) Ltd");
+
+  const handleSaveBuyer = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem("ts_profile_name", buyerName);
+    localStorage.setItem("ts_buyer_phone", buyerPhone);
+    localStorage.setItem("ts_buyer_dob", buyerDob);
+    localStorage.setItem("ts_buyer_id_type", buyerIdType);
+    localStorage.setItem("ts_buyer_id_num", buyerIdNumber);
+    localStorage.setItem("ts_buyer_gender", buyerGender);
+    localStorage.setItem("ts_buyer_address", buyerAddress);
+    localStorage.setItem("ts_buyer_city", buyerCity);
+    
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleSaveVendor = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem("ts_vendor_store_name", vendorStoreName);
+    localStorage.setItem("ts_vendor_tagline", vendorTagline);
+    localStorage.setItem("ts_vendor_owner_name", vendorOwnerName);
+    localStorage.setItem("ts_vendor_owner_dob", vendorOwnerDob);
+    localStorage.setItem("ts_vendor_owner_id", vendorOwnerId);
+    localStorage.setItem("ts_vendor_brn", vendorBrn);
+    localStorage.setItem("ts_vendor_tax_id", vendorTaxId);
+    localStorage.setItem("ts_vendor_biz_email", vendorBusinessEmail);
+    localStorage.setItem("ts_vendor_phone", vendorPhone);
+    localStorage.setItem("ts_vendor_bank", vendorBankName);
+    localStorage.setItem("ts_vendor_branch", vendorBranch);
+    localStorage.setItem("ts_vendor_acc", vendorAccountNum);
+    localStorage.setItem("ts_vendor_acc_name", vendorAccountName);
+
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <Navbar current="profile" onNavigate={onNavigate} />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-24 pb-16">
-        <button onClick={() => onNavigate("profile")} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-purple-600 mb-6"><ChevronLeft size={14} />Profile</button>
-        <h1 className="text-3xl font-black text-gray-900 mb-8" style={{ fontFamily: "'Clash Display', sans-serif" }}>Account Settings</h1>
-        <div className="flex gap-2 mb-6">
-          {["privacy", "notifications", "security", "danger"].map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all ${tab === t ? (t === "danger" ? "bg-red-500 text-white" : "text-white") : "bg-white border border-gray-200 text-gray-600 hover:border-purple-300"}`} style={tab === t && t !== "danger" ? { background: purple } : {}}>{t === "danger" ? "Delete Account" : t}</button>
-          ))}
+    <div className="min-h-screen bg-white relative" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <Navbar current="profile-settings" onNavigate={onNavigate} />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+        <button onClick={() => onNavigate("profile")} className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-purple-600 transition-colors mb-6 cursor-pointer">
+          <ChevronLeft size={16} />
+          Back to Profile Overview
+        </button>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+              Profile & Identity Settings
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Manage personal identity, National ID verification, delivery details, and brand store profiles.
+            </p>
+          </div>
+          {savedSuccess && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2 shadow-sm"
+            >
+              <Check size={16} /> Changes Saved Successfully
+            </motion.div>
+          )}
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          {tab === "privacy" && (
-            <div className="flex flex-col gap-5">
-              <h3 className="font-bold text-gray-900">Privacy Settings</h3>
-              {[{ label: "Public profile", sub: "Allow others to see your style profile", on: true }, { label: "Activity visibility", sub: "Show when you've recently been active", on: false }, { label: "Data personalization", sub: "Use activity to improve AI recommendations", on: true }, { label: "Third-party sharing", sub: "Share anonymized data with brand partners", on: false }].map(s => (
-                <div key={s.label} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <div><p className="text-sm font-semibold text-gray-900">{s.label}</p><p className="text-xs text-gray-400">{s.sub}</p></div>
-                  <div className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${s.on ? "" : "bg-gray-200"}`} style={s.on ? { background: purple } : {}}>
-                    <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${s.on ? "left-5" : "left-1"} shadow-sm`} />
+
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-2 mb-8 p-1.5 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/80 shadow-sm">
+          <button 
+            onClick={() => setActiveTab("buyer")}
+            className={`flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === "buyer" ? "bg-purple-600 text-white shadow-md shadow-purple-500/25" : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"}`}
+          >
+            <User size={15} />
+            <span>Buyer / Customer Profile</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("vendor")}
+            className={`flex-1 min-w-[140px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === "vendor" ? "bg-purple-600 text-white shadow-md shadow-purple-500/25" : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"}`}
+          >
+            <Store size={15} />
+            <span>Brand / Vendor Profile</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("security")}
+            className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === "security" ? "bg-purple-600 text-white shadow-md shadow-purple-500/25" : "text-gray-600 hover:text-purple-600 hover:bg-purple-50/50"}`}
+          >
+            <Lock size={15} />
+            <span>Security</span>
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("danger")}
+            className={`py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === "danger" ? "bg-red-500 text-white shadow-md shadow-red-500/25" : "text-gray-600 hover:text-red-600 hover:bg-red-50/50"}`}
+          >
+            <Trash2 size={15} />
+            <span>Delete Account</span>
+          </button>
+        </div>
+
+        {/* Form Container */}
+        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/80 p-6 sm:p-8 shadow-xl shadow-purple-950/5">
+          
+          {/* 1. Buyer / Customer Profile */}
+          {activeTab === "buyer" && (
+            <form onSubmit={handleSaveBuyer} className="flex flex-col gap-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Personal & Identity Information</h3>
+                  <p className="text-xs text-gray-400">Used for customer account, order deliveries, and AI silhouette profiling.</p>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold flex items-center gap-1.5">
+                  <ShieldCheck size={14} /> ID Verified
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Full Name / Profile Name</label>
+                  <input 
+                    type="text" 
+                    value={buyerName} 
+                    onChange={e => setBuyerName(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Email Address</label>
+                  <input 
+                    type="email" 
+                    value={buyerEmail} 
+                    onChange={e => setBuyerEmail(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-100/70 py-3 px-4 text-sm font-medium text-gray-600 focus:outline-none cursor-not-allowed" 
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Date of Birth</label>
+                  <div className="relative">
+                    <input 
+                      type="date" 
+                      value={buyerDob} 
+                      onChange={e => setBuyerDob(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      required
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Gender</label>
+                  <select 
+                    value={buyerGender} 
+                    onChange={e => setBuyerGender(e.target.value)}
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-Binary">Non-Binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">ID Document Type</label>
+                  <select 
+                    value={buyerIdType} 
+                    onChange={e => setBuyerIdType(e.target.value)}
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all"
+                  >
+                    <option value="National ID (NIC)">National Identity Card (NIC)</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Driving License">Driving License</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">ID / NIC Card Number</label>
+                  <input 
+                    type="text" 
+                    value={buyerIdNumber} 
+                    onChange={e => setBuyerIdNumber(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="e.g. 200013904521 or 952134567V"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Contact Phone Number</label>
+                  <input 
+                    type="tel" 
+                    value={buyerPhone} 
+                    onChange={e => setBuyerPhone(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="+94 7X XXX XXXX"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">City / Region</label>
+                  <input 
+                    type="text" 
+                    value={buyerCity} 
+                    onChange={e => setBuyerCity(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="Colombo"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 block mb-1.5">Primary Delivery Address</label>
+                <textarea 
+                  value={buyerAddress} 
+                  onChange={e => setBuyerAddress(e.target.value)} 
+                  rows={2}
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all resize-none" 
+                  placeholder="Street address, building / apartment number"
+                  required
+                />
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex justify-end">
+                <PrimaryBtn type="submit" className="!py-3.5 !px-8 !rounded-2xl !shadow-lg !shadow-purple-500/20">
+                  Save Buyer Details
+                </PrimaryBtn>
+              </div>
+            </form>
           )}
-          {tab === "notifications" && (
-            <div className="flex flex-col gap-5">
-              <h3 className="font-bold text-gray-900">Notification Preferences</h3>
-              {(Object.keys(notifications) as Array<keyof typeof notifications>).map(k => (
-                <div key={k} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                  <div><p className="text-sm font-semibold text-gray-900 capitalize">{k === "ai" ? "AI Recommendations" : k === "brands" ? "New from Saved Brands" : k === "orders" ? "Order Updates" : "Promotions"}</p><p className="text-xs text-gray-400">{k === "ai" ? "Daily outfit picks and trend alerts" : k === "orders" ? "Shipping and delivery notifications" : k === "brands" ? "New drops from brands you follow" : "Sales, coupons, and special offers"}</p></div>
-                  <div onClick={() => setNotifications(n => ({ ...n, [k]: !n[k] }))} className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${notifications[k] ? "" : "bg-gray-200"}`} style={notifications[k] ? { background: purple } : {}}>
-                    <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${notifications[k] ? "left-5" : "left-1"} shadow-sm`} />
+
+          {/* 2. Brand / Vendor Profile */}
+          {activeTab === "vendor" && (
+            <form onSubmit={handleSaveVendor} className="flex flex-col gap-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Brand & Vendor Business Identity</h3>
+                  <p className="text-xs text-gray-400">Official vendor verification, payout routing, and storefront profile.</p>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-1.5">
+                  <Building2 size={14} /> Registered Vendor
+                </div>
+              </div>
+
+              {/* Storefront Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Vendor Store / Brand Name</label>
+                  <input 
+                    type="text" 
+                    value={vendorStoreName} 
+                    onChange={e => setVendorStoreName(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="Brand / Label Name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Business Contact Email</label>
+                  <input 
+                    type="email" 
+                    value={vendorBusinessEmail} 
+                    onChange={e => setVendorBusinessEmail(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="sales@yourbrand.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 block mb-1.5">Brand Tagline & Short Bio</label>
+                <input 
+                  type="text" 
+                  value={vendorTagline} 
+                  onChange={e => setVendorTagline(e.target.value)} 
+                  className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                  placeholder="e.g. Sustainable luxury silk and evening couture"
+                  required
+                />
+              </div>
+
+              {/* Owner & Legal Identity */}
+              <div className="pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 mb-3">Owner Legal Identity & Verification</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Owner Full Name</label>
+                    <input 
+                      type="text" 
+                      value={vendorOwnerName} 
+                      onChange={e => setVendorOwnerName(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="Owner Name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Owner Date of Birth</label>
+                    <input 
+                      type="date" 
+                      value={vendorOwnerDob} 
+                      onChange={e => setVendorOwnerDob(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Owner NIC / ID Card Number</label>
+                    <input 
+                      type="text" 
+                      value={vendorOwnerId} 
+                      onChange={e => setVendorOwnerId(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="NIC / Passport"
+                      required
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              {/* Business Registration & Tax */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Business Registration No. (BRN)</label>
+                  <input 
+                    type="text" 
+                    value={vendorBrn} 
+                    onChange={e => setVendorBrn(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="PV-XXXX-XXXXX"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">Tax Identification Number (TIN)</label>
+                  <input 
+                    type="text" 
+                    value={vendorTaxId} 
+                    onChange={e => setVendorTaxId(e.target.value)} 
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                    placeholder="TIN-XXXXX"
+                  />
+                </div>
+              </div>
+
+              {/* Bank Payout Details */}
+              <div className="pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 mb-3">PayHere & Direct Bank Settlement Account</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Bank Name</label>
+                    <input 
+                      type="text" 
+                      value={vendorBankName} 
+                      onChange={e => setVendorBankName(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="e.g. Commercial Bank, Sampath Bank"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Branch Name</label>
+                    <input 
+                      type="text" 
+                      value={vendorBranch} 
+                      onChange={e => setVendorBranch(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="Branch"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Account Number</label>
+                    <input 
+                      type="text" 
+                      value={vendorAccountNum} 
+                      onChange={e => setVendorAccountNum(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="Account No"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Account Holder Name</label>
+                    <input 
+                      type="text" 
+                      value={vendorAccountName} 
+                      onChange={e => setVendorAccountName(e.target.value)} 
+                      className="w-full rounded-2xl border border-gray-200 bg-gray-50/70 py-3 px-4 text-sm font-medium text-gray-800 focus:outline-none focus:border-purple-500 focus:bg-white transition-all" 
+                      placeholder="As per bank passbook"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex justify-end">
+                <PrimaryBtn type="submit" className="!py-3.5 !px-8 !rounded-2xl !shadow-lg !shadow-purple-500/20">
+                  Save Vendor Profile
+                </PrimaryBtn>
+              </div>
+            </form>
           )}
-          {tab === "security" && (
-            <div className="flex flex-col gap-5">
-              <h3 className="font-bold text-gray-900">Security</h3>
-              <Input label="Current password" type="password" placeholder="••••••••" icon={<Lock size={16} />} />
-              <Input label="New password" type="password" placeholder="Min. 8 characters" icon={<Lock size={16} />} />
-              <Input label="Confirm new password" type="password" placeholder="Match new password" icon={<Lock size={16} />} />
-              <PrimaryBtn className="w-full !py-3.5" icon={<Key size={16} />}>Update Password</PrimaryBtn>
-              <div className="mt-2 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm font-semibold text-gray-900 mb-1">Two-Factor Authentication</p>
-                <p className="text-xs text-gray-400 mb-3">Add an extra layer of security to your account</p>
-                <GhostBtn className="!py-2 !px-4 !text-xs">Enable 2FA</GhostBtn>
+
+          {/* 3. Security */}
+          {activeTab === "security" && (
+            <div className="flex flex-col gap-6">
+              <div className="pb-4 border-b border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900">Security & Credentials</h3>
+                <p className="text-xs text-gray-400">Update your account password and security credentials.</p>
+              </div>
+
+              <div className="flex flex-col gap-4 max-w-md">
+                <Input label="Current password" type="password" placeholder="••••••••" icon={<Lock size={16} />} />
+                <Input label="New password" type="password" placeholder="Min. 8 characters" icon={<Lock size={16} />} />
+                <Input label="Confirm new password" type="password" placeholder="Match new password" icon={<Lock size={16} />} />
+                
+                <PrimaryBtn className="w-full !py-3.5 !rounded-2xl mt-2" icon={<Key size={16} />}>
+                  Update Password
+                </PrimaryBtn>
+              </div>
+
+              <div className="mt-4 p-5 bg-purple-50/60 border border-purple-100 rounded-2xl">
+                <p className="text-sm font-bold text-gray-900 mb-1">Two-Factor Authentication (2FA)</p>
+                <p className="text-xs text-gray-500 mb-4">Add biometric or SMS OTP confirmation for all orders and vendor payouts.</p>
+                <GhostBtn className="!py-2 !px-4 !text-xs !rounded-xl">Enable 2FA Verification</GhostBtn>
               </div>
             </div>
           )}
-          {tab === "danger" && (
+
+          {/* 4. Danger Zone */}
+          {activeTab === "danger" && (
             <div>
-              <h3 className="font-bold text-red-600 mb-2">Delete Account</h3>
-              <p className="text-sm text-gray-500 mb-6">This will permanently delete your account, all your orders history, wishlist, and AI style profile. This action cannot be undone.</p>
-              <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-red-600 mb-2">Delete Account</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                This will permanently delete your account, order history, saved addresses, and vendor credentials. This action cannot be undone.
+              </p>
+              <div className="flex flex-col gap-4 max-w-md">
                 <Input label="Confirm your password" type="password" placeholder="Enter password to confirm" icon={<Lock size={16} />} />
                 <div className="flex items-start gap-2.5">
                   <input type="checkbox" id="confirm-delete" className="mt-0.5 accent-red-600" />
-                  <label htmlFor="confirm-delete" className="text-sm text-gray-600">I understand this action is permanent and irreversible.</label>
+                  <label htmlFor="confirm-delete" className="text-xs text-gray-600">I understand this action is permanent and irreversible.</label>
                 </div>
-                <button onClick={() => onNavigate("home")} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-semibold text-sm bg-red-500 hover:bg-red-600 transition-all">
-                  <Trash2 size={16} />Delete My Account Permanently
+                <button onClick={() => onNavigate("home")} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white font-bold text-sm bg-red-500 hover:bg-red-600 shadow-md shadow-red-500/20 transition-all cursor-pointer">
+                  <Trash2 size={16} /> Delete My Account Permanently
                 </button>
               </div>
             </div>

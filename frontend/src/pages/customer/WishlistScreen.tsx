@@ -39,9 +39,9 @@ export function WishlistScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="wishlist" onNavigate={onNavigate} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-16">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>

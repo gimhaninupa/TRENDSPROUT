@@ -280,6 +280,17 @@ class ApiClient {
     });
   }
 
+  async getVendorOrders() {
+    return this.request<{ status: string; results: number; data: any[] }>('/vendor/orders');
+  }
+
+  async updateVendorOrderStatus(orderId: string, orderStatus: string) {
+    return this.request<{ status: string; message: string; data: any }>(`/vendor/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ orderStatus }),
+    });
+  }
+
   // ─── ADMIN ─────────────────────────────────────────────────────────────────
   async getAdminMetrics() {
     return this.request<{ status: string; data: any }>('/admin/metrics');

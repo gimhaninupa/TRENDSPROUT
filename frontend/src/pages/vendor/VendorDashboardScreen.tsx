@@ -89,7 +89,7 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
           <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-bold text-gray-900">Revenue Overview</h3>
-              <button onClick={() => onNavigate("vendor-analytics")} className="text-xs font-semibold text-purple-600 flex items-center gap-1">Full report <ArrowRight size={12} /></button>
+              <button onClick={() => onNavigate("vendor-payouts")} className="text-xs font-semibold text-purple-600 flex items-center gap-1 cursor-pointer">View wallet <ArrowRight size={12} /></button>
             </div>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={monthlyRevenueData}>
@@ -110,18 +110,22 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col justify-between">
             <div>
               <h3 className="font-bold text-gray-900 mb-2">Store Quick Actions</h3>
-              <p className="text-xs text-gray-500 mb-4">Manage catalog, run AI pricing simulations, or configure your storefront banner.</p>
+              <p className="text-xs text-gray-500 mb-4">Manage catalog, process customer orders, or configure your storefront banner.</p>
             </div>
             <div className="space-y-3">
-              <button onClick={() => onNavigate("vendor-add-product")} className="w-full py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold flex items-center justify-between transition-colors">
+              <button onClick={() => onNavigate("vendor-add-product")} className="w-full py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer">
                 <span>Add New Garment</span>
                 <Plus size={14} />
               </button>
-              <button onClick={() => onNavigate("store-customization")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors">
+              <button onClick={() => onNavigate("vendor-orders")} className="w-full py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer">
+                <span>Manage Customer Orders</span>
+                <ShoppingBag size={14} />
+              </button>
+              <button onClick={() => onNavigate("store-customization")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer">
                 <span>Customize Storefront</span>
                 <ArrowRight size={14} />
               </button>
-              <button onClick={() => onNavigate("vendor-payouts")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors">
+              <button onClick={() => onNavigate("vendor-payouts")} className="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer">
                 <span>Request Payout</span>
                 <ArrowRight size={14} />
               </button>
@@ -131,17 +135,17 @@ export function VendorDashboardScreen({ onNavigate }: { onNavigate: (s: Screen) 
         <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-bold text-gray-900">Recent Store Orders</h3>
-            <button onClick={() => onNavigate("orders")} className="text-xs font-semibold text-purple-600">View all</button>
+            <button onClick={() => onNavigate("vendor-orders")} className="text-xs font-semibold text-purple-600 cursor-pointer">View all</button>
           </div>
           <div className="text-center py-8 text-xs text-gray-400">
-            No customer orders placed yet. Orders will appear here in real-time as shoppers check out your products.
+            No pending customer orders. Incoming purchases will appear here and in your Orders tab with real-time delivery tracking.
           </div>
         </div>
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           {[
             { icon: <FileText size={20} />, title: "AI Description Generator", desc: "Auto-write compelling product listings", screen: "vendor-ai-description" as Screen },
             { icon: <DollarSign size={20} />, title: "AI Pricing Advisor", desc: "Optimize prices with market intelligence", screen: "vendor-ai-pricing" as Screen },
-            { icon: <TrendingUp size={20} />, title: "Trend Predictor", desc: "See what's selling next season", screen: "vendor-analytics" as Screen },
+            { icon: <ShoppingBag size={20} />, title: "Orders & Fulfillment", desc: "Process orders & generate packing slips", screen: "vendor-orders" as Screen },
           ].map(tool => (
             <div key={tool.title} onClick={() => onNavigate(tool.screen)} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 cursor-pointer hover:border-purple-200 hover:shadow-lg hover:shadow-purple-100/30 transition-all group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0" style={{ background: `linear-gradient(135deg, ${purple}, #9333ea)` }}>{tool.icon}</div>

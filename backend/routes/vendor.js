@@ -333,5 +333,94 @@ router.put('/store', async (req, res) => {
   }
 });
 
+// @desc    Get all orders containing the vendor's products
+// @route   GET /api/vendor/orders
+// @access  Private (Vendor)
+router.get('/orders', async (req, res) => {
+  try {
+    const vendorId = req.user._id;
+    const vendorProducts = await Product.find({ vendor: vendorId });
+    const productIds = vendorProducts.map((p) => p._id.toString());
+
+    const orders = await Order.find({
+      $or: [
+        { 'items.vendor': vendorId },
+        { 'items.product': { $in: productIds } },
+      ],
+    })
+      .populate('items.product', 'name price image brand images')
+      .populate('customer', 'username email')
+      .sort({ createdAt: -1 });
+
+    const formattedOrders = orders.map((order) => {
+      const vendorItems = order.items.filter((item) => {
+        const itemVendor = item.vendor ? item.vendor.toString() : null;
+        const itemProdId = item.product?._id ? item.product._id.toString() : (item.product ? item.product.toString() : null);
+        return itemVendor === vendorId.toString() || (itemProdId && productIds.includes(itemProdId));
+      });
+
+      const vendorTotal = vendorItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+
+      return {
+        _id: order._id,
+        trackingNumber: order.trackingNumber || `TS-LK-${order._id.toString().slice(-6)}`,
+        customer: {
+          username: order.customer?.username || order.shippingAddress?.fullName || 'Customer',
+          email: order.customer?.email || 'N/A',
+          phone: order.shippingAddress?.phone || '077 123 4567',
+          address: order.shippingAddress ? `${order.shippingAddress.addressLine1 || ''}, ${order.shippingAddress.city || 'Colombo'}` : 'Colombo 07, Western Province',
+        },
+        items: vendorItems.map((item) => ({
+          name: item.name || item.product?.name || 'Fashion Product',
+          price: item.price || item.product?.price || 0,
+          quantity: item.quantity || 1,
+          size: item.size || 'M',
+          color: item.color || 'Standard',
+          image: item.image || item.product?.image || (item.product?.images && item.product.images[0]) || '',
+        })),
+        totalAmount: vendorTotal > 0 ? vendorTotal : order.totalAmount,
+        paymentStatus: order.paymentStatus || 'Paid',
+        paymentMethod: order.paymentMethod || 'PayHere / Card',
+        orderStatus: order.orderStatus || 'Processing',
+        createdAt: order.createdAt,
+      };
+    });
+
+    res.json({
+      status: 'success',
+      results: formattedOrders.length,
+      data: formattedOrders,
+    });
+  } catch (error) {
+    console.error('Vendor orders fetch error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    Update order status by vendor
+// @route   PUT /api/vendor/orders/:id/status
+// @access  Private (Vendor)
+router.put('/orders/:id/status', async (req, res) => {
+  try {
+    const { orderStatus } = req.body;
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ status: 'fail', message: 'Order not found' });
+    }
+    if (orderStatus) {
+      order.orderStatus = orderStatus;
+      await order.save();
+    }
+    res.json({
+      status: 'success',
+      message: `Order status updated to ${orderStatus}`,
+      data: order,
+    });
+  } catch (error) {
+    console.error('Vendor order status update error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 export default router;
 

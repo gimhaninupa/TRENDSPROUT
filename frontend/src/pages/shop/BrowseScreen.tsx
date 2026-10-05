@@ -9,6 +9,146 @@ import {
 } from '../../components/shared';
 import api from '../../services/api';
 
+function DualPriceFilter({
+  priceRange,
+  setPriceRange,
+  maxLimit = 50000,
+  step = 500
+}: {
+  priceRange: [number, number];
+  setPriceRange: (r: [number, number]) => void;
+  maxLimit?: number;
+  step?: number;
+}) {
+  const minVal = priceRange[0];
+  const maxVal = priceRange[1];
+
+  const leftPercent = Math.min(100, Math.max(0, (minVal / maxLimit) * 100));
+  const rightPercent = Math.min(100, Math.max(0, (maxVal / maxLimit) * 100));
+
+  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Math.min(Number(e.target.value) || 0, maxVal - step);
+    setPriceRange([Math.max(0, val), maxVal]);
+  };
+
+  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Math.max(Number(e.target.value) || 0, minVal + step);
+    setPriceRange([minVal, Math.min(maxLimit, val)]);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-semibold text-gray-500 uppercase tracking-wider text-[11px]">Price Range</span>
+        <span className="font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-lg text-[11px]">
+          {lkr(minVal)} – {lkr(maxVal)}
+        </span>
+      </div>
+
+      {/* Dual Slider Track */}
+      <div className="relative py-2 select-none">
+        <div className="h-2 w-full bg-gray-100 rounded-full relative">
+          {/* Highlighted active bar between min and max */}
+          <div 
+            className="absolute top-0 bottom-0 rounded-full"
+            style={{ 
+              left: `${leftPercent}%`, 
+              width: `${Math.max(0, rightPercent - leftPercent)}%`,
+              background: `linear-gradient(90deg, ${purple}, #9333ea)`
+            }} 
+          />
+        </div>
+
+        {/* Min Thumb Range Input */}
+        <input 
+          type="range"
+          min={0}
+          max={maxLimit}
+          step={step}
+          value={minVal}
+          onChange={handleMinChange}
+          className="absolute inset-0 w-full h-full appearance-none bg-transparent pointer-events-none z-20
+            [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform
+            [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+        />
+
+        {/* Max Thumb Range Input */}
+        <input 
+          type="range"
+          min={0}
+          max={maxLimit}
+          step={step}
+          value={maxVal}
+          onChange={handleMaxChange}
+          className="absolute inset-0 w-full h-full appearance-none bg-transparent pointer-events-none z-20
+            [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-600 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform
+            [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-purple-600 [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+        />
+      </div>
+
+      {/* Min & Max Editable Input Boxes */}
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-2 focus-within:border-purple-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-purple-100 transition-all">
+          <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider mb-0.5">Min (LKR)</span>
+          <input 
+            type="number" 
+            min={0}
+            max={maxVal - step}
+            step={step}
+            value={minVal}
+            onChange={e => {
+              const num = Number(e.target.value);
+              const clamped = Math.max(0, Math.min(isNaN(num) ? 0 : num, maxVal - step));
+              setPriceRange([clamped, maxVal]);
+            }}
+            className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none"
+          />
+        </div>
+
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-2 focus-within:border-purple-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-purple-100 transition-all">
+          <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider mb-0.5">Max (LKR)</span>
+          <input 
+            type="number" 
+            min={minVal + step}
+            max={maxLimit}
+            step={step}
+            value={maxVal}
+            onChange={e => {
+              const num = Number(e.target.value);
+              const clamped = Math.min(maxLimit, Math.max(isNaN(num) ? minVal + step : num, minVal + step));
+              setPriceRange([minVal, clamped]);
+            }}
+            className="w-full text-xs font-bold text-gray-900 bg-transparent focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Quick Filter Presets */}
+      <div className="flex flex-wrap gap-1 pt-1">
+        {[
+          { label: "< 5k", range: [0, 5000] },
+          { label: "5k-15k", range: [5000, 15000] },
+          { label: "15k-30k", range: [15000, 30000] },
+          { label: "All", range: [0, maxLimit] },
+        ].map(preset => (
+          <button
+            key={preset.label}
+            type="button"
+            onClick={() => setPriceRange(preset.range as [number, number])}
+            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+              minVal === preset.range[0] && maxVal === preset.range[1]
+                ? "bg-purple-600 text-white shadow-sm"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s: Screen) => void; isSearch?: boolean }) {
   const [view, setView] = useState<"grid" | "list">("grid");
   const [activeFilters, setActiveFilters] = useState<string[]>(["All"]);
@@ -16,8 +156,24 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
   const [sortOpen, setSortOpen] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sort, setSort] = useState("Trending");
-  const filters = ["All", "Dresses", "Blazers", "Knitwear", "Pants", "Skirts", "Bags"];
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 30000]);
+  const filters = [
+    "All",
+    "Dresses",
+    "T-Shirts",
+    "Shirts",
+    "Blazers",
+    "Jackets & Coats",
+    "Knitwear",
+    "Hoodies & Sweats",
+    "Pants & Trousers",
+    "Jeans & Denim",
+    "Skirts",
+    "Shorts",
+    "Footwear",
+    "Bags",
+    "Accessories"
+  ];
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [searchTerm, setSearchTerm] = useState(isSearch ? "Silk dress" : "");
   const [allProducts, setAllProducts] = useState<any[]>(() => {
     try {
@@ -194,12 +350,16 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
   }, [allProducts]);
 
   const filteredProducts = allProducts.filter(p => {
-    const pCat = typeof p.category === 'string' ? p.category : (p.category?.name || '');
-    const matchesCategory = activeFilters.includes("All") || activeFilters.some(f => 
-      pCat.toLowerCase() === f.toLowerCase() || 
-      pCat.toLowerCase().includes(f.toLowerCase()) ||
-      p.name?.toLowerCase().includes(f.toLowerCase())
-    );
+    const pCat = (typeof p.category === 'string' ? p.category : (p.category?.name || '')).toLowerCase();
+    const pName = (p.name || '').toLowerCase();
+    
+    const matchesCategory = activeFilters.includes("All") || activeFilters.some(f => {
+      const filterLower = f.toLowerCase();
+      if (pCat === filterLower || pCat.includes(filterLower) || pName.includes(filterLower)) return true;
+      const words = filterLower.split(/[\s&,/]+/).filter(w => w.length > 2);
+      return words.some(w => pCat.includes(w) || pName.includes(w));
+    });
+
     const matchesSearch = !searchTerm.trim() || 
       p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
       p.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -211,9 +371,9 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
   });
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="browse" onNavigate={onNavigate} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-16">
         
         {/* Search & Visual Search Header Bar */}
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -542,9 +702,9 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
             <div className="bg-white rounded-2xl border border-gray-100 p-5 sticky top-24 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-gray-900 text-sm">Filters</h3>
-                {(activeFilters.length > 1 || !activeFilters.includes("All") || selectedBrands.length > 0 || priceRange[1] < 30000 || priceRange[0] > 0) && (
+                {(activeFilters.length > 1 || !activeFilters.includes("All") || selectedBrands.length > 0 || priceRange[1] < 50000 || priceRange[0] > 0) && (
                   <button 
-                    onClick={() => { setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 30000]); }}
+                    onClick={() => { setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 50000]); }}
                     className="text-[11px] font-semibold text-purple-600 hover:text-purple-700"
                   >
                     Reset All
@@ -567,25 +727,13 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                 ))}
               </div>
 
-              <div className="mb-5">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Price Range</h4>
-                  <span className="text-xs font-bold text-purple-600">{lkr(priceRange[1])}</span>
-                </div>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="30000" 
-                  step="500"
-                  value={priceRange[1]} 
-                  onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
-                  className="w-full accent-purple-600 cursor-pointer h-1.5 bg-gray-200 rounded-lg mb-2"
+              <div className="mb-5 pb-5 border-b border-gray-100">
+                <DualPriceFilter 
+                  priceRange={priceRange} 
+                  setPriceRange={setPriceRange} 
+                  maxLimit={50000} 
+                  step={500} 
                 />
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700 font-medium">LKR {priceRange[0].toLocaleString()}</div>
-                  <span className="text-gray-400 text-xs">–</span>
-                  <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700 font-medium">LKR {priceRange[1].toLocaleString()}</div>
-                </div>
               </div>
 
               <div>
@@ -645,7 +793,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                 >
                   <Filter size={13} className="text-purple-600" />
                   <span>Filters</span>
-                  {(selectedBrands.length > 0 || priceRange[1] < 30000 || priceRange[0] > 0) && (
+                  {(selectedBrands.length > 0 || priceRange[1] < 50000 || priceRange[0] > 0) && (
                     <span className="w-2 h-2 rounded-full bg-purple-600 inline-block" />
                   )}
                 </button>
@@ -706,25 +854,12 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
 
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Price Range (0 – 30,000 LKR)</h4>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs text-gray-500">Max Budget:</span>
-                        <span className="text-xs font-bold text-purple-600">{lkr(priceRange[1])}</span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="30000" 
-                        step="500"
-                        value={priceRange[1]} 
-                        onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
-                        className="w-full accent-purple-600 cursor-pointer h-2 bg-gray-200 rounded-lg mb-2"
+                      <DualPriceFilter 
+                        priceRange={priceRange} 
+                        setPriceRange={setPriceRange} 
+                        maxLimit={50000} 
+                        step={500} 
                       />
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[0].toLocaleString()}</div>
-                        <span className="text-gray-400 text-xs">–</span>
-                        <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-700">LKR {priceRange[1].toLocaleString()}</div>
-                      </div>
                     </div>
 
                     <div>
@@ -753,7 +888,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
 
                   <div className="mt-6 pt-4 border-t border-gray-100 flex gap-3">
                     <GhostBtn 
-                      onClick={() => { setSelectedBrands([]); setPriceRange([0, 30000]); }} 
+                      onClick={() => { setSelectedBrands([]); setPriceRange([0, 50000]); }} 
                       className="flex-1 !py-2.5 !text-xs"
                     >
                       Reset
@@ -776,13 +911,13 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">No items found</h3>
                 <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-                  {searchTerm || activeFilters.length > 0 && !activeFilters.includes("All") || selectedBrands.length > 0 || priceRange[1] < 30000
+                  {searchTerm || (activeFilters.length > 0 && !activeFilters.includes("All")) || selectedBrands.length > 0 || priceRange[1] < 50000 || priceRange[0] > 0
                     ? "Try adjusting your filters, category, or search term to discover available pieces."
                     : "No products are listed in this category yet. You can list new items as a vendor."}
                 </p>
                 <div className="flex justify-center gap-3">
-                  {(searchTerm || (!activeFilters.includes("All") && activeFilters.length > 0) || selectedBrands.length > 0 || priceRange[1] < 30000) && (
-                    <GhostBtn onClick={() => { setSearchTerm(""); setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 30000]); }}>
+                  {(searchTerm || (!activeFilters.includes("All") && activeFilters.length > 0) || selectedBrands.length > 0 || priceRange[1] < 50000 || priceRange[0] > 0) && (
+                    <GhostBtn onClick={() => { setSearchTerm(""); setActiveFilters(["All"]); setSelectedBrands([]); setPriceRange([0, 50000]); }}>
                       Clear Filters
                     </GhostBtn>
                   )}

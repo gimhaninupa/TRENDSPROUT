@@ -33,9 +33,9 @@ export function CartScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   };
 
   if (cartItems.length === 0) return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="cart" onNavigate={onNavigate} />
-      <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+      <div className="flex flex-col items-center justify-center min-h-screen text-center px-4 pt-20">
         <ShoppingCart size={64} className="text-gray-200 mb-6" />
         <h2 className="text-2xl font-black text-gray-900 mb-2" style={{ fontFamily: "'Clash Display', sans-serif" }}>Your cart is empty</h2>
         <p className="text-gray-500 mb-8">Discover our curated collection of emerging fashion brands.</p>
@@ -45,9 +45,9 @@ export function CartScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   );
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
       <Navbar current="cart" onNavigate={onNavigate} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-16">
         <h1 className="text-3xl font-black text-gray-900 mb-8" style={{ fontFamily: "'Clash Display', sans-serif" }}>Shopping Cart <span className="text-gray-400 font-normal text-xl">({cartItems.length})</span></h1>
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 flex flex-col gap-4">

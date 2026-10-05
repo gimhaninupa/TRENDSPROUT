@@ -222,7 +222,23 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
           {mode === "login" && (
             <>
               <h1 className="text-3xl font-black text-gray-900 mb-1" style={{ fontFamily: "'Clash Display', sans-serif" }}>Welcome back</h1>
-              <p className="text-gray-500 text-sm mb-6">Sign in to your TRENDSPROUT account</p>
+              <p className="text-gray-500 text-sm mb-5">Sign in to your TRENDSPROUT account</p>
+
+              {/* Role Toggle for Login */}
+              <div className="flex bg-gray-100 p-1 rounded-xl mb-4 text-xs font-semibold">
+                <button
+                  onClick={() => setSelectedRole("customer")}
+                  className={`flex-1 py-2.5 rounded-lg transition-all ${selectedRole === "customer" ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  Shopper / Customer
+                </button>
+                <button
+                  onClick={() => setSelectedRole("vendor")}
+                  className={`flex-1 py-2.5 rounded-lg transition-all ${selectedRole === "vendor" ? "bg-white text-purple-700 shadow-sm" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  Brand / Vendor
+                </button>
+              </div>
 
               {/* Google Fast One-Tap & Button */}
               <div className="mb-5 flex flex-col items-center">
@@ -358,7 +374,7 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
                   />
                 ))}
               </div>
-              <PrimaryBtn onClick={() => onNavigate("customer-dashboard")} className="w-full !py-3.5 !rounded-xl">Verify Code</PrimaryBtn>
+              <PrimaryBtn onClick={() => onNavigate(selectedRole === "vendor" ? "vendor-dashboard" : "customer-dashboard")} className="w-full !py-3.5 !rounded-xl">Verify Code</PrimaryBtn>
               <p className="text-center text-xs text-gray-500 mt-4">Didn't get it? <button className="text-purple-600 font-semibold hover:underline">Resend in 0:45</button></p>
             </>
           )}

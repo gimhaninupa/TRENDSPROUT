@@ -32,6 +32,7 @@ import { VendorAIDescriptionScreen } from '../pages/vendor/VendorAIDescriptionSc
 import { VendorAIPricingScreen } from '../pages/vendor/VendorAIPricingScreen';
 import { VendorPayoutsScreen } from '../pages/vendor/VendorPayoutsScreen';
 import { VendorAnalyticsScreen } from '../pages/vendor/VendorAnalyticsScreen';
+import { VendorOrdersScreen } from '../pages/vendor/VendorOrdersScreen';
 import { StoreCustomizationScreen } from '../pages/core/StoreCustomizationScreen';
 import { SellerStoreScreen } from '../pages/core/SellerStoreScreen';
 import { ProfileScreen } from '../pages/customer/ProfileScreen';
@@ -66,6 +67,7 @@ const screenToPath: Record<string, string> = {
   "text-to-design": "/ai/design",
   "vendor-dashboard": "/vendor",
   "vendor-products": "/vendor/products",
+  "vendor-orders": "/vendor/orders",
   "vendor-analytics": "/vendor/analytics",
   "vendor-add-product": "/vendor/products/add",
   "vendor-ai-description": "/vendor/ai-description",
@@ -133,6 +135,7 @@ function RouterWrapper() {
           
           <Route path="/vendor" element={<VendorDashboardScreen onNavigate={onNavigate} />} />
           <Route path="/vendor/products" element={<VendorProductsScreen onNavigate={onNavigate} />} />
+          <Route path="/vendor/orders" element={<VendorOrdersScreen onNavigate={onNavigate} />} />
           <Route path="/vendor/analytics" element={<VendorAnalyticsScreen onNavigate={onNavigate} />} />
           <Route path="/vendor/products/add" element={<VendorAddProductScreen onNavigate={onNavigate} />} />
           <Route path="/vendor/ai-description" element={<VendorAIDescriptionScreen onNavigate={onNavigate} />} />
