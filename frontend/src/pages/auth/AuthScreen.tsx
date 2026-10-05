@@ -92,91 +92,75 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
 
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Left Brand Editorial Panel */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-between p-12 lg:p-16 select-none" style={{ background: `linear-gradient(145deg, #09080e 0%, #120c24 50%, #0c0817 100%)` }}>
-        {/* Ambient Gradient Glows */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600/25 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-1/2 -left-28 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-28 right-12 w-96 h-96 bg-indigo-600/20 rounded-full blur-[110px] pointer-events-none" />
+      {/* Left Brand Editorial Panel - Minimalist Aesthetic */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-between p-12 lg:p-16 select-none" style={{ background: `linear-gradient(150deg, #07060b 0%, #110920 50%, #08060f 100%)` }}>
+        {/* Soft Ambient Glows */}
+        <div className="absolute top-1/4 -right-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[130px] pointer-events-none" />
+        <div className="absolute bottom-1/3 -left-20 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-[130px] pointer-events-none" />
         
-        {/* Subtle Fashion Editorial Overlay */}
+        {/* Fashion Silhouette Background */}
         <img 
           src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=85" 
-          alt="High Fashion Editorial" 
-          className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity scale-105 transition-transform duration-1000 ease-out hover:scale-100" 
+          alt="Fashion" 
+          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09080e] via-[#09080e]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07060b] via-[#07060b]/70 to-transparent" />
 
         {/* Top Header */}
         <div className="relative z-10 flex items-center justify-between">
           <button 
             onClick={() => onNavigate("home")} 
-            className="flex items-center gap-2.5 group cursor-pointer text-left"
+            className="flex items-center gap-2.5 group cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:scale-105 transition-transform">
-              <Sparkles size={18} className="text-white" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+              <Sparkles size={16} className="text-white" />
             </div>
-            <span className="font-black text-white text-2xl tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+            <span className="font-black text-white text-xl tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
               TRENDSPROUT
             </span>
           </button>
-          <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[11px] font-semibold text-purple-200 tracking-wider uppercase">
-            AI Fashion Studio
-          </div>
+          
+          <span className="text-[11px] tracking-widest text-purple-300/60 uppercase font-mono font-medium">
+            SS • 2026
+          </span>
         </div>
 
-        {/* Center / Editorial Hero Content */}
-        <div className="relative z-10 my-auto py-10 max-w-xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md mb-6">
-            <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-            <span className="text-xs font-medium text-purple-300 tracking-wide uppercase">Haute Couture × Neural Intelligence</span>
-          </div>
-
-          <h2 className="text-4xl xl:text-5xl font-black text-white mb-5 leading-[1.15] tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-            The New Era of <br />
+        {/* Center Minimal Hero Statement */}
+        <div className="relative z-10 my-auto py-12 max-w-lg">
+          <h2 className="text-5xl xl:text-6xl font-black text-white mb-4 leading-[1.08] tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+            Curated by AI.<br />
             <span className="bg-gradient-to-r from-purple-300 via-fuchsia-200 to-indigo-300 bg-clip-text text-transparent">
-              Autonomous Style.
+              Defined by You.
             </span>
           </h2>
           
-          <p className="text-gray-400 text-sm xl:text-base leading-relaxed mb-8 max-w-md font-normal">
-            Experience next-generation predictive trend modeling, hyper-personalized wardrobe intelligence, and exclusive direct-from-runway collections.
+          <p className="text-gray-400 text-sm xl:text-base font-light tracking-wide mb-8">
+            Next-generation autonomous fashion intelligence.
           </p>
 
-          {/* Minimalist High-Fashion Feature Highlights (Replacing Reviews) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.07] hover:border-purple-500/30 transition-all duration-300 group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono tracking-widest text-purple-400 font-bold uppercase">01 / DISCOVERY</span>
-                <Sparkles size={14} className="text-purple-400/80 group-hover:rotate-12 transition-transform" />
-              </div>
-              <h4 className="text-sm font-bold text-white mb-1">Neural Trend Pulse</h4>
-              <p className="text-[12px] text-gray-400 leading-normal">
-                Real-time runway synthesis and generative outfit pairing matching your unique vibe.
-              </p>
+          {/* Minimalist Glass Chips */}
+          <div className="flex flex-wrap gap-2.5">
+            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-purple-500/30 transition-colors">
+              <Sparkles size={13} className="text-purple-400" />
+              <span>AI Styling Suite</span>
             </div>
-
-            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.07] hover:border-purple-500/30 transition-all duration-300 group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono tracking-widest text-fuchsia-400 font-bold uppercase">02 / PRECISION</span>
-                <Wand2 size={14} className="text-fuchsia-400/80 group-hover:rotate-12 transition-transform" />
-              </div>
-              <h4 className="text-sm font-bold text-white mb-1">AI Silhouette Fitting</h4>
-              <p className="text-[12px] text-gray-400 leading-normal">
-                Zero guesswork sizing with intelligent vision-guided drape and dimensional metrics.
-              </p>
+            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-fuchsia-500/30 transition-colors">
+              <Wand2 size={13} className="text-fuchsia-400" />
+              <span>Virtual Try-On</span>
+            </div>
+            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-indigo-500/30 transition-colors">
+              <TrendingUp size={13} className="text-indigo-400" />
+              <span>Trend Sprout</span>
             </div>
           </div>
         </div>
 
-        {/* Bottom Editorial Footer */}
-        <div className="relative z-10 flex items-center justify-between pt-6 border-t border-white/10 text-xs text-gray-500 font-medium">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-gray-400 tracking-wide">TRENDSPROUT ECOSYSTEM • 2026</span>
-          </div>
-          <span className="tracking-widest uppercase text-[10px] text-purple-300/80">
-            CONFIDENTIAL & SECURE
+        {/* Minimal Footer */}
+        <div className="relative z-10 flex items-center justify-between text-[11px] text-gray-500 font-medium tracking-wider">
+          <span>AI FASHION ENGINE</span>
+          <span className="flex items-center gap-1.5 text-gray-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            ONLINE
           </span>
         </div>
       </div>
