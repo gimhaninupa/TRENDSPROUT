@@ -88,11 +88,7 @@ const screenToPath: Record<string, string> = {
 
 function RouterWrapper() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [isAppLoading, setIsAppLoading] = useState(true);
-
-  // If directly navigating to splash page "/", skip double preloader
-  const isDirectSplash = location.pathname === '/';
 
   const onNavigate = (s: Screen) => {
     const path = screenToPath[s] || '/';
@@ -102,12 +98,12 @@ function RouterWrapper() {
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
-      {isAppLoading && !isDirectSplash && (
-        <Preloader onFinish={() => setIsAppLoading(false)} minDurationMs={600} />
+      {isAppLoading && (
+        <Preloader onFinish={() => setIsAppLoading(false)} minDurationMs={1000} />
       )}
       <AnimatePresence mode="wait">
         <Routes>
-          <Route path="/" element={<SplashScreen onNavigate={onNavigate} />} />
+          <Route path="/" element={<HomeScreen onNavigate={onNavigate} />} />
           <Route path="/home" element={<HomeScreen onNavigate={onNavigate} />} />
           <Route path="/login" element={<AuthScreen mode="login" onNavigate={onNavigate} />} />
           <Route path="/register" element={<AuthScreen mode="register" onNavigate={onNavigate} />} />
