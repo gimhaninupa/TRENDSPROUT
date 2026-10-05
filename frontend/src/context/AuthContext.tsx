@@ -187,8 +187,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('ts_user');
-    localStorage.removeItem('ts_token');
+    const tsKeys = [
+      'ts_user',
+      'ts_token',
+      'ts_profile_name',
+      'ts_buyer_dob',
+      'ts_buyer_id_type',
+      'ts_buyer_id_num',
+      'ts_buyer_phone',
+      'ts_buyer_gender',
+      'ts_buyer_address',
+      'ts_buyer_city',
+      'ts_vendor_store_name',
+      'ts_vendor_tagline',
+      'ts_vendor_owner_name',
+      'ts_vendor_owner_dob',
+      'ts_vendor_owner_id',
+      'ts_vendor_brn',
+      'ts_vendor_tax_id',
+      'ts_vendor_biz_email',
+      'ts_vendor_phone',
+      'ts_vendor_bank',
+      'ts_vendor_branch',
+      'ts_vendor_acc',
+      'ts_vendor_acc_name',
+      'ts_vendor_products',
+      'ts_last_order',
+      'ts_wishlist',
+      'ts_cart',
+    ];
+    tsKeys.forEach(k => localStorage.removeItem(k));
   };
 
   const role = user?.role || 'guest';

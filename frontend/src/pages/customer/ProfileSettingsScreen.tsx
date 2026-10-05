@@ -23,31 +23,67 @@ export function ProfileSettingsScreen({ onNavigate }: { onNavigate: (s: Screen) 
 
   // Buyer / Customer Profile State
   const [buyerName, setBuyerName] = useState(() => {
-    return localStorage.getItem("ts_profile_name") || user?.name || user?.username || "Gimhan Inupa";
+    return localStorage.getItem("ts_profile_name") || user?.name || user?.username || "";
   });
-  const [buyerEmail, setBuyerEmail] = useState(user?.email || "gimhanxmax@gmail.com");
-  const [buyerPhone, setBuyerPhone] = useState(() => localStorage.getItem("ts_buyer_phone") || "+94 77 123 4567");
-  const [buyerDob, setBuyerDob] = useState(() => localStorage.getItem("ts_buyer_dob") || "2000-05-18");
+  const [buyerEmail, setBuyerEmail] = useState(user?.email || "");
+  const [buyerPhone, setBuyerPhone] = useState(() => localStorage.getItem("ts_buyer_phone") || user?.phone || "");
+  const [buyerDob, setBuyerDob] = useState(() => localStorage.getItem("ts_buyer_dob") || "");
   const [buyerIdType, setBuyerIdType] = useState(() => localStorage.getItem("ts_buyer_id_type") || "National ID (NIC)");
-  const [buyerIdNumber, setBuyerIdNumber] = useState(() => localStorage.getItem("ts_buyer_id_num") || "200013904521");
+  const [buyerIdNumber, setBuyerIdNumber] = useState(() => localStorage.getItem("ts_buyer_id_num") || "");
   const [buyerGender, setBuyerGender] = useState(() => localStorage.getItem("ts_buyer_gender") || "Male");
-  const [buyerAddress, setBuyerAddress] = useState(() => localStorage.getItem("ts_buyer_address") || "No. 45, Galle Road, Colombo 03");
-  const [buyerCity, setBuyerCity] = useState(() => localStorage.getItem("ts_buyer_city") || "Colombo");
+  const [buyerAddress, setBuyerAddress] = useState(() => localStorage.getItem("ts_buyer_address") || "");
+  const [buyerCity, setBuyerCity] = useState(() => localStorage.getItem("ts_buyer_city") || "");
 
   // Vendor / Store Profile State
-  const [vendorStoreName, setVendorStoreName] = useState(() => localStorage.getItem("ts_vendor_store_name") || "Luxe Atelier Colombo");
-  const [vendorTagline, setVendorTagline] = useState(() => localStorage.getItem("ts_vendor_tagline") || "Handcrafted High-Fashion Silk & Modern Silhouettes");
-  const [vendorOwnerName, setVendorOwnerName] = useState(() => localStorage.getItem("ts_vendor_owner_name") || buyerName);
-  const [vendorOwnerDob, setVendorOwnerDob] = useState(() => localStorage.getItem("ts_vendor_owner_dob") || "1998-11-24");
-  const [vendorOwnerId, setVendorOwnerId] = useState(() => localStorage.getItem("ts_vendor_owner_id") || "199832901124");
-  const [vendorBrn, setVendorBrn] = useState(() => localStorage.getItem("ts_vendor_brn") || "PV-2024-88491");
-  const [vendorTaxId, setVendorTaxId] = useState(() => localStorage.getItem("ts_vendor_tax_id") || "TIN-99201948");
-  const [vendorBusinessEmail, setVendorBusinessEmail] = useState(() => localStorage.getItem("ts_vendor_biz_email") || "sales@luxeatelier.lk");
-  const [vendorPhone, setVendorPhone] = useState(() => localStorage.getItem("ts_vendor_phone") || "+94 11 234 5678");
-  const [vendorBankName, setVendorBankName] = useState(() => localStorage.getItem("ts_vendor_bank") || "Commercial Bank of Ceylon");
-  const [vendorBranch, setVendorBranch] = useState(() => localStorage.getItem("ts_vendor_branch") || "Colombo 07 Branch");
-  const [vendorAccountNum, setVendorAccountNum] = useState(() => localStorage.getItem("ts_vendor_acc") || "8002938102");
-  const [vendorAccountName, setVendorAccountName] = useState(() => localStorage.getItem("ts_vendor_acc_name") || "Luxe Atelier (Pvt) Ltd");
+  const [vendorStoreName, setVendorStoreName] = useState(() => localStorage.getItem("ts_vendor_store_name") || user?.vendorStore?.storeName || "");
+  const [vendorTagline, setVendorTagline] = useState(() => localStorage.getItem("ts_vendor_tagline") || "");
+  const [vendorOwnerName, setVendorOwnerName] = useState(() => localStorage.getItem("ts_vendor_owner_name") || buyerName || "");
+  const [vendorOwnerDob, setVendorOwnerDob] = useState(() => localStorage.getItem("ts_vendor_owner_dob") || "");
+  const [vendorOwnerId, setVendorOwnerId] = useState(() => localStorage.getItem("ts_vendor_owner_id") || "");
+  const [vendorBrn, setVendorBrn] = useState(() => localStorage.getItem("ts_vendor_brn") || "");
+  const [vendorTaxId, setVendorTaxId] = useState(() => localStorage.getItem("ts_vendor_tax_id") || "");
+  const [vendorBusinessEmail, setVendorBusinessEmail] = useState(() => localStorage.getItem("ts_vendor_biz_email") || "");
+  const [vendorPhone, setVendorPhone] = useState(() => localStorage.getItem("ts_vendor_phone") || "");
+  const [vendorBankName, setVendorBankName] = useState(() => localStorage.getItem("ts_vendor_bank") || "");
+  const [vendorBranch, setVendorBranch] = useState(() => localStorage.getItem("ts_vendor_branch") || "");
+  const [vendorAccountNum, setVendorAccountNum] = useState(() => localStorage.getItem("ts_vendor_acc") || "");
+  const [vendorAccountName, setVendorAccountName] = useState(() => localStorage.getItem("ts_vendor_acc_name") || "");
+
+  const handleResetAllData = () => {
+    if (window.confirm("Are you sure you want to wipe all locally saved account & vendor mock data and start completely fresh?")) {
+      const tsKeys = [
+        'ts_user',
+        'ts_token',
+        'ts_profile_name',
+        'ts_buyer_dob',
+        'ts_buyer_id_type',
+        'ts_buyer_id_num',
+        'ts_buyer_phone',
+        'ts_buyer_gender',
+        'ts_buyer_address',
+        'ts_buyer_city',
+        'ts_vendor_store_name',
+        'ts_vendor_tagline',
+        'ts_vendor_owner_name',
+        'ts_vendor_owner_dob',
+        'ts_vendor_owner_id',
+        'ts_vendor_brn',
+        'ts_vendor_tax_id',
+        'ts_vendor_biz_email',
+        'ts_vendor_phone',
+        'ts_vendor_bank',
+        'ts_vendor_branch',
+        'ts_vendor_acc',
+        'ts_vendor_acc_name',
+        'ts_vendor_products',
+        'ts_last_order',
+        'ts_wishlist',
+        'ts_cart',
+      ];
+      tsKeys.forEach(k => localStorage.removeItem(k));
+      window.location.href = "/home";
+    }
+  };
 
   const handleSaveBuyer = (e: React.FormEvent) => {
     e.preventDefault();
@@ -494,20 +530,39 @@ export function ProfileSettingsScreen({ onNavigate }: { onNavigate: (s: Screen) 
 
           {/* 4. Danger Zone */}
           {activeTab === "danger" && (
-            <div>
-              <h3 className="text-lg font-bold text-red-600 mb-2">Delete Account</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                This will permanently delete your account, order history, saved addresses, and vendor credentials. This action cannot be undone.
-              </p>
-              <div className="flex flex-col gap-4 max-w-md">
-                <Input label="Confirm your password" type="password" placeholder="Enter password to confirm" icon={<Lock size={16} />} />
-                <div className="flex items-start gap-2.5">
-                  <input type="checkbox" id="confirm-delete" className="mt-0.5 accent-red-600" />
-                  <label htmlFor="confirm-delete" className="text-xs text-gray-600">I understand this action is permanent and irreversible.</label>
-                </div>
-                <button onClick={() => onNavigate("home")} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white font-bold text-sm bg-red-500 hover:bg-red-600 shadow-md shadow-red-500/20 transition-all cursor-pointer">
-                  <Trash2 size={16} /> Delete My Account Permanently
+            <div className="space-y-8">
+              <div className="p-6 rounded-2xl bg-purple-50 border border-purple-200">
+                <h3 className="text-base font-bold text-purple-900 mb-1 flex items-center gap-2">
+                  <Sparkles size={18} className="text-purple-600" />
+                  Wipe All Local Mock / Demo Data (Fresh Start)
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Clears all pre-saved demo account info, old test vendor details, mock NICs, and saved localStorage session data so you can test on a 100% clean slate.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResetAllData}
+                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-600/20 transition-all cursor-pointer"
+                >
+                  Clear All Data & Start Fresh
                 </button>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100">
+                <h3 className="text-lg font-bold text-red-600 mb-2">Delete Account</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  This will permanently delete your account, order history, saved addresses, and vendor credentials. This action cannot be undone.
+                </p>
+                <div className="flex flex-col gap-4 max-w-md">
+                  <Input label="Confirm your password" type="password" placeholder="Enter password to confirm" icon={<Lock size={16} />} />
+                  <div className="flex items-start gap-2.5">
+                    <input type="checkbox" id="confirm-delete" className="mt-0.5 accent-red-600" />
+                    <label htmlFor="confirm-delete" className="text-xs text-gray-600">I understand this action is permanent and irreversible.</label>
+                  </div>
+                  <button onClick={() => { handleResetAllData(); }} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white font-bold text-sm bg-red-500 hover:bg-red-600 shadow-md shadow-red-500/20 transition-all cursor-pointer">
+                    <Trash2 size={16} /> Delete My Account Permanently
+                  </button>
+                </div>
               </div>
             </div>
           )}
