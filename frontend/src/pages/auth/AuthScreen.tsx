@@ -92,75 +92,121 @@ export function AuthScreen({ mode, onNavigate }: { mode: "login" | "register" | 
 
   return (
     <div className="min-h-screen flex" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Left Brand Editorial Panel - Minimalist Aesthetic */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-between p-12 lg:p-16 select-none" style={{ background: `linear-gradient(150deg, #07060b 0%, #110920 50%, #08060f 100%)` }}>
-        {/* Soft Ambient Glows */}
-        <div className="absolute top-1/4 -right-20 w-80 h-80 bg-purple-600/20 rounded-full blur-[130px] pointer-events-none" />
-        <div className="absolute bottom-1/3 -left-20 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-[130px] pointer-events-none" />
+      {/* Left Brand Glassmorphism Showcase Panel */}
+      <div 
+        className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-between p-12 lg:p-14 select-none" 
+        style={{ 
+          background: `radial-gradient(circle at 20% 20%, #7C3AED 0%, #6C4DF6 35%, #4F2EE8 70%, #2E1065 100%)` 
+        }}
+      >
+        {/* Luminous Glass Refraction Orbs */}
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-fuchsia-400/30 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 -right-20 w-96 h-96 bg-purple-300/25 rounded-full blur-[110px] pointer-events-none" />
+        <div className="absolute -bottom-24 left-1/4 w-80 h-80 bg-indigo-400/30 rounded-full blur-[100px] pointer-events-none" />
         
-        {/* Fashion Silhouette Background */}
+        {/* Subtle Fashion Editorial Texture Blend */}
         <img 
           src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=85" 
-          alt="Fashion" 
-          className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity" 
+          alt="Fashion Atmosphere" 
+          className="absolute inset-0 w-full h-full object-cover opacity-15 mix-blend-overlay scale-105 pointer-events-none" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07060b] via-[#07060b]/70 to-transparent" />
 
         {/* Top Header */}
         <div className="relative z-10 flex items-center justify-between">
           <button 
             onClick={() => onNavigate("home")} 
-            className="flex items-center gap-2.5 group cursor-pointer"
+            className="flex items-center gap-3 group cursor-pointer text-left"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              <Sparkles size={16} className="text-white" />
+            <div className="w-9 h-9 rounded-2xl bg-white text-[#6C4DF6] flex items-center justify-center font-black text-sm shadow-xl shadow-purple-950/20 group-hover:scale-105 transition-transform">
+              TS
             </div>
-            <span className="font-black text-white text-xl tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+            <span className="font-black text-white text-2xl tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
               TRENDSPROUT
             </span>
           </button>
           
-          <span className="text-[11px] tracking-widest text-purple-300/60 uppercase font-mono font-medium">
-            SS • 2026
-          </span>
+          <div className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/25 text-white/90 text-xs font-semibold tracking-wide flex items-center gap-2 shadow-lg shadow-purple-950/10">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            AI FASHION LAB
+          </div>
         </div>
 
-        {/* Center Minimal Hero Statement */}
-        <div className="relative z-10 my-auto py-12 max-w-lg">
-          <h2 className="text-5xl xl:text-6xl font-black text-white mb-4 leading-[1.08] tracking-tight" style={{ fontFamily: "'Clash Display', sans-serif" }}>
-            Curated by AI.<br />
-            <span className="bg-gradient-to-r from-purple-300 via-fuchsia-200 to-indigo-300 bg-clip-text text-transparent">
-              Defined by You.
+        {/* Centerpiece: Multi-Layered Frosted Glass Composition */}
+        <div className="relative z-10 my-auto py-6 max-w-lg">
+          {/* Floating Mini Live Marketplace Pill (Matching Home Screen) */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/15 backdrop-blur-2xl border border-white/30 shadow-2xl shadow-purple-950/20 mb-6"
+          >
+            <div className="flex -space-x-2">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="Avatar" className="w-6 h-6 rounded-full border-2 border-white/80 object-cover" />
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="Avatar" className="w-6 h-6 rounded-full border-2 border-white/80 object-cover" />
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Avatar" className="w-6 h-6 rounded-full border-2 border-white/80 object-cover" />
+            </div>
+            <span className="text-xs font-semibold text-white tracking-wide">
+              Live Fashion Marketplace
             </span>
-          </h2>
-          
-          <p className="text-gray-400 text-sm xl:text-base font-light tracking-wide mb-8">
-            Next-generation autonomous fashion intelligence.
-          </p>
+          </motion.div>
 
-          {/* Minimalist Glass Chips */}
-          <div className="flex flex-wrap gap-2.5">
-            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-purple-500/30 transition-colors">
-              <Sparkles size={13} className="text-purple-400" />
-              <span>AI Styling Suite</span>
+          {/* Main Frosted Glass Hero Card */}
+          <div className="rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/25 p-7 shadow-2xl shadow-purple-950/30 relative overflow-hidden group">
+            {/* Subtle card sheen */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/20 rounded-full blur-2xl pointer-events-none" />
+            
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-[11px] font-bold tracking-wider uppercase mb-4">
+              <Sparkles size={12} className="text-amber-300" />
+              Autonomous Styling
             </div>
-            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-fuchsia-500/30 transition-colors">
-              <Wand2 size={13} className="text-fuchsia-400" />
-              <span>Virtual Try-On</span>
-            </div>
-            <div className="px-3.5 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs text-gray-200 flex items-center gap-2 hover:border-indigo-500/30 transition-colors">
-              <TrendingUp size={13} className="text-indigo-400" />
-              <span>Trend Sprout</span>
+
+            <h2 className="text-4xl xl:text-5xl font-black text-white mb-3 leading-[1.1]" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+              Wear the <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-100 to-pink-200 drop-shadow-sm">
+                Future of Fashion.
+              </span>
+            </h2>
+
+            <p className="text-purple-100/90 text-sm font-normal leading-relaxed mb-6">
+              AI-driven trend discovery, virtual fitting, and curated designer collections built for modern style.
+            </p>
+
+            {/* Glass Feature Capsules */}
+            <div className="grid grid-cols-3 gap-2.5 pt-2 border-t border-white/15">
+              <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md text-center">
+                <div className="w-7 h-7 rounded-xl bg-white/20 text-white flex items-center justify-center mx-auto mb-1.5">
+                  <Sparkles size={14} />
+                </div>
+                <div className="text-[11px] font-bold text-white leading-tight">AI Stylist</div>
+                <div className="text-[9px] text-purple-200 mt-0.5">Custom Looks</div>
+              </div>
+
+              <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md text-center">
+                <div className="w-7 h-7 rounded-xl bg-white/20 text-white flex items-center justify-center mx-auto mb-1.5">
+                  <Wand2 size={14} />
+                </div>
+                <div className="text-[11px] font-bold text-white leading-tight">Virtual Fit</div>
+                <div className="text-[9px] text-purple-200 mt-0.5">3D Silhouette</div>
+              </div>
+
+              <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md text-center">
+                <div className="w-7 h-7 rounded-xl bg-white/20 text-white flex items-center justify-center mx-auto mb-1.5">
+                  <TrendingUp size={14} />
+                </div>
+                <div className="text-[11px] font-bold text-white leading-tight">Trend Pulse</div>
+                <div className="text-[9px] text-purple-200 mt-0.5">Runway Radar</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Minimal Footer */}
-        <div className="relative z-10 flex items-center justify-between text-[11px] text-gray-500 font-medium tracking-wider">
-          <span>AI FASHION ENGINE</span>
-          <span className="flex items-center gap-1.5 text-gray-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            ONLINE
+        {/* Bottom Translucent Glass Footer */}
+        <div className="relative z-10 flex items-center justify-between text-xs text-purple-200/90 font-medium pt-4 border-t border-white/15">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-300 shadow-sm shadow-emerald-300 animate-pulse" />
+            <span className="font-semibold text-white">AI Engine 2.0 Active</span>
+          </div>
+          <span className="tracking-widest uppercase text-[10px] text-white/80 font-mono">
+            TRENDSPROUT • 2026
           </span>
         </div>
       </div>
