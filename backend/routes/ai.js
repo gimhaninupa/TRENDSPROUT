@@ -74,30 +74,55 @@ router.post('/chat', async (req, res) => {
           : `Note: The marketplace catalog currently has 0 items listed in stock as vendors are preparing new seasonal collections. If the user asks about item availability or if specific items (like shorts, skinnies, dresses) are available, clearly let them know these items are currently not in stock yet in the store, while still offering expert fashion styling, color matching, and outfit advice.`;
 
         const model = ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.5-flash',
           systemInstruction: `You are SproutStylist, the AI luxury personal fashion stylist for TrendSprout fashion marketplace in Sri Lanka.
-Tone: Chic, friendly, expert, and conversational. Keep responses concise and engaging (2 to 4 sentences).
+Tone: Chic, friendly, expert, and conversational. Keep responses helpful, direct, and well-structured.
 Currency: Sri Lankan Rupees (LKR).
 ${catalogContext}
-Directly address the user's specific questions about style, clothing types, occasions, and availability.`
+Directly answer whatever the user asks about clothing, occasions, outfits, materials, styling, and color combinations with expert fashion flair.`
         });
 
-        // Convert history format if available
+        // Gemini API strictly requires:
+        // 1. History must start with role 'user'
+        // 2. Roles must strictly alternate: user -> model -> user -> model
         const contents = [];
         if (Array.isArray(history)) {
-          history.slice(-6).forEach(h => {
-            contents.push({
-              role: h.sender === 'user' || h.role === 'user' ? 'user' : 'model',
-              parts: [{ text: h.text || '' }]
-            });
+          const validHistory = history.filter(h => h && h.text && typeof h.text === 'string' && h.text.trim());
+          
+          for (const h of validHistory) {
+            const role = (h.sender === 'user' || h.role === 'user') ? 'user' : 'model';
+            
+            // Skip leading 'model' greeting messages (Gemini API requires the first turn to be 'user')
+            if (contents.length === 0 && role === 'model') {
+              continue;
+            }
+            
+            // Prevent duplicate consecutive roles
+            if (contents.length > 0 && contents[contents.length - 1].role === role) {
+              contents[contents.length - 1].parts[0].text += `\n${h.text.trim()}`;
+            } else {
+              contents.push({
+                role,
+                parts: [{ text: h.text.trim() }]
+              });
+            }
+          }
+        }
+
+        // Add the current user message at the end
+        if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+          contents[contents.length - 1].parts[0].text += `\n${message.trim()}`;
+        } else {
+          contents.push({
+            role: 'user',
+            parts: [{ text: message.trim() }]
           });
         }
-        contents.push({ role: 'user', parts: [{ text: message }] });
 
         const result = await model.generateContent({ contents });
         reply = result.response.text();
       } catch (geminiError) {
-        console.warn('Gemini 1.5 Flash call note:', geminiError.message);
+        console.warn('Gemini 2.5 Flash call note:', geminiError.message);
       }
     }
 
@@ -232,7 +257,7 @@ router.post('/vendor-description', async (req, res) => {
     if (ai) {
       try {
         const model = ai.getGenerativeModel({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.5-flash',
           systemInstruction: `You are an elite e-commerce fashion copywriter and SEO specialist. Return your response in pure valid JSON without markdown formatting.
 JSON structure:
 {
