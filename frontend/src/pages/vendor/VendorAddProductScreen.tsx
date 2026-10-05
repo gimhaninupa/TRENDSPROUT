@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   ChevronRight, Sparkles, Upload, Trash2, Globe, FileText,
   DollarSign, TrendingUp, ChevronLeft, Wand2, CheckCircle2,
-  RefreshCw, Layers, ArrowRight, Eye, X, Activity, Check
+  RefreshCw, Layers, ArrowRight, Eye, X, Activity, Check, ShoppingBag
 } from "lucide-react";
 import { 
     Screen, purple, purpleLight,
