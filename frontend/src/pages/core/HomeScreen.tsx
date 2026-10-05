@@ -190,12 +190,11 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 { icon: <Bot className="w-5 h-5" />, title: "AI Chatbot Stylist", desc: "Instant high-fashion styling advice trained on decades of global runway trends.", screen: "ai-chatbot" as Screen, tag: "Interactive" },
                 { icon: <Wand2 className="w-5 h-5" />, title: "Outfit Generator", desc: "Complete head-to-toe outfits tailored to your occasion, vibe, and budget.", screen: "ai-outfit" as Screen, tag: "Smart Match" },
                 { icon: <Image className="w-5 h-5" />, title: "Text to Design", desc: "Describe any dream outfit in natural language and visualize it instantly.", screen: "text-to-design" as Screen, tag: "Generative" },
-                { icon: <TrendingUp className="w-5 h-5" />, title: "Trend Predictor", desc: "Stay ahead with real-time forecasting synthesized directly from global fashion houses.", screen: "browse" as Screen, tag: "Real-Time" },
               ].map(f => (
                 <motion.div 
                   key={f.title} 

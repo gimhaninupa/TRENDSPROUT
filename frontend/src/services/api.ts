@@ -364,10 +364,10 @@ class ApiClient {
     }, false);
   }
 
-  async generateDesign(prompt: string, style = 'Editorial', fabric = 'Silk', colorPalette = '') {
+  async generateDesign(prompt: string, style = 'Editorial', fabric = 'Silk', colorPalette = '', shotType = 'ghost-mannequin', fitTarget = 'unisex') {
     return this.request<{ status: string; data: any }>('/ai/generate-design', {
       method: 'POST',
-      body: JSON.stringify({ prompt, style, fabric, colorPalette }),
+      body: JSON.stringify({ prompt, style, fabric, colorPalette, shotType, fitTarget }),
     }, false);
   }
 

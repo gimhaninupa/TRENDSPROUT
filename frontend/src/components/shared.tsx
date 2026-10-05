@@ -102,7 +102,6 @@ export const aiTools = [
   { screen: "ai-chatbot" as Screen, icon: <Bot size={15} />, label: "AI Chatbot", desc: "Real-time style advice" },
   { screen: "ai-outfit" as Screen, icon: <Wand2 size={15} />, label: "Outfit Generator", desc: "Complete looks for any occasion" },
   { screen: "text-to-design" as Screen, icon: <Image size={15} />, label: "Text to Design", desc: "Describe & visualize your piece" },
-  { screen: "browse" as Screen, icon: <TrendingUp size={15} />, label: "Trend Predictor", desc: "What's hot next season" },
 ];
 // ─── Vendor Sidebar ───────────────────────────────────────────────────────────
 // ═══ SCREENS ══════════════════════════════════════════════════════════════════

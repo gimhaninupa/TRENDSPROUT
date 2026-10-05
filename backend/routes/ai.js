@@ -21,24 +21,48 @@ const getGeminiClient = () => {
   return null;
 };
 
-// Helper to sanitize and create enhanced fashion prompt with user description prioritized
-const buildFashionPrompt = (userPrompt, style, fabric, colorPalette) => {
-  const clean = userPrompt.trim();
-  const attributes = [];
+// Helper to sanitize, normalize typos, and create photorealistic fashion catalog prompts
+const buildFashionPrompt = (userPrompt, style, fabric, colorPalette, shotType = 'ghost-mannequin', fitTarget = 'unisex') => {
+  let clean = (userPrompt || '').trim();
 
-  if (colorPalette && colorPalette !== 'Default') {
-    attributes.push(`${colorPalette} color palette`);
+  // Normalize common typos & informal clothing terms
+  clean = clean
+    .replace(/\bsleev\b/gi, 'sleeve')
+    .replace(/\bsleved\b/gi, 'sleeved')
+    .replace(/\bskinner\b/gi, 'ribbed sleeveless tank top')
+    .replace(/\bpant\b/gi, 'trousers')
+    .replace(/\btee\b/gi, 't-shirt');
+
+  const isAuto = (val) => !val || val === 'Default' || val === 'Auto' || val.includes('Auto-Detect') || val.includes('AI Choice');
+
+  const attributes = [];
+  if (!isAuto(colorPalette)) {
+    attributes.push(`${colorPalette} colorway`);
   }
-  if (fabric) {
-    attributes.push(`crafted in genuine ${fabric}`);
+  if (!isAuto(fabric)) {
+    attributes.push(`made from authentic ${fabric}`);
   }
-  if (style) {
-    attributes.push(`${style} aesthetic`);
+  if (!isAuto(style)) {
+    attributes.push(`${style} cut`);
   }
 
   const attrStr = attributes.length > 0 ? ` (${attributes.join(', ')})` : '';
 
-  return `${clean}${attrStr}, full-length fashion apparel photography, studio editorial lighting, crisp garment details, photorealistic clothing catalog presentation, 8k resolution`;
+  let framing = '';
+  if (shotType === 'model') {
+    const genderStr = fitTarget === 'mens' ? 'male model' : fitTarget === 'womens' ? 'female model' : 'fashion model';
+    framing = `Full length commercial fashion lookbook photography of a professional ${genderStr} wearing ${clean}${attrStr}, neutral studio backdrop, 35mm lens, softbox studio lighting, photorealistic skin and crisp fabric drape, Vogue catalog aesthetic`;
+  } else if (shotType === 'macro') {
+    framing = `High-end macro detail photography of ${clean}${attrStr}, extreme close-up focus on textured fabric weave, collar stitching, seam details, and buttons, luxury garment craftsmanship`;
+  } else {
+    // Default: Ghost Mannequin / Clean Studio E-Commerce Product Shot
+    framing = `Front-view professional ghost-mannequin e-commerce product photography of ${clean}${attrStr}, centered garment, clean light-grey seamless studio backdrop, crisp fabric texture, sharp collar and cuffs, soft shadows, 8k online fashion store catalog listing`;
+  }
+
+  // Strict negative constraints to prevent anime, illustrations, and face closeups
+  const negativeConstraints = 'hyperrealistic apparel presentation, no anime, no 3D CGI cartoon, no digital illustration, no distorted face, no fantasy art, crisp sharp photographic focus';
+
+  return `${framing}, ${negativeConstraints}`;
 };
 
 // @desc    AI Fashion Stylist Chat
@@ -199,13 +223,13 @@ Directly answer whatever the user asks about clothing, occasions, outfits, mater
 // @access  Public / Optional Auth
 router.post('/generate-design', async (req, res) => {
   try {
-    const { prompt, style = 'Editorial', fabric = 'Silk', colorPalette = '' } = req.body;
+    const { prompt, style = 'Editorial', fabric = 'Silk', colorPalette = '', shotType = 'ghost-mannequin', fitTarget = 'unisex' } = req.body;
 
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({ status: 'fail', message: 'Design prompt is required' });
     }
 
-    const enhancedPrompt = buildFashionPrompt(prompt, style, fabric, colorPalette);
+    const enhancedPrompt = buildFashionPrompt(prompt, style, fabric, colorPalette, shotType, fitTarget);
 
     // Using Pollinations Flux engine (fast, photorealistic text-to-image generative diffusion model)
     const encoded = encodeURIComponent(enhancedPrompt);

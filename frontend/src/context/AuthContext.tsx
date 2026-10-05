@@ -48,6 +48,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    // Scrub any legacy test products from browser localStorage cache
+    try {
+      const vendorSaved = localStorage.getItem('ts_vendor_products');
+      if (vendorSaved) {
+        const parsed = JSON.parse(vendorSaved);
+        const filtered = parsed.filter((p: any) => p && p.name !== 'gjjg' && p.brand !== 'gimhanxmax_7750');
+        if (filtered.length !== parsed.length) {
+          localStorage.setItem('ts_vendor_products', JSON.stringify(filtered));
+        }
+      }
+    } catch {}
+
     if (token && !user) {
       // Validate session with backend
       api.getProfile()
