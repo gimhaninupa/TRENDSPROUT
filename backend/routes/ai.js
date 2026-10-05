@@ -70,16 +70,16 @@ router.post('/chat', async (req, res) => {
     if (ai) {
       try {
         const catalogContext = catalogSnippets.length > 0 
-          ? `Available catalog items in store: ${catalogSnippets.map(p => `"${p.name}" (LKR ${p.price}, Brand: ${p.brand || 'TrendSprout'})`).join(', ')}.`
-          : `Note: The store catalog is currently waiting for vendors to add new seasonal products. Provide general styling, color pairing, and fashion advice without fabricating specific store product names.`;
+          ? `Available catalog items currently in the TrendSprout store: ${catalogSnippets.map(p => `"${p.name}" (LKR ${p.price}, Category: ${p.category?.name || p.category || 'Apparel'}, Brand: ${p.brand || 'TrendSprout'})`).join(', ')}.`
+          : `Note: The marketplace catalog currently has 0 items listed in stock as vendors are preparing new seasonal collections. If the user asks about item availability or if specific items (like shorts, skinnies, dresses) are available, clearly let them know these items are currently not in stock yet in the store, while still offering expert fashion styling, color matching, and outfit advice.`;
 
         const model = ai.getGenerativeModel({
-          model: 'gemini-2.5-flash',
-          systemInstruction: `You are SproutStylist, the AI luxury personal fashion stylist for TrendSprout in Sri Lanka.
-Tone: Chic, friendly, expert, and conversational. Keep responses concise (2 to 4 sentences).
-Store Context: Sri Lankan Rupees (LKR).
+          model: 'gemini-1.5-flash',
+          systemInstruction: `You are SproutStylist, the AI luxury personal fashion stylist for TrendSprout fashion marketplace in Sri Lanka.
+Tone: Chic, friendly, expert, and conversational. Keep responses concise and engaging (2 to 4 sentences).
+Currency: Sri Lankan Rupees (LKR).
 ${catalogContext}
-Give genuine fashion styling advice for whatever the user asks (events, casual, trends, colors, fabrics).`
+Directly address the user's specific questions about style, clothing types, occasions, and availability.`
         });
 
         // Convert history format if available
@@ -97,23 +97,39 @@ Give genuine fashion styling advice for whatever the user asks (events, casual, 
         const result = await model.generateContent({ contents });
         reply = result.response.text();
       } catch (geminiError) {
-        console.warn('Gemini API call failed, using smart fallback:', geminiError.message);
+        console.warn('Gemini 1.5 Flash call note:', geminiError.message);
       }
     }
 
-    // Smart Fallback if Gemini not configured or failed
+    // Smart Conversational Fallback if Gemini is offline or rate-limited
     if (!reply) {
       const lower = message.toLowerCase();
-      if (lower.includes('dinner') || lower.includes('party') || lower.includes('cocktail') || lower.includes('evening')) {
-        reply = "For an evening dinner or party in Sri Lanka, a breathable silk or linen slip dress with delicate gold jewelry and minimalist strappy heels creates an effortlessly chic and timeless aesthetic.";
+      const hasCatalog = catalogSnippets.length > 0;
+
+      if (lower.includes('short') || lower.includes('skinner') || lower.includes('skinny') || lower.includes('tank')) {
+        if (hasCatalog) {
+          reply = "We currently have a few casual bottom and top options in stock! You can pair high-waisted shorts with a breathable ribbed skinner and an unbuttoned lightweight linen overshirt for a chic, tropical-ready streetwear look.";
+        } else {
+          reply = "Currently, our store doesn't have shorts or skinner tops listed in stock yet as vendors are preparing upcoming collections. However, for styling them, pairing tailored high-waist shorts with a ribbed skinner and white sneakers creates an effortless, breathable look!";
+        }
+      } else if (lower.includes('available') || lower.includes('in stock') || lower.includes('have you got') || lower.includes('buy') || lower.includes('items')) {
+        if (hasCatalog) {
+          reply = `Yes! We currently have ${catalogSnippets.length} items live in our catalog including ${catalogSnippets.slice(0, 3).map(p => `"${p.name}"`).join(', ')}. Browse the shop catalog to explore sizes and colors!`;
+        } else {
+          reply = "Our marketplace is currently preparing for new designer seasonal drops, so items are temporarily not listed in stock. Feel free to ask me for any outfit ideas, silhouette draping, or color coordination tips in the meantime!";
+        }
+      } else if (lower.includes('dinner') || lower.includes('party') || lower.includes('cocktail') || lower.includes('evening')) {
+        reply = "For an evening dinner or cocktail party in Sri Lanka, a breathable silk slip dress with delicate gold jewelry and minimalist strappy heels creates an effortlessly chic and timeless aesthetic.";
       } else if (lower.includes('wedding') || lower.includes('formal') || lower.includes('ceremony')) {
-        reply = "For a formal wedding celebration, an elegant floor-length silhouette with rich textures and tailored drape pairs wonderfully with statement earrings and a classic clutch bag.";
+        reply = "For a formal wedding celebration, an elegant tailored silhouette with rich textures and subtle drape pairs wonderfully with statement earrings and a structured clutch.";
       } else if (lower.includes('gym') || lower.includes('workout') || lower.includes('active') || lower.includes('casual')) {
         reply = "For activewear and casual weekend comfort, high-waist moisture-wicking leggings paired with an oversized cotton tee and clean sneakers will keep you effortlessly stylish and cool.";
       } else if (lower.includes('budget') || lower.includes('cheap') || lower.includes('under') || lower.includes('price')) {
         reply = "Looking for premium style on a budget? Check out our trending arrivals for versatile staples. You can also apply coupon code 'TREND10' at checkout for 10% off your entire order!";
+      } else if (lower.includes('dress') || lower.includes('blazer') || lower.includes('jacket') || lower.includes('shirt') || lower.includes('pant')) {
+        reply = `For ${message.trim()}, we recommend pairing structured tailoring with soft, breathable fabrics like linen or cotton to maintain comfort while keeping a sleek, modern runway silhouette.`;
       } else {
-        reply = `Hello! I'm your TrendSprout AI Stylist. How can I help you elevate your look today? Feel free to ask me for outfit ideas, color matching, or styling advice for any upcoming occasion!`;
+        reply = `I'd love to help you style that! Tell me more about the occasion, your preferred color palette, or fit (e.g. relaxed, tailored, or oversized), and I'll build you a cohesive look.`;
       }
     }
 
@@ -216,7 +232,7 @@ router.post('/vendor-description', async (req, res) => {
     if (ai) {
       try {
         const model = ai.getGenerativeModel({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           systemInstruction: `You are an elite e-commerce fashion copywriter and SEO specialist. Return your response in pure valid JSON without markdown formatting.
 JSON structure:
 {
