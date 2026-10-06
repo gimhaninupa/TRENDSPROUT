@@ -174,7 +174,8 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
     "Accessories"
   ];
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const [searchTerm, setSearchTerm] = useState(isSearch ? "Silk dress" : "");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [vendorBrands, setVendorBrands] = useState<string[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>(() => {
     try {
       const vendorSaved = localStorage.getItem('ts_vendor_products');
@@ -186,10 +187,13 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
 
   useEffect(() => {
     let isMounted = true;
-    api.getProducts()
-      .then(res => {
+    Promise.all([
+      api.getProducts().catch(() => ({ data: [] })),
+      api.getPublicVendors().catch(() => api.getVendors().catch(() => ({ data: [] })))
+    ])
+      .then(([pRes, vRes]) => {
         if (isMounted) {
-          const formatted = (res?.data || []).map(item => {
+          const formatted = (pRes?.data || []).map(item => {
             const rawImages = Array.isArray(item.images) && item.images.length > 0 
               ? item.images 
               : (item.image ? [item.image] : []);
@@ -199,7 +203,7 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
               name: item.name,
               price: item.price,
               originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-              brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
+              brand: item.brand || item.vendor?.vendorStore?.storeName || item.vendor?.username || 'Independent Label',
               tag: item.tag || 'New',
               rating: item.rating || 5.0,
               reviews: item.reviewsCount || 0,
@@ -252,6 +256,10 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
               remainingLocal.push(formattedLocal);
             }
           });
+
+          // Extract vendor store names
+          const vList = (vRes?.data || []).map((v: any) => (v.vendorStore?.storeName || v.username || '').trim()).filter(Boolean);
+          setVendorBrands(vList);
 
           // Clean up stale local drafts that have already been published
           try {
@@ -432,6 +440,8 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
 
   const availableBrands = useMemo(() => {
     const brandSet = new Set<string>();
+    
+    // Add brands from all products
     allProducts.forEach(p => {
       if (p.brand && typeof p.brand === 'string') {
         const trimmed = p.brand.trim();
@@ -440,8 +450,23 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
         }
       }
     });
+
+    // Add registered vendor store names
+    vendorBrands.forEach(b => {
+      if (b && typeof b === 'string') {
+        const trimmed = b.trim();
+        if (trimmed) brandSet.add(trimmed);
+      }
+    });
+
+    // Add locally saved store name if present
+    const localStore = localStorage.getItem("ts_vendor_store_name");
+    if (localStore && localStore.trim()) {
+      brandSet.add(localStore.trim());
+    }
+
     return Array.from(brandSet).sort();
-  }, [allProducts]);
+  }, [allProducts, vendorBrands]);
 
   const filteredProducts = allProducts.filter(p => {
     const pCat = (typeof p.category === 'string' ? p.category : (p.category?.name || '')).toLowerCase();
@@ -459,7 +484,9 @@ export function BrowseScreen({ onNavigate, isSearch = false }: { onNavigate: (s:
       p.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
-    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
+    const matchesBrand = selectedBrands.length === 0 || selectedBrands.some(sb => 
+      (sb || '').trim().toLowerCase() === (p.brand || '').trim().toLowerCase()
+    );
 
     return matchesCategory && matchesSearch && matchesPrice && matchesBrand;
   });

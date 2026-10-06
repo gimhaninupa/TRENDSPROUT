@@ -25,7 +25,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
 
     // Load registered vendors and products from API
     Promise.all([
-      api.getVendors().catch(() => ({ data: [] })),
+      api.getPublicVendors().catch(() => api.getVendors().catch(() => ({ data: [] }))),
       api.getProducts().catch(() => ({ data: [] }))
     ]).then(([vRes, pRes]) => {
       if (!isMounted) return;
@@ -40,7 +40,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
           name: item.name,
           price: item.price,
           originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-          brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
+          brand: item.brand || item.vendor?.vendorStore?.storeName || item.vendor?.username || 'Independent Label',
           rating: item.rating || 5.0,
           image: rawImages[0] || item.image || '',
           images: rawImages,
@@ -82,6 +82,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
             ...p,
             id: p.id || p._id,
             _id: p._id || p.id,
+            brand: p.brand || user?.vendorStore?.storeName || 'My Store',
             images: rawImgs,
             image: rawImgs[0] || p.image || '',
           });
@@ -90,7 +91,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
 
       setAllProducts(uniqueList);
 
-      // Extract unique brands from products + vendors
+      // Extract unique brands from vendors + products
       const apiVendors = vRes?.data || [];
       const brandMap = new Map<string, any>();
 
@@ -98,9 +99,9 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
       apiVendors.forEach((v: any) => {
         const storeName = v.vendorStore?.storeName || v.username;
         if (storeName) {
-          brandMap.set(storeName.toLowerCase(), {
+          brandMap.set(storeName.trim().toLowerCase(), {
             id: v._id,
-            name: storeName,
+            name: storeName.trim(),
             desc: v.vendorStore?.storeDescription || "Contemporary designs and curated essentials.",
             banner: v.vendorStore?.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
             logo: v.vendorStore?.logoImage || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
@@ -111,12 +112,12 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
         }
       });
 
-      // 2. Add any active brands from products that might not be in vendor list
-      finalProds.forEach((p: any) => {
-        if (p.brand && !brandMap.has(p.brand.toLowerCase())) {
-          brandMap.set(p.brand.toLowerCase(), {
-            id: 'brand_' + p.brand.toLowerCase().replace(/\s+/g, '_'),
-            name: p.brand,
+      // 2. Add any active brands from products
+      uniqueList.forEach((p: any) => {
+        if (p.brand && !brandMap.has(p.brand.trim().toLowerCase())) {
+          brandMap.set(p.brand.trim().toLowerCase(), {
+            id: 'brand_' + p.brand.trim().toLowerCase().replace(/\s+/g, '_'),
+            name: p.brand.trim(),
             desc: "Original apparel collections and curated fashion pieces.",
             banner: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
             logo: p.image || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
@@ -127,14 +128,16 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
         }
       });
 
-      // 3. If current user is a vendor and has store info
-      if (user?.vendorStore?.storeName && !brandMap.has(user.vendorStore.storeName.toLowerCase())) {
-        brandMap.set(user.vendorStore.storeName.toLowerCase(), {
-          id: user._id || 'user_store',
-          name: user.vendorStore.storeName,
-          desc: user.vendorStore.storeDescription || "Refined essentials and sustainable apparel.",
-          banner: user.vendorStore.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
-          logo: user.vendorStore.logoImage || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
+      // 3. If current logged-in user has store info or locally saved store name
+      const localStoreName = localStorage.getItem("ts_vendor_store_name");
+      const currentStoreName = user?.vendorStore?.storeName || localStoreName;
+      if (currentStoreName && !brandMap.has(currentStoreName.trim().toLowerCase())) {
+        brandMap.set(currentStoreName.trim().toLowerCase(), {
+          id: user?._id || 'user_store',
+          name: currentStoreName.trim(),
+          desc: user?.vendorStore?.storeDescription || "Refined essentials and sustainable apparel.",
+          banner: user?.vendorStore?.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
+          logo: user?.vendorStore?.logoImage || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
           isVerified: true,
           rating: 5.0,
           sustainable: true
@@ -158,7 +161,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
 
   // Products for the selected brand
   const brandProducts = selectedBrand 
-    ? allProducts.filter(p => p.brand?.toLowerCase() === selectedBrand.name?.toLowerCase())
+    ? allProducts.filter(p => (p.brand || '').trim().toLowerCase() === (selectedBrand.name || '').trim().toLowerCase())
     : [];
 
   const filteredBrandProducts = brandProducts.filter(p => {
@@ -220,7 +223,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8">
                 <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {["All", "Dresses", "Blazers", "Outerwear", "Accessories", "T-Shirts", "Pants"].map(f => (
+                  {["All", ...Array.from(new Set(brandProducts.map(p => typeof p.category === 'string' ? p.category : p.category?.name || 'Apparel').filter(Boolean)))].map(f => (
                     <button 
                       key={f} 
                       onClick={() => setSelectedCategory(f)}
@@ -298,7 +301,7 @@ export function SellerStoreScreen({ onNavigate }: { onNavigate: (s: Screen) => v
             {filteredBrands.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredBrands.map(brand => {
-                  const brandItemsCount = allProducts.filter(p => p.brand?.toLowerCase() === brand.name?.toLowerCase()).length;
+                  const brandItemsCount = allProducts.filter(p => (p.brand || '').trim().toLowerCase() === (brand.name || '').trim().toLowerCase()).length;
                   return (
                     <div
                       key={brand.id || brand.name}

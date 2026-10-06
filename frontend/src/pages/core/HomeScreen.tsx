@@ -31,76 +31,110 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
       return [];
     }
   });
+  const [featuredBrands, setFeaturedBrands] = useState<any[]>([]);
 
   useEffect(() => {
     let isMounted = true;
-    api.getProducts({ limit: 12 })
-      .then(res => {
-        if (isMounted) {
-          const formatted = (res?.data || []).map(item => {
-            const rawImages = Array.isArray(item.images) && item.images.length > 0 
-              ? item.images 
-              : (item.image ? [item.image] : []);
-            return {
-              id: item._id || item.id,
-              _id: item._id || item.id,
-              name: item.name,
-              price: item.price,
-              originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-              brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
-              tag: item.tag || 'New',
-              rating: item.rating || 5.0,
-              reviews: item.reviewsCount || 0,
-              image: rawImages[0] || item.image || '',
-              images: rawImages,
-              category: item.category?.name || item.category || 'Apparel',
-              description: item.description,
-              sizes: item.sizes || ['S', 'M', 'L'],
-              colors: item.colors || ['Standard'],
-            };
+    Promise.all([
+      api.getProducts({ limit: 50 }).catch(() => ({ data: [] })),
+      api.getPublicVendors().catch(() => api.getVendors().catch(() => ({ data: [] })))
+    ]).then(([pRes, vRes]) => {
+      if (!isMounted) return;
+
+      const formatted = (pRes?.data || []).map(item => {
+        const rawImages = Array.isArray(item.images) && item.images.length > 0 
+          ? item.images 
+          : (item.image ? [item.image] : []);
+        return {
+          id: item._id || item.id,
+          _id: item._id || item.id,
+          name: item.name,
+          price: item.price,
+          originalPrice: item.originalPrice || Math.round(item.price * 1.25),
+          brand: item.brand || item.vendor?.vendorStore?.storeName || item.vendor?.username || 'Independent Label',
+          tag: item.tag || 'New',
+          rating: item.rating || 5.0,
+          reviews: item.reviewsCount || 0,
+          image: rawImages[0] || item.image || '',
+          images: rawImages,
+          category: item.category?.name || item.category || 'Apparel',
+          description: item.description,
+          sizes: item.sizes || ['S', 'M', 'L'],
+          colors: item.colors || ['Standard'],
+        };
+      });
+
+      const vendorSaved = localStorage.getItem('ts_vendor_products');
+      const vendorItems: any[] = vendorSaved ? JSON.parse(vendorSaved) : [];
+
+      const seenIds = new Set<string>();
+      const seenNames = new Set<string>();
+      const uniqueList: any[] = [];
+
+      // 1. Live database products first
+      formatted.forEach((p: any) => {
+        const pId = String(p.id || p._id || '');
+        const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+        if (pId) seenIds.add(pId);
+        if (pNameBrand !== '___') seenNames.add(pNameBrand);
+        uniqueList.push(p);
+      });
+
+      // 2. Add local vendor items only if not duplicated
+      vendorItems.forEach((p: any) => {
+        const pId = String(p.id || p._id || '');
+        const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+        const isDuplicate = (pId && seenIds.has(pId)) || (pNameBrand !== '___' && seenNames.has(pNameBrand));
+        if (!isDuplicate) {
+          if (pId) seenIds.add(pId);
+          if (pNameBrand !== '___') seenNames.add(pNameBrand);
+          const rawImgs = Array.isArray(p.images) && p.images.length > 0 
+            ? p.images 
+            : (p.image ? [p.image] : []);
+          uniqueList.push({
+            ...p,
+            id: p.id || p._id,
+            _id: p._id || p.id,
+            images: rawImgs,
+            image: rawImgs[0] || p.image || '',
           });
-
-          const vendorSaved = localStorage.getItem('ts_vendor_products');
-          const vendorItems: any[] = vendorSaved ? JSON.parse(vendorSaved) : [];
-
-          const seenIds = new Set<string>();
-          const seenNames = new Set<string>();
-          const uniqueList: any[] = [];
-
-          // 1. Live database products first
-          formatted.forEach((p: any) => {
-            const pId = String(p.id || p._id || '');
-            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
-            if (pId) seenIds.add(pId);
-            if (pNameBrand !== '___') seenNames.add(pNameBrand);
-            uniqueList.push(p);
-          });
-
-          // 2. Add local vendor items only if not duplicated
-          vendorItems.forEach((p: any) => {
-            const pId = String(p.id || p._id || '');
-            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
-            const isDuplicate = (pId && seenIds.has(pId)) || (pNameBrand !== '___' && seenNames.has(pNameBrand));
-            if (!isDuplicate) {
-              if (pId) seenIds.add(pId);
-              if (pNameBrand !== '___') seenNames.add(pNameBrand);
-              const rawImgs = Array.isArray(p.images) && p.images.length > 0 
-                ? p.images 
-                : (p.image ? [p.image] : []);
-              uniqueList.push({
-                ...p,
-                id: p.id || p._id,
-                _id: p._id || p.id,
-                images: rawImgs,
-                image: rawImgs[0] || p.image || '',
-              });
-            }
-          });
-
-          setTrendingList(uniqueList.slice(0, 8));
         }
-      })
-      .catch(() => {});
+      });
+
+      setTrendingList(uniqueList.slice(0, 16));
+
+      // Extract brands from vendors & products
+      const brandMap = new Map<string, any>();
+      (vRes?.data || []).forEach((v: any) => {
+        const storeName = v.vendorStore?.storeName || v.username;
+        if (storeName) {
+          brandMap.set(storeName.trim().toLowerCase(), {
+            id: v._id,
+            name: storeName.trim(),
+            desc: v.vendorStore?.storeDescription || "Independent fashion house & contemporary designer boutique.",
+            banner: v.vendorStore?.bannerImage || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
+            logo: v.vendorStore?.logoImage || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
+            isVerified: v.isVerified ?? true,
+          });
+        }
+      });
+
+      uniqueList.forEach((p: any) => {
+        if (p.brand && !brandMap.has(p.brand.trim().toLowerCase())) {
+          brandMap.set(p.brand.trim().toLowerCase(), {
+            id: 'brand_' + p.brand.trim().toLowerCase().replace(/\s+/g, '_'),
+            name: p.brand.trim(),
+            desc: "Original apparel collections and curated fashion pieces.",
+            banner: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80",
+            logo: p.image || "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80",
+            isVerified: true,
+          });
+        }
+      });
+
+      setFeaturedBrands(Array.from(brandMap.values()));
+    }).catch(() => {});
+
     return () => { isMounted = false; };
   }, []);
 
@@ -330,6 +364,67 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
             )}
           </div>
         </section>
+
+        {/* Featured Designer Brands & Studios Section */}
+        {featuredBrands.length > 0 && (
+          <section className="py-16 relative">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <div className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <Store size={13} /> Onboarded Designers
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-black text-gray-900" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                    Designer Brands & Stores
+                  </h2>
+                </div>
+                <button 
+                  onClick={() => onNavigate("seller-store")} 
+                  className="flex items-center gap-2 text-sm font-bold text-purple-600 px-4 py-2 rounded-xl bg-white/60 backdrop-blur-lg border border-purple-100 shadow-sm hover:bg-purple-50 transition-all cursor-pointer"
+                >
+                  Explore All Brands <ArrowRight size={16} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {featuredBrands.slice(0, 4).map(b => (
+                  <div
+                    key={b.id || b.name}
+                    onClick={() => onNavigate("seller-store")}
+                    className="group bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:border-purple-200 transition-all duration-300 cursor-pointer flex flex-col"
+                  >
+                    <div className="relative h-28 overflow-hidden bg-gray-900">
+                      <img src={b.banner} alt={b.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute -bottom-4 left-4 w-12 h-12 rounded-xl border-2 border-white overflow-hidden bg-white shadow-lg">
+                        <img src={b.logo} alt={b.name} className="w-full h-full object-cover" />
+                      </div>
+                      {b.isVerified && (
+                        <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1">
+                          <CheckCircle size={10} /> Verified
+                        </div>
+                      )}
+                    </div>
+                    <div className="pt-6 p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors text-base" style={{ fontFamily: "'Clash Display', sans-serif" }}>
+                          {b.name}
+                        </h4>
+                        <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                          {b.desc}
+                        </p>
+                      </div>
+                      <div className="pt-3 mt-3 border-t border-gray-50 flex items-center justify-between text-xs text-purple-600 font-semibold">
+                        <span>Visit Store</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Vendor CTA - Glassmorphism Showcase Banner */}
         <section id="sell-section" className="py-20 relative">

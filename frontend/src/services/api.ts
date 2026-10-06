@@ -316,6 +316,10 @@ class ApiClient {
     });
   }
 
+  async getPublicVendors() {
+    return this.request<{ status: string; results?: number; data: any[] }>('/vendor/public');
+  }
+
   // ─── ADMIN ─────────────────────────────────────────────────────────────────
   async getAdminMetrics() {
     return this.request<{ status: string; data: any }>('/admin/metrics');
