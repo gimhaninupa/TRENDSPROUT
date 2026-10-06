@@ -224,7 +224,14 @@ export function ProductCard({ product, onNavigate }: { product: typeof products[
 
   const handleCardClick = () => {
     try {
-      localStorage.setItem('ts_selected_product', JSON.stringify(product));
+      const rawImgs = Array.isArray((product as any).images) && (product as any).images.length > 0
+        ? (product as any).images
+        : ((product as any).image ? [(product as any).image] : []);
+      localStorage.setItem('ts_selected_product', JSON.stringify({
+        ...product,
+        images: rawImgs,
+        image: rawImgs[0] || (product as any).image || '',
+      }));
     } catch {}
     onNavigate("product-detail");
   };

@@ -110,34 +110,39 @@ const BUDGET_TIERS = [
   { label: "Haute Couture (No Limit)", range: [150000, 350000] }
 ];
 
-// Curated library of head-to-toe high fashion assets for realistic styling
-const HIGH_FASHION_POOLS = {
-  tops: [
-    { name: "Oversized Structured Mulberry Silk Blazer", brand: "AURA Atelier", price: 34500, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80", tag: "Main Garment", category: "Blazers" },
-    { name: "Asymmetrical Draped Crepe Bodysuit", brand: "NOVA Studios", price: 18900, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80", tag: "Main Garment", category: "Tops" },
-    { name: "French Riviera Relaxed Linen Camp Shirt", brand: "Solace Resort", price: 16200, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80", tag: "Main Garment", category: "Shirts" },
-    { name: "Sculptural Cut-Out Knit Corset", brand: "VELOUR", price: 22400, image: "https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=600&q=80", tag: "Main Garment", category: "Knitwear" },
-    { name: "Minimalist Italian Wool Overcoat", brand: "Atelier Studio", price: 48000, image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=80", tag: "Main Garment", category: "Jackets & Coats" }
-  ],
-  bottoms: [
-    { name: "Pleated Wide-Leg Fluid Trousers", brand: "Maison Minimal", price: 24500, image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&q=80", tag: "Bottom Piece", category: "Pants & Trousers" },
-    { name: "Bias-Cut Heavyweight Satin Midi Skirt", brand: "L'Ombre", price: 19800, image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=600&q=80", tag: "Bottom Piece", category: "Skirts" },
-    { name: "Tailored High-Waist Linen Bermuda Shorts", brand: "Solace Resort", price: 14500, image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=600&q=80", tag: "Bottom Piece", category: "Shorts" },
-    { name: "Vintage Wash Japanese Selvedge Denim", brand: "Kuroki Raw", price: 28900, image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80", tag: "Bottom Piece", category: "Jeans & Denim" }
-  ],
-  footwear: [
-    { name: "Sculptural Heel Strappy Nappa Sandals", brand: "ALDO Luxe", price: 26500, image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&q=80", tag: "Footwear", category: "Footwear" },
-    { name: "Polished Italian Leather Penny Loafers", brand: "Baron & Co.", price: 32000, image: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=600&q=80", tag: "Footwear", category: "Footwear" },
-    { name: "Chunky Minimalist Leather Sneaker", brand: "STUDIO 01", price: 21500, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80", tag: "Footwear", category: "Footwear" },
-    { name: "Square-Toe Woven Leather Mules", brand: "Terra Craft", price: 18500, image: "https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80", tag: "Footwear", category: "Footwear" }
-  ],
-  accessories: [
-    { name: "Sculptural Woven Leather Crossbody Bag", brand: "CELINE Muse", price: 38000, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80", tag: "Accent / Bag", category: "Bags" },
-    { name: "Hammered 18K Gold Plated Statement Earrings", brand: "Aurelia Jewels", price: 11200, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80", tag: "Accent / Jewelry", category: "Accessories" },
-    { name: "Beveled Acetate Blackout Sunglasses", brand: "Oculus Noir", price: 14800, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80", tag: "Accent / Eyewear", category: "Accessories" },
-    { name: "Italian Vegetable-Tanned Leather Belt", brand: "Cuir Atelier", price: 9500, image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=600&q=80", tag: "Accent / Leather", category: "Accessories" }
-  ]
-};
+// Comprehensive verified store product catalog across all categories
+const VERIFIED_STORE_CATALOG = [
+  // Dresses & Hero pieces
+  { id: "sp-dr-1", name: "Sage Green Pleated Midi Dress", brand: "Nadun Manawadu", price: 8500, originalPrice: 10625, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80", category: "Dresses", tag: "Main Garment", vibes: ["boho-linen", "minimalist", "old-money"], occasions: ["dinner", "beach", "resort", "cocktails", "date", "brunch"], colors: ["earthy", "pastel", "harmonious"] },
+  { id: "sp-dr-2", name: "Backless Halter Silk Slip Dress", brand: "AURA Atelier", price: 24500, originalPrice: 29500, image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=600&q=80", category: "Dresses", tag: "Main Garment", vibes: ["editorial", "y2k-glam", "old-money"], occasions: ["nightlife", "dinner", "cocktails", "gala", "date"], colors: ["monochrome", "sunset", "jewel"] },
+  { id: "sp-dr-3", name: "Tiered Pure Organic Linen Sun Dress", brand: "Solace Resort", price: 17500, originalPrice: 21800, image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=600&q=80", category: "Dresses", tag: "Main Garment", vibes: ["boho-linen", "minimalist"], occasions: ["resort", "beach", "brunch", "vacation", "casual"], colors: ["earthy", "pastel"] },
+  { id: "sp-dr-4", name: "Structured Crepe Cocktail Mini Dress", brand: "VELOUR Studios", price: 22000, originalPrice: 27500, image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80", category: "Dresses", tag: "Main Garment", vibes: ["avant-garde", "y2k-glam", "editorial"], occasions: ["nightlife", "party", "club", "opening", "speakeasy"], colors: ["monochrome", "jewel", "sunset"] },
+
+  // Tops & Blazers
+  { id: "sp-tp-1", name: "Oversized Structured Mulberry Silk Blazer", brand: "AURA Atelier", price: 34500, originalPrice: 42000, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80", category: "Blazers", tag: "Main Garment", vibes: ["old-money", "minimalist", "editorial"], occasions: ["work", "meeting", "nightlife", "dinner", "conference"], colors: ["monochrome", "earthy"] },
+  { id: "sp-tp-2", name: "French Riviera Relaxed Linen Camp Shirt", brand: "Solace Resort", price: 14500, originalPrice: 18000, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80", category: "Shirts", tag: "Top Piece", vibes: ["boho-linen", "minimalist", "old-money"], occasions: ["beach", "resort", "brunch", "casual", "vacation", "dinner"], colors: ["earthy", "pastel", "monochrome"] },
+  { id: "sp-tp-3", name: "Asymmetrical Draped Crepe Bodysuit", brand: "NOVA Studios", price: 16800, originalPrice: 21000, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80", category: "Tops", tag: "Top Piece", vibes: ["editorial", "y2k-glam", "avant-garde"], occasions: ["nightlife", "club", "cocktails", "date"], colors: ["monochrome", "sunset", "jewel"] },
+  { id: "sp-tp-4", name: "Sculptural Cut-Out Knit Corset", brand: "VELOUR", price: 18900, originalPrice: 23600, image: "https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&w=600&q=80", category: "Knitwear", tag: "Top Piece", vibes: ["avant-garde", "y2k-glam", "streetwear"], occasions: ["party", "nightlife", "festival", "club"], colors: ["monochrome", "jewel", "sunset"] },
+  { id: "sp-tp-5", name: "Heavyweight Boxy Drop-Shoulder Tee", brand: "STUDIO 01", price: 7800, originalPrice: 9750, image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80", category: "T-Shirts", tag: "Top Piece", vibes: ["streetwear", "sport-luxe", "minimalist"], occasions: ["street", "casual", "coffee", "travel", "brunch"], colors: ["monochrome", "earthy"] },
+
+  // Bottoms
+  { id: "sp-bt-1", name: "Pleated Wide-Leg Fluid Trousers", brand: "Maison Minimal", price: 21500, originalPrice: 26800, image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&q=80", category: "Pants & Trousers", tag: "Bottom Piece", vibes: ["minimalist", "old-money", "editorial"], occasions: ["work", "meeting", "dinner", "cocktails", "interview"], colors: ["monochrome", "earthy", "pastel"] },
+  { id: "sp-bt-2", name: "Bias-Cut Heavyweight Satin Midi Skirt", brand: "L'Ombre", price: 18500, originalPrice: 23000, image: "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=600&q=80", category: "Skirts", tag: "Bottom Piece", vibes: ["editorial", "old-money", "y2k-glam"], occasions: ["dinner", "date", "nightlife", "cocktails", "beach"], colors: ["monochrome", "pastel", "sunset", "jewel"] },
+  { id: "sp-bt-3", name: "Tailored High-Waist Linen Bermuda Shorts", brand: "Solace Resort", price: 13200, originalPrice: 16500, image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=600&q=80", category: "Shorts", tag: "Bottom Piece", vibes: ["boho-linen", "minimalist", "sport-luxe"], occasions: ["beach", "resort", "brunch", "vacation", "casual"], colors: ["earthy", "pastel", "monochrome"] },
+  { id: "sp-bt-4", name: "Vintage Wash Japanese Selvedge Denim", brand: "Kuroki Raw", price: 24900, originalPrice: 31000, image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80", category: "Jeans & Denim", tag: "Bottom Piece", vibes: ["streetwear", "sport-luxe", "avant-garde"], occasions: ["street", "casual", "festival", "travel"], colors: ["monochrome", "earthy"] },
+
+  // Footwear
+  { id: "sp-ft-1", name: "Sculptural Strappy Nappa Leather Sandals", brand: "ALDO Luxe", price: 22500, originalPrice: 28000, image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&q=80", category: "Footwear", tag: "Footwear", vibes: ["editorial", "old-money", "boho-linen", "y2k-glam"], occasions: ["dinner", "beach", "cocktails", "resort", "date", "wedding"], colors: ["earthy", "monochrome", "sunset"] },
+  { id: "sp-ft-2", name: "Polished Italian Calfskin Penny Loafers", brand: "Baron & Co.", price: 28000, originalPrice: 35000, image: "https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=600&q=80", category: "Footwear", tag: "Footwear", vibes: ["old-money", "minimalist"], occasions: ["work", "meeting", "interview", "dinner", "conference"], colors: ["monochrome", "earthy"] },
+  { id: "sp-ft-3", name: "Square-Toe Woven Leather Slides", brand: "Terra Craft", price: 16500, originalPrice: 20600, image: "https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=600&q=80", category: "Footwear", tag: "Footwear", vibes: ["boho-linen", "minimalist"], occasions: ["beach", "resort", "brunch", "vacation", "casual"], colors: ["earthy", "pastel", "monochrome"] },
+  { id: "sp-ft-4", name: "Chunky Minimalist Leather Sneaker", brand: "STUDIO 01", price: 19800, originalPrice: 24750, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80", category: "Footwear", tag: "Footwear", vibes: ["streetwear", "sport-luxe", "avant-garde"], occasions: ["street", "travel", "casual", "festival"], colors: ["monochrome", "earthy"] },
+
+  // Accessories & Bags
+  { id: "sp-ac-1", name: "Sculptural Woven Leather Crossbody Bag", brand: "CELINE Muse", price: 29000, originalPrice: 36000, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80", category: "Bags", tag: "Accent / Bag", vibes: ["old-money", "minimalist", "editorial", "boho-linen"], occasions: ["dinner", "beach", "resort", "cocktails", "brunch"], colors: ["earthy", "monochrome", "sunset"] },
+  { id: "sp-ac-2", name: "Hammered 18K Gold Plated Statement Earrings", brand: "Aurelia Jewels", price: 9500, originalPrice: 12000, image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80", category: "Accessories", tag: "Accent / Jewelry", vibes: ["old-money", "editorial", "y2k-glam", "boho-linen"], occasions: ["dinner", "cocktails", "party", "date", "wedding"], colors: ["earthy", "sunset", "jewel", "monochrome"] },
+  { id: "sp-ac-3", name: "Beveled Acetate Blackout Sunglasses", brand: "Oculus Noir", price: 12500, originalPrice: 15600, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80", category: "Accessories", tag: "Accent / Eyewear", vibes: ["streetwear", "minimalist", "sport-luxe", "boho-linen"], occasions: ["beach", "resort", "brunch", "travel", "street"], colors: ["monochrome", "earthy"] },
+  { id: "sp-ac-4", name: "Italian Vegetable-Tanned Leather Belt", brand: "Cuir Atelier", price: 8200, originalPrice: 10250, image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?auto=format&fit=crop&w=600&q=80", category: "Accessories", tag: "Accent / Leather", vibes: ["old-money", "minimalist", "work"], occasions: ["work", "meeting", "casual", "interview"], colors: ["earthy", "monochrome"] }
+];
 
 export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const { addToCart } = useCart();
@@ -159,7 +164,7 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   const [savedLooks, setSavedLooks] = useState<Record<string, boolean>>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Catalog items
+  // Catalog items (live database products + local vendor products)
   const [catalogItems, setCatalogItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -167,25 +172,60 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
     const vendorSaved = localStorage.getItem('ts_vendor_products');
     const localVendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
 
-    api.getProducts({ limit: 40 })
+    api.getProducts({ limit: 50 })
       .then(res => {
         if (isMounted) {
-          const formatted = (res?.data || []).map((item: any) => ({
-            id: item._id || item.id,
-            name: item.name,
-            price: item.price,
-            brand: item.brand || item.vendor?.vendorStore?.storeName || 'TRENDSPROUT Curated',
-            image: item.images?.[0] || item.image || 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80',
-            category: item.category?.name || item.category || 'Apparel',
-          }));
-          const combined = [...localVendorItems, ...formatted];
-          const uniqueMap = new Map();
-          combined.forEach(p => {
-            if (p && p.id && !uniqueMap.has(p.id)) {
-              uniqueMap.set(p.id, p);
+          const formatted = (res?.data || []).map((item: any) => {
+            const rawImages = Array.isArray(item.images) && item.images.length > 0 
+              ? item.images 
+              : (item.image ? [item.image] : []);
+            return {
+              id: item._id || item.id,
+              _id: item._id || item.id,
+              name: item.name,
+              price: item.price,
+              originalPrice: item.originalPrice || Math.round(item.price * 1.25),
+              brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Brand',
+              image: rawImages[0] || item.image || '',
+              images: rawImages,
+              category: item.category?.name || item.category || 'Apparel',
+              description: item.description,
+            };
+          });
+
+          const seenIds = new Set<string>();
+          const seenNames = new Set<string>();
+          const uniqueList: any[] = [];
+
+          formatted.forEach((p: any) => {
+            const pId = String(p.id || p._id || '');
+            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+            if (pId) seenIds.add(pId);
+            if (pNameBrand !== '___') seenNames.add(pNameBrand);
+            uniqueList.push(p);
+          });
+
+          localVendorItems.forEach((p: any) => {
+            const pId = String(p.id || p._id || '');
+            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+            const isDuplicate = (pId && seenIds.has(pId)) || (pNameBrand !== '___' && seenNames.has(pNameBrand));
+            if (!isDuplicate) {
+              if (pId) seenIds.add(pId);
+              if (pNameBrand !== '___') seenNames.add(pNameBrand);
+              const rawImgs = Array.isArray(p.images) && p.images.length > 0 
+                ? p.images 
+                : (p.image ? [p.image] : []);
+              uniqueList.push({
+                ...p,
+                id: p.id || p._id,
+                _id: p._id || p.id,
+                images: rawImgs,
+                image: rawImgs[0] || p.image || '',
+              });
             }
           });
-          setCatalogItems(Array.from(uniqueMap.values()));
+
+          setCatalogItems(uniqueList);
         }
       })
       .catch(() => {
@@ -202,67 +242,204 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
 
   const currentOccasionLabel = customOccasion.trim() ? customOccasion : occasion;
 
+  // Intelligent Outfit Generation Engine that analyzes real user inputs & matches site catalog items
   const generateOutfits = () => {
     setGenerating(true);
     setGenerationStep(1);
 
-    const timer1 = setTimeout(() => setGenerationStep(2), 500);
-    const timer2 = setTimeout(() => setGenerationStep(3), 1000);
+    const timer1 = setTimeout(() => setGenerationStep(2), 400);
+    const timer2 = setTimeout(() => setGenerationStep(3), 850);
     const timer3 = setTimeout(() => {
       setGenerating(false);
       setGenerated(true);
 
-      const lookTitles = [
-        { title: "Look 1: The Signature Statement", tagline: "Editorial presence with balanced proportions", accentBadge: "Runway Pick ✨" },
-        { title: "Look 2: Effortless Sophistication", tagline: "Relaxed luxurious drape tailored for Sri Lankan climate", accentBadge: "100% Breathable 🌿" },
-        { title: "Look 3: Contemporary Bold", tagline: "High-contrast textures with striking architectural lines", accentBadge: "Trending Now ⚡" }
-      ];
+      // 1. Merge live catalog items + verified site catalog items
+      const allAvailablePool: any[] = [...catalogItems, ...VERIFIED_STORE_CATALOG];
 
-      const generatedEnsembles = lookTitles.map((meta, idx) => {
-        // Build 4-piece head-to-toe ensemble
-        const topItem = {
-          ...HIGH_FASHION_POOLS.tops[(idx * 2) % HIGH_FASHION_POOLS.tops.length],
-          id: `top-${idx}-${Date.now()}`
-        };
-        const bottomItem = {
-          ...HIGH_FASHION_POOLS.bottoms[(idx + 1) % HIGH_FASHION_POOLS.bottoms.length],
-          id: `bottom-${idx}-${Date.now()}`
-        };
-        const footwearItem = {
-          ...HIGH_FASHION_POOLS.footwear[(idx * 2 + 1) % HIGH_FASHION_POOLS.footwear.length],
-          id: `footwear-${idx}-${Date.now()}`
-        };
-        const accessoryItem = {
-          ...HIGH_FASHION_POOLS.accessories[idx % HIGH_FASHION_POOLS.accessories.length],
-          id: `accessory-${idx}-${Date.now()}`
-        };
+      // Deduplicate pool
+      const poolMap = new Map<string, any>();
+      allAvailablePool.forEach(item => {
+        const key = (item._id || item.id || item.name).toLowerCase();
+        if (!poolMap.has(key)) poolMap.set(key, item);
+      });
+      const unifiedPool = Array.from(poolMap.values());
 
-        const pieces = [topItem, bottomItem, footwearItem, accessoryItem];
-        const totalPrice = pieces.reduce((sum, p) => sum + p.price, 0);
-
-        return {
-          id: `ensemble-${idx}`,
-          title: meta.title,
-          tagline: meta.tagline,
-          accentBadge: meta.accentBadge,
-          occasion: currentOccasionLabel,
-          styleVibe: styleVibe,
-          palette: colorPalette,
-          silhouette: silhouette,
-          totalPrice: totalPrice,
-          pieces: pieces,
-          stylistRationale: `Curated specifically for ${currentOccasionLabel} with a ${styleVibe} aesthetic. The ${topItem.name.toLowerCase()} establishes a focal point, paired with ${bottomItem.name.toLowerCase()} for fluid motion. Finished with ${footwearItem.name.toLowerCase()} to anchor the silhouette.`,
-          fabricNote: `Crafted from breathable, lightweight organic fibers selected for all-day thermal comfort in high-humidity tropical evenings.`,
-          proTip: idx === 0 
-            ? "Half-tuck the top to accentuate your waistline and highlight the sculptural accessory."
-            : idx === 1 
-            ? "Keep footwear unstrapped for an effortless resort drape, or roll cuffs to show jewelry accents."
-            : "Layer subtle gold or silver accents to mirror the hardware on the handbag."
-        };
+      // Helper to classify into styling categories
+      const dresses = unifiedPool.filter(p => {
+        const cat = (p.category?.name || p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return cat.includes('dress') || name.includes('dress') || name.includes('slip') || name.includes('gown') || name.includes('jumpsuit');
       });
 
+      const tops = unifiedPool.filter(p => {
+        const cat = (p.category?.name || p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return (cat.includes('shirt') || cat.includes('blazer') || cat.includes('jacket') || cat.includes('knit') || cat.includes('hoodie') || cat.includes('top') || name.includes('shirt') || name.includes('blazer') || name.includes('bodysuit') || name.includes('tee') || name.includes('corset')) && !dresses.includes(p);
+      });
+
+      const bottoms = unifiedPool.filter(p => {
+        const cat = (p.category?.name || p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return (cat.includes('pant') || cat.includes('trouser') || cat.includes('skirt') || cat.includes('short') || cat.includes('jean') || cat.includes('denim') || name.includes('trouser') || name.includes('skirt') || name.includes('short') || name.includes('pant') || name.includes('denim')) && !dresses.includes(p);
+      });
+
+      const footwear = unifiedPool.filter(p => {
+        const cat = (p.category?.name || p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return cat.includes('footwear') || cat.includes('shoe') || name.includes('sandal') || name.includes('loafer') || name.includes('slide') || name.includes('sneaker') || name.includes('heel') || name.includes('mule');
+      });
+
+      const accessories = unifiedPool.filter(p => {
+        const cat = (p.category?.name || p.category || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return cat.includes('bag') || cat.includes('access') || name.includes('bag') || name.includes('earring') || name.includes('sunglass') || name.includes('belt') || name.includes('jewelry');
+      });
+
+      // Normalize search query tokens from occasion, vibe, color, silhouette
+      const queryText = `${currentOccasionLabel} ${styleVibe} ${colorPalette} ${silhouette}`.toLowerCase();
+      const keywords = queryText.split(/[\s,–/&]+/).filter(w => w.length > 2);
+
+      // Dynamic scoring function
+      const scoreItem = (item: any) => {
+        let score = 0;
+        const text = `${item.name} ${item.brand} ${item.category} ${item.description || ''} ${(item.vibes || []).join(' ')} ${(item.occasions || []).join(' ')} ${(item.colors || []).join(' ')}`.toLowerCase();
+        
+        keywords.forEach(kw => {
+          if (text.includes(kw)) score += 5;
+        });
+
+        // Specific contextual bonuses
+        if (queryText.includes("beach") || queryText.includes("resort") || queryText.includes("tropical")) {
+          if (text.includes("linen") || text.includes("pleat") || text.includes("sand") || text.includes("woven") || text.includes("breeze") || text.includes("slip") || text.includes("dress")) score += 8;
+        }
+        if (queryText.includes("dinner") || queryText.includes("night") || queryText.includes("cocktail") || queryText.includes("lounge")) {
+          if (text.includes("silk") || text.includes("satin") || text.includes("blazer") || text.includes("crepe") || text.includes("gold") || text.includes("dress") || text.includes("noir")) score += 8;
+        }
+        if (queryText.includes("work") || queryText.includes("meeting") || queryText.includes("office")) {
+          if (text.includes("tailored") || text.includes("trouser") || text.includes("blazer") || text.includes("loafer") || text.includes("belt")) score += 8;
+        }
+
+        // Slight random jitter so identical requests can offer fresh combinations
+        return score + Math.random() * 2;
+      };
+
+      const sortCategory = (arr: any[]) => [...arr].sort((a, b) => scoreItem(b) - scoreItem(a));
+
+      const sortedDresses = sortCategory(dresses.length > 0 ? dresses : VERIFIED_STORE_CATALOG.slice(0, 4));
+      const sortedTops = sortCategory(tops.length > 0 ? tops : VERIFIED_STORE_CATALOG.slice(4, 9));
+      const sortedBottoms = sortCategory(bottoms.length > 0 ? bottoms : VERIFIED_STORE_CATALOG.slice(9, 13));
+      const sortedFootwear = sortCategory(footwear.length > 0 ? footwear : VERIFIED_STORE_CATALOG.slice(13, 17));
+      const sortedAccs = sortCategory(accessories.length > 0 ? accessories : VERIFIED_STORE_CATALOG.slice(17, 21));
+
+      // Build 3 customized thematic looks according to user's inputs
+      const isBeachOrResort = queryText.includes("beach") || queryText.includes("resort") || queryText.includes("vacation") || queryText.includes("coastal");
+      const isNightDinner = queryText.includes("dinner") || queryText.includes("night") || queryText.includes("cocktail") || queryText.includes("date");
+      const isWorkOrFormal = queryText.includes("work") || queryText.includes("meeting") || queryText.includes("executive") || queryText.includes("conference");
+
+      const look1Title = isBeachOrResort 
+        ? "Look 1: Coastal Sunset Elegance" 
+        : isWorkOrFormal 
+        ? "Look 1: Executive Architectural Power" 
+        : isNightDinner 
+        ? "Look 1: Twilight Speakeasy Allure" 
+        : "Look 1: The Signature Statement";
+
+      const look2Title = isBeachOrResort 
+        ? "Look 2: Pure Breathable Resort Linen" 
+        : isWorkOrFormal 
+        ? "Look 2: Contemporary Smart Casual" 
+        : isNightDinner 
+        ? "Look 2: Effortless Fluid Silk Drape" 
+        : "Look 2: Relaxed Tropical Luxury";
+
+      const look3Title = isBeachOrResort 
+        ? "Look 3: High-Contrast Oceanfront Glow" 
+        : isWorkOrFormal 
+        ? "Look 3: The Boardroom Modernist" 
+        : isNightDinner 
+        ? "Look 3: Statement Noir & Gold Glam" 
+        : "Look 3: Bold Avant-Garde Edge";
+
+      const generatedEnsembles = [
+        // Look 1: Featuring top matching Dress or Top+Bottom
+        (() => {
+          const useDress = (sortedDresses.length > 0 && (isBeachOrResort || isNightDinner || Math.random() > 0.4));
+          const p1 = useDress ? { ...sortedDresses[0], tag: "Hero Garment" } : { ...sortedTops[0], tag: "Top Piece" };
+          const p2 = useDress ? { ...sortedAccs[0], tag: "Accent / Bag" } : { ...sortedBottoms[0], tag: "Bottom Piece" };
+          const p3 = { ...sortedFootwear[0 % sortedFootwear.length], tag: "Footwear" };
+          const p4 = useDress ? { ...sortedAccs[1 % sortedAccs.length], tag: "Jewelry / Accent" } : { ...sortedAccs[0 % sortedAccs.length], tag: "Accent / Bag" };
+          const pieces = [p1, p2, p3, p4];
+          const totalPrice = pieces.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+          return {
+            id: `ensemble-1-${Date.now()}`,
+            title: look1Title,
+            tagline: `Curated specifically for ${currentOccasionLabel} with a ${styleVibe} aesthetic`,
+            accentBadge: isBeachOrResort ? "Beach Ready 🏖️" : isNightDinner ? "Sunset Pick ✨" : "Runway Pick 👑",
+            occasion: currentOccasionLabel,
+            styleVibe: styleVibe,
+            palette: colorPalette,
+            silhouette: silhouette,
+            totalPrice: totalPrice,
+            pieces: pieces,
+            stylistRationale: `Harmonized for ${currentOccasionLabel}. The ${p1.name} commands attention with a refined ${silhouette.toLowerCase()} silhouette, complemented with ${p3.name} for effortless movement.`,
+            fabricNote: `Selected for optimal breathability and luxury hand-feel in Sri Lanka's tropical evening climate.`,
+            proTip: `Pair with delicate hardware to echo the accents in the ${p4.name}.`
+          };
+        })(),
+
+        // Look 2: Featuring separates with focus on breezy linen/cotton drape
+        (() => {
+          const p1 = { ...sortedTops[1 % sortedTops.length], tag: "Top Piece" };
+          const p2 = { ...sortedBottoms[1 % sortedBottoms.length], tag: "Bottom Piece" };
+          const p3 = { ...sortedFootwear[1 % sortedFootwear.length], tag: "Footwear" };
+          const p4 = { ...sortedAccs[2 % sortedAccs.length], tag: "Accent / Accessory" };
+          const pieces = [p1, p2, p3, p4];
+          const totalPrice = pieces.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+          return {
+            id: `ensemble-2-${Date.now()}`,
+            title: look2Title,
+            tagline: `Fluid lightweight textures customized for ${currentOccasionLabel}`,
+            accentBadge: "100% Breathable 🌿",
+            occasion: currentOccasionLabel,
+            styleVibe: styleVibe,
+            palette: colorPalette,
+            silhouette: silhouette,
+            totalPrice: totalPrice,
+            pieces: pieces,
+            stylistRationale: `Balances ${styleVibe} refinement with fluid relaxed lines. The ${p1.name} pairs seamlessly with ${p2.name} to elongate proportions while remaining completely climate-adaptive.`,
+            fabricNote: `Crafted from natural organic weaves that offer unhindered airflow and thermal comfort.`,
+            proTip: `Roll cuffs or leave the top relaxed to accentuate the clean silhouette of the ${p3.name}.`
+          };
+        })(),
+
+        // Look 3: Bold Statement or Evening Alternative
+        (() => {
+          const p1 = sortedDresses.length > 1 ? { ...sortedDresses[1], tag: "Hero Garment" } : { ...sortedTops[2 % sortedTops.length], tag: "Top Piece" };
+          const p2 = sortedDresses.length > 1 ? { ...sortedAccs[3 % sortedAccs.length], tag: "Accent / Leather" } : { ...sortedBottoms[2 % sortedBottoms.length], tag: "Bottom Piece" };
+          const p3 = { ...sortedFootwear[2 % sortedFootwear.length], tag: "Footwear" };
+          const p4 = { ...sortedAccs[0 % sortedAccs.length], tag: "Accent / Bag" };
+          const pieces = [p1, p2, p3, p4];
+          const totalPrice = pieces.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+          return {
+            id: `ensemble-3-${Date.now()}`,
+            title: look3Title,
+            tagline: `High-impact styling with rich textures and modern hardware`,
+            accentBadge: "Trending Now ⚡",
+            occasion: currentOccasionLabel,
+            styleVibe: styleVibe,
+            palette: colorPalette,
+            silhouette: silhouette,
+            totalPrice: totalPrice,
+            pieces: pieces,
+            stylistRationale: `Elevates ${currentOccasionLabel} into a memorable fashion moment. The rich tones of the ${p1.name} create sharp contrast with ${p4.name}.`,
+            fabricNote: `High-grade satin and tailored finishes that hold their architectural structure effortlessly.`,
+            proTip: `Wear minimal secondary jewelry to let the focal silhouette and footwear shine.`
+          };
+        })()
+      ];
+
       setOutfits(generatedEnsembles);
-    }, 1500);
+    }, 1200);
 
     return () => {
       clearTimeout(timer1);
@@ -274,27 +451,50 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
   const handleAddAllToCart = (ensemble: any) => {
     ensemble.pieces.forEach((piece: any) => {
       addToCart({
-        id: piece.id,
+        id: piece.id || piece._id,
+        _id: piece._id || piece.id,
         name: piece.name,
         price: piece.price,
+        originalPrice: piece.originalPrice || Math.round(piece.price * 1.25),
         brand: piece.brand,
-        image: piece.image,
+        image: piece.image || piece.images?.[0] || '',
+        images: piece.images || [piece.image],
         category: piece.category || "Fashion"
       }, 1, 'M', 'Default');
     });
     showToast(`Added 4 items from "${ensemble.title}" to your shopping bag!`);
   };
 
-  const handleAddSinglePiece = (piece: any) => {
+  const handleAddSinglePiece = (piece: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     addToCart({
-      id: piece.id,
+      id: piece.id || piece._id,
+      _id: piece._id || piece.id,
       name: piece.name,
       price: piece.price,
+      originalPrice: piece.originalPrice || Math.round(piece.price * 1.25),
       brand: piece.brand,
-      image: piece.image,
+      image: piece.image || piece.images?.[0] || '',
+      images: piece.images || [piece.image],
       category: piece.category || "Fashion"
     }, 1, 'M', 'Default');
     showToast(`Added "${piece.name}" to your bag`);
+  };
+
+  const handleOpenProductDetail = (piece: any) => {
+    try {
+      const rawImgs = Array.isArray(piece.images) && piece.images.length > 0 
+        ? piece.images 
+        : (piece.image ? [piece.image] : []);
+      localStorage.setItem('ts_selected_product', JSON.stringify({
+        ...piece,
+        id: piece.id || piece._id,
+        _id: piece._id || piece.id,
+        images: rawImgs,
+        image: rawImgs[0] || piece.image || '',
+      }));
+    } catch {}
+    onNavigate("product-detail");
   };
 
   const toggleBookmark = (id: string) => {
@@ -657,8 +857,9 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       {ensemble.pieces.map((piece: any, pIdx: number) => (
                         <div
-                          key={piece.id}
-                          className="group relative rounded-2xl border border-gray-100 bg-gray-50/50 p-3 hover:bg-white hover:border-purple-200 hover:shadow-md transition-all flex flex-col justify-between"
+                          key={piece.id || `${piece.name}-${pIdx}`}
+                          onClick={() => handleOpenProductDetail(piece)}
+                          className="group relative rounded-2xl border border-gray-100 bg-gray-50/50 p-3 hover:bg-white hover:border-purple-300 hover:shadow-lg transition-all flex flex-col justify-between cursor-pointer"
                         >
                           <div className="relative aspect-[4/5] rounded-xl overflow-hidden mb-3 bg-gray-200">
                             <img
@@ -670,8 +871,8 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                               {piece.tag}
                             </span>
                             <button
-                              onClick={() => handleAddSinglePiece(piece)}
-                              className="absolute bottom-2 right-2 w-7 h-7 rounded-lg bg-white/90 backdrop-blur-sm text-purple-700 hover:bg-purple-600 hover:text-white flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                              onClick={(e) => handleAddSinglePiece(piece, e)}
+                              className="absolute bottom-2 right-2 w-7 h-7 rounded-lg bg-white/95 backdrop-blur-sm text-purple-700 hover:bg-purple-600 hover:text-white flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
                               title="Add Piece to Bag"
                             >
                               <Plus size={14} />
@@ -679,7 +880,7 @@ export function AIOutfitScreen({ onNavigate }: { onNavigate: (s: Screen) => void
                           </div>
                           <div>
                             <p className="text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-0.5">{piece.brand}</p>
-                            <h4 className="text-xs font-bold text-gray-900 line-clamp-1 mb-1">{piece.name}</h4>
+                            <h4 className="text-xs font-bold text-gray-900 line-clamp-1 mb-1 group-hover:text-purple-700 transition-colors">{piece.name}</h4>
                             <p className="text-xs font-black text-gray-800" style={{ fontFamily: "'Clash Display', sans-serif" }}>
                               {lkr(piece.price)}
                             </p>

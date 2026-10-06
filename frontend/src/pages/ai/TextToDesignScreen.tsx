@@ -168,16 +168,58 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     if (!prompt.trim()) return;
     setStage("generating");
     setProgress(15);
-    setSavedToLookbook(false);
 
     // If technical dropdowns are on auto, extract friendly labels for preview
     const effectiveStyle = style.includes("Auto") ? "Modern Tailoring" : style;
     const effectiveFabric = fabric.includes("Auto") ? "Premium Textile" : fabric;
     const effectivePalette = colorPalette.includes("Auto") ? "True Colorway" : colorPalette;
 
+    const enhancedPrompt = expandPromptWithMagic(prompt, shotType, fitTarget);
+    const encoded = encodeURIComponent(enhancedPrompt);
+    const seed = Math.floor(Math.random() * 9999999);
+    const directUrl = `https://image.pollinations.ai/prompt/${encoded}?seed=${seed}&width=800&height=1000&nologo=true&model=flux`;
+
+    const lowerP = prompt.toLowerCase();
+    let categorySuggestion = 'Dresses';
+    if (lowerP.includes('jacket') || lowerP.includes('coat')) categorySuggestion = 'Jackets & Coats';
+    else if (lowerP.includes('blazer')) categorySuggestion = 'Blazers';
+    else if (lowerP.includes('hoodie') || lowerP.includes('sweat')) categorySuggestion = 'Hoodies & Sweats';
+    else if (lowerP.includes('pant') || lowerP.includes('trouser') || lowerP.includes('jean')) categorySuggestion = 'Pants & Trousers';
+    else if (lowerP.includes('shirt') || lowerP.includes('tee')) categorySuggestion = 'Shirts';
+
+    const fallbackData = {
+      imageUrl: directUrl,
+      style: effectiveStyle,
+      fabric: effectiveFabric,
+      colorPalette: effectivePalette,
+      displayStyle: effectiveStyle,
+      displayFabric: effectiveFabric,
+      displayPalette: effectivePalette,
+      prompt: prompt,
+      categorySuggestion: categorySuggestion,
+      shotType: shotType,
+      fitTarget: fitTarget
+    };
+
+    // Preload image in browser memory so when preview opens, image renders instantly
+    const preloadPromise = new Promise<void>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = directUrl;
+      // timeout after 2.5s max
+      setTimeout(() => resolve(), 2500);
+    });
+
+    // Try API with a 2.5s timeout, if backend is sleeping or slow, immediately use client visual engine
+    const apiPromise = api.generateDesign(prompt, style, fabric, colorPalette, shotType, fitTarget)
+      .catch(() => null);
+
+    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2500));
+
     try {
-      const res = await api.generateDesign(prompt, style, fabric, colorPalette, shotType, fitTarget);
-      if (res && res.data) {
+      const res: any = await Promise.race([apiPromise, timeoutPromise]);
+      if (res && res.data && res.data.imageUrl) {
         setGeneratedResult({
           ...res.data,
           displayStyle: effectiveStyle,
@@ -186,39 +228,18 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
           shotType: shotType,
           fitTarget: fitTarget
         });
+      } else {
+        setGeneratedResult(fallbackData);
       }
-    } catch (err) {
-      console.warn("Generating via AI visual engine fallback:", err);
-      const enhancedPrompt = expandPromptWithMagic(prompt, shotType, fitTarget);
-      const encoded = encodeURIComponent(enhancedPrompt);
-      const seed = Math.floor(Math.random() * 9999999);
-      const directUrl = `https://image.pollinations.ai/prompt/${encoded}?seed=${seed}&width=800&height=1000&nologo=true&model=flux`;
-
-      const lowerP = prompt.toLowerCase();
-      let categorySuggestion = 'Dresses';
-      if (lowerP.includes('jacket') || lowerP.includes('coat')) categorySuggestion = 'Jackets & Coats';
-      else if (lowerP.includes('blazer')) categorySuggestion = 'Blazers';
-      else if (lowerP.includes('hoodie') || lowerP.includes('sweat')) categorySuggestion = 'Hoodies & Sweats';
-      else if (lowerP.includes('pant') || lowerP.includes('trouser') || lowerP.includes('jean')) categorySuggestion = 'Pants & Trousers';
-      else if (lowerP.includes('shirt') || lowerP.includes('tee')) categorySuggestion = 'Shirts';
-
-      setGeneratedResult({
-        imageUrl: directUrl,
-        style: effectiveStyle,
-        fabric: effectiveFabric,
-        colorPalette: effectivePalette,
-        displayStyle: effectiveStyle,
-        displayFabric: effectiveFabric,
-        displayPalette: effectivePalette,
-        prompt: prompt,
-        categorySuggestion: categorySuggestion,
-        shotType: shotType,
-        fitTarget: fitTarget
-      });
-    } finally {
-      setProgress(100);
-      setTimeout(() => setStage("preview"), 400);
+    } catch {
+      setGeneratedResult(fallbackData);
     }
+
+    await preloadPromise;
+    setProgress(100);
+    setTimeout(() => {
+      setStage("preview");
+    }, 250);
   };
 
   const handleShare = () => {

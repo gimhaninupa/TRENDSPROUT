@@ -37,33 +37,67 @@ export function HomeScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) 
     api.getProducts({ limit: 12 })
       .then(res => {
         if (isMounted) {
-          const formatted = (res?.data || []).map(item => ({
-            id: item._id || item.id,
-            name: item.name,
-            price: item.price,
-            originalPrice: item.originalPrice || Math.round(item.price * 1.25),
-            brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
-            tag: item.tag || 'New',
-            rating: item.rating || 5.0,
-            reviews: item.reviewsCount || 0,
-            image: item.images?.[0] || item.image || '',
-            category: item.category?.name || item.category || 'Apparel',
-            description: item.description,
-            sizes: item.sizes || ['S', 'M', 'L'],
-            colors: item.colors || ['Standard'],
-          }));
+          const formatted = (res?.data || []).map(item => {
+            const rawImages = Array.isArray(item.images) && item.images.length > 0 
+              ? item.images 
+              : (item.image ? [item.image] : []);
+            return {
+              id: item._id || item.id,
+              _id: item._id || item.id,
+              name: item.name,
+              price: item.price,
+              originalPrice: item.originalPrice || Math.round(item.price * 1.25),
+              brand: item.brand || item.vendor?.vendorStore?.storeName || 'Independent Label',
+              tag: item.tag || 'New',
+              rating: item.rating || 5.0,
+              reviews: item.reviewsCount || 0,
+              image: rawImages[0] || item.image || '',
+              images: rawImages,
+              category: item.category?.name || item.category || 'Apparel',
+              description: item.description,
+              sizes: item.sizes || ['S', 'M', 'L'],
+              colors: item.colors || ['Standard'],
+            };
+          });
 
           const vendorSaved = localStorage.getItem('ts_vendor_products');
-          const vendorItems = vendorSaved ? JSON.parse(vendorSaved) : [];
+          const vendorItems: any[] = vendorSaved ? JSON.parse(vendorSaved) : [];
 
-          const combined = [...vendorItems, ...formatted];
-          const uniqueMap = new Map();
-          combined.forEach(p => {
-            if (p && p.id && !uniqueMap.has(p.id)) {
-              uniqueMap.set(p.id, p);
+          const seenIds = new Set<string>();
+          const seenNames = new Set<string>();
+          const uniqueList: any[] = [];
+
+          // 1. Live database products first
+          formatted.forEach((p: any) => {
+            const pId = String(p.id || p._id || '');
+            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+            if (pId) seenIds.add(pId);
+            if (pNameBrand !== '___') seenNames.add(pNameBrand);
+            uniqueList.push(p);
+          });
+
+          // 2. Add local vendor items only if not duplicated
+          vendorItems.forEach((p: any) => {
+            const pId = String(p.id || p._id || '');
+            const pNameBrand = `${(p.name || '').trim().toLowerCase()}___${(p.brand || '').trim().toLowerCase()}`;
+            const isDuplicate = (pId && seenIds.has(pId)) || (pNameBrand !== '___' && seenNames.has(pNameBrand));
+            if (!isDuplicate) {
+              if (pId) seenIds.add(pId);
+              if (pNameBrand !== '___') seenNames.add(pNameBrand);
+              const rawImgs = Array.isArray(p.images) && p.images.length > 0 
+                ? p.images 
+                : (p.image ? [p.image] : []);
+              uniqueList.push({
+                ...p,
+                id: p.id || p._id,
+                _id: p._id || p.id,
+                images: rawImgs,
+                image: rawImgs[0] || p.image || '',
+              });
             }
           });
-          setTrendingList(Array.from(uniqueMap.values()).slice(0, 8));
+
+          setTrendingList(uniqueList.slice(0, 8));
         }
       })
       .catch(() => {});

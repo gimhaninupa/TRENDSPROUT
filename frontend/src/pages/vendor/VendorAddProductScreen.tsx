@@ -254,7 +254,13 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     try {
       const res = await api.createVendorProduct(newProduct);
       if (res?.data) {
-        createdProduct = res.data;
+        createdProduct = {
+          ...res.data,
+          id: res.data._id || res.data.id,
+          _id: res.data._id || res.data.id,
+          images: Array.isArray(res.data.images) && res.data.images.length > 0 ? res.data.images : images,
+          image: res.data.image || images[0] || '',
+        };
       }
     } catch (err) {
       console.warn("API product create note:", err);
@@ -264,8 +270,20 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     try {
       const saved = localStorage.getItem('ts_vendor_products');
       const list = saved ? JSON.parse(saved) : [];
-      list.unshift(createdProduct || { ...newProduct, id: 'vp-' + Date.now() });
-      localStorage.setItem('ts_vendor_products', JSON.stringify(list));
+      const itemToSave = createdProduct || { 
+        ...newProduct, 
+        id: 'vp-' + Date.now(),
+        _id: 'vp-' + Date.now(),
+        images: images,
+        image: images[0] || '',
+      };
+      // Prevent duplicates by checking id and name
+      const filtered = list.filter((i: any) => 
+        (i.id !== itemToSave.id && i._id !== itemToSave._id) &&
+        (i.name?.toLowerCase().trim() !== itemToSave.name?.toLowerCase().trim())
+      );
+      filtered.unshift(itemToSave);
+      localStorage.setItem('ts_vendor_products', JSON.stringify(filtered));
       localStorage.removeItem('ts_vendor_product_draft');
     } catch {}
 

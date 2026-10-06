@@ -70,6 +70,18 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
   const [size, setSize] = useState("M");
   const [color, setColor] = useState("Default");
   const [tab, setTab] = useState("details");
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Derive full image gallery list
+  const productImages: string[] = p ? (
+    (Array.isArray(p.images) && p.images.length > 0)
+      ? p.images.filter(Boolean)
+      : (p.image ? [p.image] : [])
+  ) : [];
+
+  const activeHeroImage = (productImages.length > 0 && selectedImageIndex < productImages.length)
+    ? productImages[selectedImageIndex]
+    : (productImages[0] || p?.image || '');
   const [wished, setWished] = useState(() => {
     try {
       const savedWish = localStorage.getItem('ts_wishlist');
@@ -163,16 +175,40 @@ export function ProductDetailScreen({ onNavigate }: { onNavigate: (s: Screen) =>
           <span className="text-gray-700 font-medium">{p.name}</span>
         </div>
         <div className="grid lg:grid-cols-2 gap-12">
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-3 w-20 flex-shrink-0">
-              {[p.image, p.image].map((img, i) => (
-                <div key={i} className={`aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${i === 0 ? "border-purple-500 shadow-md shadow-purple-100" : "border-gray-200 opacity-60"}`}>
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+          <div className="flex flex-col-reverse sm:flex-row gap-4">
+            {productImages.length > 1 && (
+              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-20 max-h-[520px] flex-shrink-0 py-1 scrollbar-thin">
+                {productImages.map((img: string, i: number) => {
+                  const isActive = (selectedImageIndex === i || (selectedImageIndex >= productImages.length && i === 0));
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedImageIndex(i)}
+                      className={`aspect-square w-16 sm:w-20 rounded-xl overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 relative ${
+                        isActive
+                          ? "border-purple-600 shadow-md shadow-purple-200 ring-2 ring-purple-300 ring-offset-1 scale-105"
+                          : "border-gray-200 opacity-60 hover:opacity-100 hover:border-purple-300"
+                      }`}
+                      aria-label={`View product image ${i + 1}`}
+                    >
+                      <img src={img} alt={`${p.name} thumb ${i + 1}`} className="w-full h-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <div className="flex-1 aspect-[4/5] rounded-3xl overflow-hidden bg-gray-50 shadow-xl shadow-black/5 border border-gray-100 relative group">
+              <img 
+                src={activeHeroImage} 
+                alt={p.name} 
+                className="w-full h-full object-cover transition-all duration-300" 
+              />
+              {productImages.length > 1 && (
+                <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-semibold tracking-wide">
+                  {selectedImageIndex + 1} / {productImages.length}
                 </div>
-              ))}
-            </div>
-            <div className="flex-1 aspect-[4/5] rounded-3xl overflow-hidden bg-gray-50 shadow-xl shadow-black/5 border border-gray-100">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+              )}
             </div>
           </div>
           <div>
