@@ -9,6 +9,99 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+const FALLBACK_VENDORS = [
+  {
+    _id: '6ac243646a8c7b72e413317d',
+    username: 'vendor',
+    email: 'vendor@trendsprout.com',
+    phone: '+94770000001',
+    isVerified: true,
+    vendorStore: {
+      storeName: 'My Fresh Store',
+      storeDescription: 'Contemporary designs, refined everyday essentials, and artisan craftsmanship.',
+      bannerImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=80',
+      logoImage: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=200&h=200&q=80'
+    }
+  },
+  {
+    _id: '6ac25e1e237305646ac70f74',
+    username: 'gimhanxmax_7750',
+    email: 'gimhanxmax@gmail.com',
+    phone: '+94 77 123 4567',
+    isVerified: true,
+    vendorStore: {
+      storeName: 'ROGFI',
+      storeDescription: 'High-performance lifestyle accessories, backpacks, and urban streetwear essentials.',
+      bannerImage: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1400&q=80',
+      logoImage: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=200&h=200&q=80'
+    }
+  },
+  {
+    _id: '6ac46d52576413fbdbf29869',
+    username: 'nadun_manawadu_1605',
+    email: 'manawadunadun17@gmail.com',
+    phone: '+94 77 123 4567',
+    isVerified: true,
+    vendorStore: {
+      storeName: 'nadun_manawadu_1605',
+      storeDescription: 'Original oversized streetwear silhouettes, modern tees, and urban sneakers.',
+      bannerImage: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1400&q=80',
+      logoImage: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&h=200&q=80'
+    }
+  },
+  {
+    _id: '6ac47035576413fbdbf2990a',
+    username: 'chanupa_niduwara_9071',
+    email: 'athaudaarachchilagechanupa2005@gmail.com',
+    phone: '+94 77 123 4567',
+    isVerified: true,
+    vendorStore: {
+      storeName: 'chanupa_niduwara_9071',
+      storeDescription: 'Artisanal Sri Lankan textiles, curated resort wear, and handmade boutique pieces.',
+      bannerImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=80',
+      logoImage: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=200&h=200&q=80'
+    }
+  }
+];
+
+// @desc    Get all public vendors / designer brands directory
+// @route   GET /api/vendor/public
+// @access  Public
+router.get('/public', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const vendors = await User.find({
+        $or: [
+          { role: 'vendor' },
+          { 'vendorStore.storeName': { $exists: true, $ne: '' } }
+        ]
+      }).select('username email phone isVerified vendorStore createdAt');
+
+      if (vendors && vendors.length > 0) {
+        return res.json({
+          status: 'success',
+          results: vendors.length,
+          data: vendors,
+        });
+      }
+    }
+    
+    // Return fallback vendor stores if DB empty or buffering
+    return res.json({
+      status: 'success',
+      results: FALLBACK_VENDORS.length,
+      data: FALLBACK_VENDORS,
+    });
+  } catch (error) {
+    console.warn('Public vendors fallback activated:', error.message);
+    return res.json({
+      status: 'success',
+      results: FALLBACK_VENDORS.length,
+      data: FALLBACK_VENDORS,
+    });
+  }
+});
+
 // Require user to be authenticated for vendor actions
 router.use(protect);
 

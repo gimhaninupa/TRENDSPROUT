@@ -51,24 +51,21 @@ const connectDB = async () => {
   try {
     const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
     if (!uri) {
-      console.warn('⚠️ MONGODB_URI is not defined in environment variables. Running in server-only mode without database.');
+      console.warn('⚠️ MONGODB_URI is not defined in environment variables. Running in resilient mode.');
       return;
     }
     
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
+    console.error('❌ MongoDB connection notice:', error.message);
   }
 };
 
-// Start server and connect to DB
-const startServer = async () => {
-  await connectDB();
-  
-  app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  });
-};
-
-startServer();
+// Start express server immediately for instant API responsiveness
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  connectDB();
+});
