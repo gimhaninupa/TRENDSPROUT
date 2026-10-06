@@ -131,13 +131,14 @@ router.post('/products', async (req, res) => {
     }
 
     const imageList = Array.isArray(images) && images.length > 0 ? images : (image ? [image] : []);
+    const storeBrand = brand || req.user.vendorStore?.storeName || req.user.username || 'TrendSprout Vendor';
 
     const product = await Product.create({
       name,
       description: description || `Premium ${catName} handcrafted with top tier sustainable materials.`,
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : Math.round(Number(price) * 1.25),
-      brand: brand || req.user.vendorStore?.storeName || req.user.username || 'TrendSprout Vendor',
+      brand: storeBrand,
       image: imageList[0] || image || '',
       images: imageList,
       stock: Number(stock || 20),
@@ -147,6 +148,15 @@ router.post('/products', async (req, res) => {
       sizes: sizes || ['S', 'M', 'L'],
       colors: colors || ['Standard'],
     });
+
+    // Elevate user role to vendor and initialize vendorStore if needed
+    if (req.user.role === 'customer' || !req.user.vendorStore?.storeName) {
+      await User.findByIdAndUpdate(req.user._id, {
+        role: 'vendor',
+        isVerified: true,
+        'vendorStore.storeName': storeBrand,
+      });
+    }
 
     await product.populate('category', 'name slug');
 

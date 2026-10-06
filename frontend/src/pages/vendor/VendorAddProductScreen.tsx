@@ -13,7 +13,7 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   // Load draft if available
   const getSavedDraft = () => {
     try {
@@ -219,6 +219,12 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
   };
 
   const handlePublishProduct = async () => {
+    if (!isAuthenticated || !user) {
+      alert("Please sign in or create a vendor account to publish your product to the live marketplace.");
+      onNavigate("login");
+      return;
+    }
+
     if (!title.trim() || !price) {
       alert("Please enter product name and price.");
       return;
@@ -227,7 +233,6 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
     setIsPublishing(true);
     const storeBrand = brand.trim() || user?.vendorStore?.storeName || user?.username || "My Store";
     const newProduct = {
-      id: 'vp-' + Date.now(),
       name: title.trim(),
       description: desc.trim() || "Fresh design crafted with sustainable luxury fabrics.",
       category: category || "Dresses",
@@ -245,17 +250,21 @@ export function VendorAddProductScreen({ onNavigate }: { onNavigate: (s: Screen)
       colors: ["Standard"],
     };
 
+    let createdProduct = null;
     try {
-      await api.createVendorProduct(newProduct);
+      const res = await api.createVendorProduct(newProduct);
+      if (res?.data) {
+        createdProduct = res.data;
+      }
     } catch (err) {
-      console.warn("API product create offline fallback:", err);
+      console.warn("API product create note:", err);
     }
 
     // Persist to vendor products catalog
     try {
       const saved = localStorage.getItem('ts_vendor_products');
       const list = saved ? JSON.parse(saved) : [];
-      list.unshift(newProduct);
+      list.unshift(createdProduct || { ...newProduct, id: 'vp-' + Date.now() });
       localStorage.setItem('ts_vendor_products', JSON.stringify(list));
       localStorage.removeItem('ts_vendor_product_draft');
     } catch {}
