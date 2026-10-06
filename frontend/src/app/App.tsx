@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-ro
 import { AnimatePresence, motion } from 'motion/react';
 import { QuickNav, Screen } from '../components/shared';
 import { Preloader } from '../components/Preloader';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AboutScreen } from '../pages/company/AboutScreen';
 import { BlogScreen } from '../pages/company/BlogScreen';
 import { CareersScreen } from '../pages/company/CareersScreen';
@@ -101,61 +102,63 @@ function RouterWrapper() {
       {isAppLoading && (
         <Preloader onFinish={() => setIsAppLoading(false)} minDurationMs={1000} />
       )}
-      <AnimatePresence mode="wait">
-        <Routes>
-          <Route path="/" element={<HomeScreen onNavigate={onNavigate} />} />
-          <Route path="/home" element={<HomeScreen onNavigate={onNavigate} />} />
-          <Route path="/login" element={<AuthScreen mode="login" onNavigate={onNavigate} />} />
-          <Route path="/register" element={<AuthScreen mode="register" onNavigate={onNavigate} />} />
-          <Route path="/otp" element={<AuthScreen mode="otp" onNavigate={onNavigate} />} />
-          <Route path="/forgot-password" element={<AuthScreen mode="forgot-password" onNavigate={onNavigate} />} />
-          
-          <Route path="/customer" element={<CustomerDashboard onNavigate={onNavigate} />} />
-          <Route path="/browse" element={<BrowseScreen onNavigate={onNavigate} />} />
-          <Route path="/search" element={<BrowseScreen onNavigate={onNavigate} isSearch={true} />} />
-          <Route path="/product" element={<ProductDetailScreen onNavigate={onNavigate} />} />
-          <Route path="/cart" element={<CartScreen onNavigate={onNavigate} />} />
-          <Route path="/checkout" element={<CheckoutScreen onNavigate={onNavigate} />} />
-          <Route path="/payment" element={<PaymentScreen onNavigate={onNavigate} />} />
-          <Route path="/orders" element={<OrdersScreen onNavigate={onNavigate} />} />
-          <Route path="/tracking" element={<TrackingScreen onNavigate={onNavigate} />} />
-          <Route path="/wishlist" element={<WishlistScreen onNavigate={onNavigate} />} />
-          <Route path="/profile" element={<ProfileScreen onNavigate={onNavigate} />} />
-          <Route path="/profile/settings" element={<ProfileSettingsScreen onNavigate={onNavigate} />} />
-          <Route path="/seller" element={<SellerStoreScreen onNavigate={onNavigate} />} />
-          <Route path="/coupons" element={<CouponsScreen onNavigate={onNavigate} />} />
-          
-          <Route path="/ai/chat" element={<AIChatbotScreen onNavigate={onNavigate} />} />
-          <Route path="/ai/outfit" element={<AIOutfitScreen onNavigate={onNavigate} />} />
-          <Route path="/ai/design" element={<TextToDesignScreen onNavigate={onNavigate} />} />
-          
-          <Route path="/vendor" element={<VendorDashboardScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/products" element={<VendorProductsScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/orders" element={<VendorOrdersScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/analytics" element={<VendorAnalyticsScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/products/add" element={<VendorAddProductScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/ai-description" element={<VendorAIDescriptionScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/ai-pricing" element={<VendorAIPricingScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/payouts" element={<VendorPayoutsScreen onNavigate={onNavigate} />} />
-          <Route path="/vendor/store-customization" element={<StoreCustomizationScreen onNavigate={onNavigate} />} />
-          
-          <Route path="/admin" element={<AdminDashboardScreen onNavigate={onNavigate} />} />
-          
-          <Route path="/about" element={<AboutScreen onNavigate={onNavigate as any} />} />
-          <Route path="/blog" element={<BlogScreen onNavigate={onNavigate as any} />} />
-          <Route path="/careers" element={<CareersScreen onNavigate={onNavigate as any} />} />
-          <Route path="/press" element={<PressScreen onNavigate={onNavigate as any} />} />
-          <Route path="/privacy" element={<PrivacyScreen onNavigate={onNavigate as any} />} />
-          <Route path="/terms" element={<TermsScreen onNavigate={onNavigate as any} />} />
-          <Route path="/cookies" element={<CookiesScreen onNavigate={onNavigate as any} />} />
+      <ErrorBoundary>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<HomeScreen onNavigate={onNavigate} />} />
+            <Route path="/home" element={<HomeScreen onNavigate={onNavigate} />} />
+            <Route path="/login" element={<AuthScreen mode="login" onNavigate={onNavigate} />} />
+            <Route path="/register" element={<AuthScreen mode="register" onNavigate={onNavigate} />} />
+            <Route path="/otp" element={<AuthScreen mode="otp" onNavigate={onNavigate} />} />
+            <Route path="/forgot-password" element={<AuthScreen mode="forgot-password" onNavigate={onNavigate} />} />
+            
+            <Route path="/customer" element={<CustomerDashboard onNavigate={onNavigate} />} />
+            <Route path="/browse" element={<BrowseScreen onNavigate={onNavigate} />} />
+            <Route path="/search" element={<BrowseScreen onNavigate={onNavigate} isSearch={true} />} />
+            <Route path="/product" element={<ProductDetailScreen onNavigate={onNavigate} />} />
+            <Route path="/cart" element={<CartScreen onNavigate={onNavigate} />} />
+            <Route path="/checkout" element={<CheckoutScreen onNavigate={onNavigate} />} />
+            <Route path="/payment" element={<PaymentScreen onNavigate={onNavigate} />} />
+            <Route path="/orders" element={<OrdersScreen onNavigate={onNavigate} />} />
+            <Route path="/tracking" element={<TrackingScreen onNavigate={onNavigate} />} />
+            <Route path="/wishlist" element={<WishlistScreen onNavigate={onNavigate} />} />
+            <Route path="/profile" element={<ProfileScreen onNavigate={onNavigate} />} />
+            <Route path="/profile/settings" element={<ProfileSettingsScreen onNavigate={onNavigate} />} />
+            <Route path="/seller" element={<SellerStoreScreen onNavigate={onNavigate} />} />
+            <Route path="/coupons" element={<CouponsScreen onNavigate={onNavigate} />} />
+            
+            <Route path="/ai/chat" element={<AIChatbotScreen onNavigate={onNavigate} />} />
+            <Route path="/ai/outfit" element={<AIOutfitScreen onNavigate={onNavigate} />} />
+            <Route path="/ai/design" element={<TextToDesignScreen onNavigate={onNavigate} />} />
+            
+            <Route path="/vendor" element={<VendorDashboardScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/products" element={<VendorProductsScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/orders" element={<VendorOrdersScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/analytics" element={<VendorAnalyticsScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/products/add" element={<VendorAddProductScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/ai-description" element={<VendorAIDescriptionScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/ai-pricing" element={<VendorAIPricingScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/payouts" element={<VendorPayoutsScreen onNavigate={onNavigate} />} />
+            <Route path="/vendor/store-customization" element={<StoreCustomizationScreen onNavigate={onNavigate} />} />
+            
+            <Route path="/admin" element={<AdminDashboardScreen onNavigate={onNavigate} />} />
+            
+            <Route path="/about" element={<AboutScreen onNavigate={onNavigate as any} />} />
+            <Route path="/blog" element={<BlogScreen onNavigate={onNavigate as any} />} />
+            <Route path="/careers" element={<CareersScreen onNavigate={onNavigate as any} />} />
+            <Route path="/press" element={<PressScreen onNavigate={onNavigate as any} />} />
+            <Route path="/privacy" element={<PrivacyScreen onNavigate={onNavigate as any} />} />
+            <Route path="/terms" element={<TermsScreen onNavigate={onNavigate as any} />} />
+            <Route path="/cookies" element={<CookiesScreen onNavigate={onNavigate as any} />} />
 
-          <Route path="/404" element={<ErrorScreen type="404" onNavigate={onNavigate} />} />
-          <Route path="/payment-failed" element={<ErrorScreen type="payment-failed" onNavigate={onNavigate} />} />
-          
-          {/* Fallback */}
-          <Route path="*" element={<ErrorScreen type="404" onNavigate={onNavigate} />} />
-        </Routes>
-      </AnimatePresence>
+            <Route path="/404" element={<ErrorScreen type="404" onNavigate={onNavigate} />} />
+            <Route path="/payment-failed" element={<ErrorScreen type="payment-failed" onNavigate={onNavigate} />} />
+            
+            {/* Fallback */}
+            <Route path="*" element={<ErrorScreen type="404" onNavigate={onNavigate} />} />
+          </Routes>
+        </AnimatePresence>
+      </ErrorBoundary>
     </div>
   );
 }

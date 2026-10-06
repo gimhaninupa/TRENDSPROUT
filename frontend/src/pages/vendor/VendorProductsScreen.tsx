@@ -19,7 +19,20 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
   const [items, setItems] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('ts_vendor_products');
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map((p: any) => ({
+        ...p,
+        id: p._id || p.id || 'vp-' + Math.random(),
+        _id: p._id || p.id || 'vp-' + Math.random(),
+        name: typeof p.name === 'string' ? p.name : (p.name?.name || 'Untitled Product'),
+        category: typeof p.category === 'string' ? p.category : (p.category?.name || 'Apparel'),
+        brand: typeof p.brand === 'string' ? p.brand : (p.brand?.name || 'Independent Brand'),
+        sku: typeof p.sku === 'string' ? p.sku : `VP-${String(p._id || p.id || '').slice(-4) || '001'}`,
+        price: Number(p.price) || 0,
+        stock: Number(p.stock) ?? 0,
+        status: (Number(p.stock) || 0) > 10 ? 'Active' : (Number(p.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
+      }));
     } catch {
       return [];
     }
@@ -51,7 +64,20 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
     const loadLocal = () => {
       try {
         const saved = localStorage.getItem('ts_vendor_products');
-        return saved ? JSON.parse(saved) : [];
+        const parsed = saved ? JSON.parse(saved) : [];
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map((p: any) => ({
+          ...p,
+          id: p._id || p.id || 'vp-' + Math.random(),
+          _id: p._id || p.id || 'vp-' + Math.random(),
+          name: typeof p?.name === 'string' ? p.name : (p?.name?.name || 'Untitled Product'),
+          category: typeof p?.category === 'string' ? p.category : (p?.category?.name || 'Apparel'),
+          brand: typeof p?.brand === 'string' ? p.brand : (p?.brand?.name || 'Independent Brand'),
+          sku: typeof p?.sku === 'string' ? p.sku : `VP-${String(p?._id || p?.id || '').slice(-4) || '001'}`,
+          price: Number(p?.price) || 0,
+          stock: Number(p?.stock) ?? 0,
+          status: (Number(p?.stock) || 0) > 10 ? 'Active' : (Number(p?.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
+        }));
       } catch {
         return [];
       }
@@ -65,7 +91,8 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
     api.getVendorProducts()
       .then(res => {
         if (!isMounted) return;
-        const formatted = (res?.data || []).map((p: any) => {
+        const rawData = Array.isArray(res?.data) ? res.data : [];
+        const formatted = rawData.map((p: any) => {
           if (!p) return null;
           const rawImgs = Array.isArray(p.images) && p.images.length > 0 
             ? p.images 
@@ -73,8 +100,8 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
           return {
             id: p._id || p.id,
             _id: p._id || p.id,
-            name: p.name || 'Untitled Product',
-            sku: p.sku || `VP-${String(p._id || p.id || '').slice(-4) || '001'}`,
+            name: typeof p.name === 'string' ? p.name : (p.name?.name || 'Untitled Product'),
+            sku: typeof p.sku === 'string' ? p.sku : `VP-${String(p._id || p.id || '').slice(-4) || '001'}`,
             stock: Number(p.stock) ?? 0,
             price: Number(p.price) || 0,
             originalPrice: Number(p.originalPrice) || Math.round((Number(p.price) || 0) * 1.25),
@@ -82,9 +109,9 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
             status: (Number(p.stock) || 0) > 10 ? 'Active' : (Number(p.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
             image: rawImgs[0] || p.image || '',
             images: rawImgs,
-            brand: p.brand || 'Independent Brand',
-            category: typeof p.category === 'string' ? p.category : p.category?.name || 'Apparel',
-            description: p.description || '',
+            brand: typeof p.brand === 'string' ? p.brand : (p.brand?.name || 'Independent Brand'),
+            category: typeof p.category === 'string' ? p.category : (p.category?.name || 'Apparel'),
+            description: typeof p.description === 'string' ? p.description : '',
             sizes: Array.isArray(p.sizes) && p.sizes.length > 0 ? p.sizes : ['S', 'M', 'L'],
           };
         }).filter(Boolean);
@@ -120,12 +147,14 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
               ...p,
               id: p.id || p._id || 'vp-' + Date.now(),
               _id: p._id || p.id || 'vp-' + Date.now(),
-              name: p.name || 'Untitled Product',
+              name: typeof p.name === 'string' ? p.name : (p.name?.name || 'Untitled Product'),
               price: Number(p.price) || 0,
               originalPrice: Number(p.originalPrice) || Math.round((Number(p.price) || 0) * 1.25),
               images: rawImgs,
               image: rawImgs[0] || p.image || '',
-              sku: p.sku || `VP-${String(p._id || p.id || Date.now()).slice(-4)}`,
+              category: typeof p.category === 'string' ? p.category : (p.category?.name || 'Apparel'),
+              brand: typeof p.brand === 'string' ? p.brand : (p.brand?.name || 'Independent Brand'),
+              sku: typeof p.sku === 'string' ? p.sku : `VP-${String(p._id || p.id || Date.now()).slice(-4)}`,
               status: (Number(p.stock) || 20) > 10 ? 'Active' : (Number(p.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
               sizes: Array.isArray(p.sizes) && p.sizes.length > 0 ? p.sizes : ['S', 'M', 'L'],
             });
@@ -248,10 +277,13 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
     }
   };
 
-  const filteredItems = items.filter(p => {
+  const filteredItems = (Array.isArray(items) ? items : []).filter(p => {
+    if (!p) return false;
+    const pName = typeof p.name === 'string' ? p.name : (p.name?.name || '');
+    const pSku = typeof p.sku === 'string' ? p.sku : String(p.sku || '');
     const matchesSearch = !searchTerm.trim() || 
-      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      p.sku?.toLowerCase().includes(searchTerm.toLowerCase());
+      pName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      pSku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "All" || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -327,54 +359,66 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
                   </td>
                 </tr>
               ) : (
-                filteredItems.map(p => (
-                  <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <img src={p.image || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80"} alt={p.name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-gray-100" />
-                        <div>
-                          <span className="text-sm font-semibold text-gray-900 block leading-tight">{p.name}</span>
-                          <span className="text-[11px] text-purple-600 font-medium">{p.category || 'Apparel'}</span>
+                filteredItems.map(p => {
+                  const displayName = typeof p.name === 'string' ? p.name : (p.name?.name || 'Untitled Product');
+                  const displayCategory = typeof p.category === 'string' ? p.category : (p.category?.name || 'Apparel');
+                  const displaySku = typeof p.sku === 'string' ? p.sku : String(p.sku || `VP-${String(p.id || '').slice(-4)}`);
+                  const displayStatus = typeof p.status === 'string' ? p.status : 'Active';
+                  const statusVariant = displayStatus === "Active" ? "green" : displayStatus === "Low Stock" ? "amber" : "red";
+
+                  return (
+                    <tr key={p.id || p._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={p.image || "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80"} 
+                            alt={displayName} 
+                            className="w-10 h-10 rounded-xl object-cover flex-shrink-0 border border-gray-100" 
+                          />
+                          <div>
+                            <span className="text-sm font-semibold text-gray-900 block leading-tight">{displayName}</span>
+                            <span className="text-[11px] text-purple-600 font-medium">{displayCategory}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 font-mono text-xs text-gray-500">{p.sku}</td>
-                    <td className="px-5 py-4 text-sm text-gray-700">{p.stock}</td>
-                    <td className="px-5 py-4 text-sm font-semibold text-gray-900">{lkr(p.price)}</td>
-                    <td className="px-5 py-4 text-sm text-gray-700">{p.sales || 0}</td>
-                    <td className="px-5 py-4"><Badge variant={p.status === "Active" ? "green" : p.status === "Low Stock" ? "amber" : "red"}>{p.status}</Badge></td>
-                    <td className="px-5 py-4">
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleOpenEdit(p)} 
-                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
-                          title="Edit product"
-                        >
-                          <Edit3 size={13} />
-                        </button>
-                        <button 
-                          onClick={() => {
-                            try {
-                              localStorage.setItem('ts_selected_product', JSON.stringify(p));
-                              onNavigate("product-detail");
-                            } catch {}
-                          }} 
-                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
-                          title="View live product"
-                        >
-                          <Eye size={13} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(p.id)} 
-                          className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all cursor-pointer"
-                          title="Delete product"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-5 py-4 font-mono text-xs text-gray-500">{displaySku}</td>
+                      <td className="px-5 py-4 text-sm text-gray-700">{p.stock ?? 0}</td>
+                      <td className="px-5 py-4 text-sm font-semibold text-gray-900">{lkr(p.price)}</td>
+                      <td className="px-5 py-4 text-sm text-gray-700">{p.sales || 0}</td>
+                      <td className="px-5 py-4"><Badge variant={statusVariant}>{displayStatus}</Badge></td>
+                      <td className="px-5 py-4">
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleOpenEdit(p)} 
+                            className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
+                            title="Edit product"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              try {
+                                localStorage.setItem('ts_selected_product', JSON.stringify(p));
+                                onNavigate("product-detail");
+                              } catch {}
+                            }} 
+                            className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-all cursor-pointer"
+                            title="View live product"
+                          >
+                            <Eye size={13} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(p.id || p._id)} 
+                            className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-red-100 hover:text-red-500 transition-all cursor-pointer"
+                            title="Delete product"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
