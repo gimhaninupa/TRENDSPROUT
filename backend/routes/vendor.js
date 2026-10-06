@@ -403,7 +403,19 @@ router.post('/payouts', async (req, res) => {
 // @access  Private
 router.put('/store', async (req, res) => {
   try {
-    const { storeName, storeDescription, bannerImage, logoImage, bankDetails } = req.body;
+    const { 
+      storeName, 
+      storeDescription, 
+      tagline, 
+      primaryColor, 
+      fontStyle, 
+      layout, 
+      bannerImage, 
+      bannerHeadline, 
+      bannerSubtext, 
+      logoImage, 
+      bankDetails 
+    } = req.body;
 
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -414,17 +426,36 @@ router.put('/store', async (req, res) => {
       user.vendorStore = {};
     }
 
-    if (storeName) user.vendorStore.storeName = storeName;
-    if (storeDescription) user.vendorStore.storeDescription = storeDescription;
-    if (bannerImage) user.vendorStore.bannerImage = bannerImage;
-    if (logoImage) user.vendorStore.logoImage = logoImage;
-    if (bankDetails) user.vendorStore.bankDetails = bankDetails;
+    if (storeName !== undefined) user.vendorStore.storeName = storeName.trim();
+    if (storeDescription !== undefined) user.vendorStore.storeDescription = storeDescription;
+    if (tagline !== undefined) user.vendorStore.tagline = tagline;
+    if (primaryColor !== undefined) user.vendorStore.primaryColor = primaryColor;
+    if (fontStyle !== undefined) user.vendorStore.fontStyle = fontStyle;
+    if (layout !== undefined) user.vendorStore.layout = layout;
+    if (bannerImage !== undefined) user.vendorStore.bannerImage = bannerImage;
+    if (bannerHeadline !== undefined) user.vendorStore.bannerHeadline = bannerHeadline;
+    if (bannerSubtext !== undefined) user.vendorStore.bannerSubtext = bannerSubtext;
+    if (logoImage !== undefined) user.vendorStore.logoImage = logoImage;
+    if (bankDetails !== undefined) user.vendorStore.bankDetails = bankDetails;
+
+    // Ensure role is vendor
+    if (user.role === 'customer') {
+      user.role = 'vendor';
+    }
 
     await user.save();
 
+    // If storeName was updated, also update products created by this vendor to have the new brand name
+    if (storeName && storeName.trim()) {
+      await Product.updateMany(
+        { vendor: user._id },
+        { $set: { brand: storeName.trim() } }
+      ).catch(() => {});
+    }
+
     res.json({
       status: 'success',
-      message: 'Store details and settlement bank account updated',
+      message: 'Store customization published and saved successfully',
       data: user.vendorStore,
     });
   } catch (error) {

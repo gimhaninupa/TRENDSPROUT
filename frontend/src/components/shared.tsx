@@ -214,7 +214,25 @@ export function GhostBtn({ children, onClick, className = "" }: { children: Reac
   );
 }
 
-export function Input({ label, type = "text", placeholder, icon }: { label?: string; type?: string; placeholder?: string; icon?: React.ReactNode }) {
+export function Input({ 
+  label, 
+  type = "text", 
+  placeholder, 
+  icon,
+  value,
+  onChange,
+  className = "",
+  ...props
+}: { 
+  label?: string; 
+  type?: string; 
+  placeholder?: string; 
+  icon?: React.ReactNode;
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+  [key: string]: any;
+}) {
   return (
     <div className="flex flex-col gap-1.5">
       {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
@@ -223,7 +241,10 @@ export function Input({ label, type = "text", placeholder, icon }: { label?: str
         <input
           type={type}
           placeholder={placeholder}
-          className={`w-full rounded-xl border border-gray-200 bg-gray-50 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all ${icon ? "pl-10 pr-4" : "px-4"}`}
+          value={value !== undefined ? value : undefined}
+          onChange={onChange}
+          className={`w-full rounded-xl border border-gray-200 bg-gray-50 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all ${icon ? "pl-10 pr-4" : "px-4"} ${className}`}
+          {...props}
         />
       </div>
     </div>

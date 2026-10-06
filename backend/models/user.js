@@ -58,8 +58,20 @@ const userSchema = new mongoose.Schema(
     vendorStore: {
       storeName: { type: String, default: '' },
       storeDescription: { type: String, default: '' },
+      tagline: { type: String, default: '' },
+      primaryColor: { type: String, default: '#6C4DF6' },
+      fontStyle: { type: String, default: 'Modern Sans' },
+      layout: { type: String, default: 'Grid 3-col' },
       bannerImage: { type: String, default: '' },
+      bannerHeadline: { type: String, default: '' },
+      bannerSubtext: { type: String, default: '' },
       logoImage: { type: String, default: '' },
+      bankDetails: {
+        accountNumber: { type: String, default: '' },
+        bankName: { type: String, default: '' },
+        accountHolder: { type: String, default: '' },
+        branchName: { type: String, default: '' },
+      },
     },
   },
   {

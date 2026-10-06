@@ -286,8 +286,20 @@ class ApiClient {
     });
   }
 
-  async updateVendorStore(storeData: { storeName?: string; storeDescription?: string; bannerImage?: string; logoImage?: string; bankDetails?: any }) {
-    return this.request<{ status: string; data: any }>('/vendor/store', {
+  async updateVendorStore(storeData: { 
+    storeName?: string; 
+    storeDescription?: string; 
+    tagline?: string;
+    primaryColor?: string;
+    fontStyle?: string;
+    layout?: string;
+    bannerImage?: string; 
+    bannerHeadline?: string;
+    bannerSubtext?: string;
+    logoImage?: string; 
+    bankDetails?: any;
+  }) {
+    return this.request<{ status: string; message: string; data: any }>('/vendor/store', {
       method: 'PUT',
       body: JSON.stringify(storeData),
     });
