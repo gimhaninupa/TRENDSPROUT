@@ -262,6 +262,19 @@ class ApiClient {
     });
   }
 
+  async updateVendorProduct(id: string | number, productData: any) {
+    return this.request<{ status: string; data: any }>(`/vendor/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData),
+    });
+  }
+
+  async deleteVendorProduct(id: string | number) {
+    return this.request<{ status: string; message: string }>(`/vendor/products/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   async getVendorWallet() {
     return this.request<{ status: string; data: any }>('/vendor/wallet');
   }

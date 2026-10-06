@@ -122,40 +122,56 @@ router.post('/visual-search', async (req, res) => {
       category: "Tops, Outerwear & Tailored Jackets",
       items: [
         {
-          id: 'p2',
-          name: 'Oversized Wool Blazer',
-          brand: 'Nouveau Collective',
-          price: 14500,
+          id: 'ts-tp-1',
+          _id: 'ts-tp-1',
+          name: 'Oversized Structured Mulberry Silk Blazer',
+          brand: 'AURA Atelier',
+          price: 34500,
+          originalPrice: 42000,
           similarity: 0.95,
           matchReason: '95% Visual Match: Lapel structure, tailoring and collar geometry',
-          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80'
+          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80'],
+          category: 'Blazers'
         },
         {
-          id: 'p5',
-          name: 'Relaxed Vintage Denim Jacket',
-          brand: 'Nouveau Collective',
-          price: 7800,
+          id: 'ts-tp-2',
+          _id: 'ts-tp-2',
+          name: 'French Riviera Relaxed Linen Camp Shirt',
+          brand: 'Solace Resort',
+          price: 14500,
+          originalPrice: 18000,
           similarity: 0.91,
-          matchReason: '91% Match: Upper garment silhouette and denim texture',
-          image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80'
+          matchReason: '91% Match: Upper garment silhouette and natural airy linen weave',
+          image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80'],
+          category: 'Shirts'
         },
         {
-          id: 'p11',
-          name: 'Heavyweight Boxy Cotton Tee',
-          brand: 'Sprout Studio',
-          price: 3800,
+          id: 'ts-tp-4',
+          _id: 'ts-tp-4',
+          name: 'Heavyweight Boxy Drop-Shoulder Tee',
+          brand: 'STUDIO 01',
+          price: 7800,
+          originalPrice: 9750,
           similarity: 0.88,
           matchReason: '88% Match: Crew neckline and relaxed drop-shoulder cut',
-          image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80'
+          image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80'],
+          category: 'T-Shirts'
         },
         {
-          id: 'p12',
-          name: 'Oxford Button-Down Shirt',
-          brand: 'Aura Label',
-          price: 5800,
-          similarity: 0.83,
-          matchReason: '83% Match: Classic collar and crisp tailored weave',
-          image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-tp-3',
+          _id: 'ts-tp-3',
+          name: 'Asymmetrical Draped Crepe Bodysuit',
+          brand: 'NOVA Studios',
+          price: 16800,
+          originalPrice: 21000,
+          similarity: 0.84,
+          matchReason: '84% Match: Form-fitting upper drape and stretch crepe weave',
+          image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80'],
+          category: 'T-Shirts'
         }
       ]
     },
@@ -163,137 +179,205 @@ router.post('/visual-search', async (req, res) => {
       category: "Trousers, Pants & Bottoms",
       items: [
         {
-          id: 'p10',
-          name: 'Pleated Wide-Leg Trousers',
-          brand: 'Aura Label',
-          price: 9200,
+          id: 'ts-bt-1',
+          _id: 'ts-bt-1',
+          name: 'Pleated Wide-Leg Fluid Trousers',
+          brand: 'Maison Minimal',
+          price: 21500,
+          originalPrice: 26800,
           similarity: 0.96,
           matchReason: '96% Visual Match: High-rise pleated waistline and straight silhouette',
-          image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=400&q=80'
+          image: 'https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&q=80'],
+          category: 'Pants & Trousers'
         },
         {
-          id: 'p13',
-          name: 'Utility Cargo Pants',
-          brand: 'Monolith Studio',
-          price: 8200,
-          similarity: 0.89,
-          matchReason: '89% Match: Lower garment structure and pocket styling',
-          image: 'https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-bt-4',
+          _id: 'ts-bt-4',
+          name: 'Vintage Wash Japanese Selvedge Denim',
+          brand: 'Kuroki Raw',
+          price: 24900,
+          originalPrice: 31000,
+          similarity: 0.90,
+          matchReason: '90% Match: Lower garment structure and authentic denim weave',
+          image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80'],
+          category: 'Jeans & Denim'
         },
         {
-          id: 'p4',
-          name: 'Seamless Gym Leggings',
-          brand: 'Veloce Active',
-          price: 4200,
-          similarity: 0.85,
-          matchReason: '85% Match: Form-fitting profile and athletic stretch weave',
-          image: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-bt-2',
+          _id: 'ts-bt-2',
+          name: 'Bias-Cut Heavyweight Satin Midi Skirt',
+          brand: "L'Ombre",
+          price: 18500,
+          originalPrice: 23000,
+          similarity: 0.87,
+          matchReason: '87% Match: Flowing midi drape and lustrous satin sheen',
+          image: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&w=600&q=80'],
+          category: 'Skirts'
         },
         {
-          id: 'p6',
-          name: 'Minimalist Vegan Sneakers',
-          brand: 'Monolith Studio',
-          price: 11200,
-          similarity: 0.80,
-          matchReason: '80% Match: Paired lower footwear coordinate',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-bt-3',
+          _id: 'ts-bt-3',
+          name: 'Tailored High-Waist Linen Bermuda Shorts',
+          brand: 'Solace Resort',
+          price: 13200,
+          originalPrice: 16500,
+          similarity: 0.82,
+          matchReason: '82% Match: Tailored linen silhouette with clean pleats',
+          image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1591195853828-11db59a44f6b?auto=format&fit=crop&w=600&q=80'],
+          category: 'Shorts'
         }
       ]
     },
     accessories: {
-      category: "Bags, Shoes & Fashion Accessories",
+      category: "Bags, Backpacks & Accessories",
       items: [
         {
-          id: 'p3',
-          name: 'Leather Crossbody Bag',
-          brand: 'Sprout Studio',
-          price: 9500,
-          similarity: 0.96,
-          matchReason: '96% Visual Match: Structured leather silhouette and strap geometry',
-          image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-ac-2',
+          _id: 'ts-ac-2',
+          name: 'Urban Tech Utility Ergonomic Backpack',
+          brand: 'Vaupan Gear',
+          price: 18500,
+          originalPrice: 22000,
+          similarity: 0.98,
+          matchReason: '98% Visual Match: Multi-compartment silhouette, purple finish, and ergonomic strap geometry',
+          image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80'],
+          category: 'Bags'
         },
         {
-          id: 'p6',
-          name: 'Minimalist Vegan Sneakers',
-          brand: 'Monolith Studio',
-          price: 11200,
+          id: 'ts-ac-1',
+          _id: 'ts-ac-1',
+          name: 'Sculptural Woven Leather Crossbody Bag',
+          brand: 'CELINE Muse',
+          price: 29000,
+          originalPrice: 36000,
           similarity: 0.92,
-          matchReason: '92% Match: Low-top profile, clean sole and modern contours',
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80'
+          matchReason: '92% Visual Match: Woven leather structure and crossbody strap alignment',
+          image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80'],
+          category: 'Bags'
         },
         {
-          id: 'p14',
-          name: '18K Gold Link Chain Necklace',
-          brand: 'Sprout Studio',
-          price: 4500,
-          similarity: 0.87,
-          matchReason: '87% Match: Metallic sheen and fine jewelry link geometry',
-          image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-ac-4',
+          _id: 'ts-ac-4',
+          name: 'Beveled Acetate Blackout Sunglasses',
+          brand: 'Oculus Noir',
+          price: 12500,
+          originalPrice: 15600,
+          similarity: 0.88,
+          matchReason: '88% Match: Modern dark acetate eyewear accessory',
+          image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80'],
+          category: 'Accessories'
         },
         {
-          id: 'p1',
-          name: 'Linen Slip Dress',
-          brand: 'Aura Label',
-          price: 8500,
-          similarity: 0.79,
-          matchReason: '79% Match: Complementary minimalist look',
-          image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-ac-3',
+          _id: 'ts-ac-3',
+          name: 'Hammered 18K Gold Plated Statement Earrings',
+          brand: 'Aurelia Jewels',
+          price: 9500,
+          originalPrice: 12000,
+          similarity: 0.85,
+          matchReason: '85% Match: Artisanal metallic jewelry accent',
+          image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80'],
+          category: 'Accessories'
         }
       ]
     },
     fullLook: {
-      category: "Dresses & Full-Length Looks",
+      category: "Dresses & Hero Ensembles",
       items: [
         {
-          id: 'p1',
-          name: 'Linen Slip Dress',
-          brand: 'Aura Label',
+          id: 'ts-dr-1',
+          _id: 'ts-dr-1',
+          name: 'Sage Green Pleated Midi Dress',
+          brand: 'Nadun Manawadu',
           price: 8500,
-          similarity: 0.96,
-          matchReason: '96% Visual Match: Full silhouette drape and natural fabric weave',
-          image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80'
+          originalPrice: 10625,
+          similarity: 0.97,
+          matchReason: '97% Visual Match: Full silhouette drape and natural pleated fabric weave',
+          image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80'],
+          category: 'Dresses'
         },
         {
-          id: 'p9',
-          name: 'Satin Cowl Neck Evening Dress',
-          brand: 'Sprout Atelier',
-          price: 12500,
-          similarity: 0.91,
-          matchReason: '91% Match: Full-length fluid drape and lustrous texture',
-          image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-dr-2',
+          _id: 'ts-dr-2',
+          name: 'Backless Halter Silk Slip Dress',
+          brand: 'AURA Atelier',
+          price: 24500,
+          originalPrice: 29500,
+          similarity: 0.93,
+          matchReason: '93% Match: Pure silk fluid bias-cut drape and evening styling',
+          image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=600&q=80'],
+          category: 'Dresses'
         },
         {
-          id: 'p7',
-          name: 'Water-Resistant City Trench',
-          brand: 'Sprout Studio',
-          price: 19500,
-          similarity: 0.87,
-          matchReason: '87% Match: Full-body outerwear coverage and collar architecture',
-          image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-dr-3',
+          _id: 'ts-dr-3',
+          name: 'Tiered Pure Organic Linen Sun Dress',
+          brand: 'Solace Resort',
+          price: 17500,
+          originalPrice: 21800,
+          similarity: 0.89,
+          matchReason: '89% Match: Tiered summer silhouette in natural organic linen',
+          image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=600&q=80'],
+          category: 'Dresses'
         },
         {
-          id: 'p2',
-          name: 'Oversized Wool Blazer',
-          brand: 'Nouveau Collective',
-          price: 14500,
-          similarity: 0.83,
-          matchReason: '83% Match: Layered suiting and silhouette alignment',
-          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80'
+          id: 'ts-tp-1',
+          _id: 'ts-tp-1',
+          name: 'Oversized Structured Mulberry Silk Blazer',
+          brand: 'AURA Atelier',
+          price: 34500,
+          originalPrice: 42000,
+          similarity: 0.85,
+          matchReason: '85% Match: Layered suiting and structured silhouette alignment',
+          image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80',
+          images: ['https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80'],
+          category: 'Blazers'
         }
       ]
     }
   };
 
-  // Determine Category based on Region of Interest
-  if (heightRatio > 0.65) {
+  const presetHint = req.body.preset_hint || '';
+
+  // Determine Category based on preset hint or Region of Interest
+  if (presetHint === 'accessory' || presetHint === 'bag') {
+    detectedCategory = CATALOG_POOLS.accessories.category;
+    matches = CATALOG_POOLS.accessories.items;
+  } else if (presetHint === 'top') {
+    detectedCategory = CATALOG_POOLS.tops.category;
+    matches = CATALOG_POOLS.tops.items;
+  } else if (presetHint === 'bottom') {
+    detectedCategory = CATALOG_POOLS.bottoms.category;
+    matches = CATALOG_POOLS.bottoms.items;
+  } else if (presetHint === 'full') {
+    detectedCategory = CATALOG_POOLS.fullLook.category;
+    matches = CATALOG_POOLS.fullLook.items;
+  } else if (heightRatio > 0.65) {
     detectedCategory = CATALOG_POOLS.fullLook.category;
     matches = CATALOG_POOLS.fullLook.items;
   } else if (centerYRatio < 0.40) {
     detectedCategory = CATALOG_POOLS.tops.category;
     matches = CATALOG_POOLS.tops.items;
   } else if (centerYRatio >= 0.40 && centerYRatio <= 0.75) {
-    detectedCategory = CATALOG_POOLS.bottoms.category;
-    matches = CATALOG_POOLS.bottoms.items;
+    // If it's square/box centered and looks like an accessory or bag
+    if (numW < 240 && numH < 240) {
+      detectedCategory = CATALOG_POOLS.accessories.category;
+      matches = CATALOG_POOLS.accessories.items;
+    } else {
+      detectedCategory = CATALOG_POOLS.bottoms.category;
+      matches = CATALOG_POOLS.bottoms.items;
+    }
   } else {
     detectedCategory = CATALOG_POOLS.accessories.category;
     matches = CATALOG_POOLS.accessories.items;

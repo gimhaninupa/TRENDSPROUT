@@ -111,6 +111,55 @@ const expandPromptWithMagic = (raw: string, shotType = "ghost-mannequin", fitTar
   return `Front-view professional ghost-mannequin e-commerce product photography of ${garmentContext}, centered garment, clean light-grey seamless studio backdrop, crisp fabric texture, sharp collar and seams, soft studio shadows, 8k online fashion store catalog listing, no human face, no anime, no illustration, no 3D cartoon`;
 };
 
+// Helper to get reliable, high-resolution fashion studio images when remote generation engine is slow
+const getStudioApparelFallback = (promptText: string, shot = "ghost-mannequin", fit = "unisex"): string => {
+  const p = promptText.toLowerCase();
+
+  // 1. Black button up shirt / tailored shirt
+  if (p.includes('black') && (p.includes('shirt') || p.includes('button') || p.includes('collar') || p.includes('long sleeve') || p.includes('sleeve'))) {
+    return 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80';
+  }
+  // 2. White / Linen / Camp shirt
+  if (p.includes('linen') || (p.includes('shirt') && !p.includes('t-shirt') && !p.includes('tee'))) {
+    return 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80';
+  }
+  // 3. Blazers & Outerwear
+  if (p.includes('blazer') || p.includes('suit') || p.includes('tuxedo')) {
+    return 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80';
+  }
+  if (p.includes('jacket') || p.includes('coat') || p.includes('trench') || p.includes('leather')) {
+    return 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80';
+  }
+  // 4. Hoodies & Sweats
+  if (p.includes('hoodie') || p.includes('sweater') || p.includes('sweatshirt')) {
+    return 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80';
+  }
+  // 5. T-Shirts & Bodysuits
+  if (p.includes('tee') || p.includes('t-shirt') || p.includes('cotton')) {
+    return 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80';
+  }
+  if (p.includes('bodysuit') || p.includes('corset') || p.includes('tank')) {
+    return 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80';
+  }
+  // 6. Dresses & Gowns
+  if (p.includes('dress') || p.includes('slip') || p.includes('gown') || p.includes('satin') || p.includes('silk')) {
+    if (p.includes('green') || p.includes('sage') || p.includes('pleat')) {
+      return 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=800&q=80';
+    }
+    return 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=800&q=80';
+  }
+  // 7. Trousers & Pants
+  if (p.includes('pant') || p.includes('trouser') || p.includes('cargo') || p.includes('jeans') || p.includes('denim')) {
+    return 'https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=800&q=80';
+  }
+  // 8. Bags & Backpacks
+  if (p.includes('bag') || p.includes('backpack') || p.includes('tote')) {
+    return 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80';
+  }
+  // Default clean studio fashion garment
+  return 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80';
+};
+
 export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const [stage, setStage] = useState<"prompt" | "generating" | "preview">("prompt");
   const [prompt, setPrompt] = useState("");
@@ -125,6 +174,8 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
   
   const [progress, setProgress] = useState(0);
   const [generatedResult, setGeneratedResult] = useState<any>(null);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
 
@@ -168,6 +219,8 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     if (!prompt.trim()) return;
     setStage("generating");
     setProgress(15);
+    setImageLoadError(false);
+    setImageLoading(true);
 
     // If technical dropdowns are on auto, extract friendly labels for preview
     const effectiveStyle = style.includes("Auto") ? "Modern Tailoring" : style;
@@ -178,6 +231,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     const encoded = encodeURIComponent(enhancedPrompt);
     const seed = Math.floor(Math.random() * 9999999);
     const directUrl = `https://image.pollinations.ai/prompt/${encoded}?seed=${seed}&width=800&height=1000&nologo=true&model=flux`;
+    const reliableFallback = getStudioApparelFallback(prompt, shotType, fitTarget);
 
     const lowerP = prompt.toLowerCase();
     let categorySuggestion = 'Dresses';
@@ -189,6 +243,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
 
     const fallbackData = {
       imageUrl: directUrl,
+      fallbackUrl: reliableFallback,
       style: effectiveStyle,
       fabric: effectiveFabric,
       colorPalette: effectivePalette,
@@ -201,27 +256,30 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
       fitTarget: fitTarget
     };
 
-    // Preload image in browser memory so when preview opens, image renders instantly
+    // Preload image in browser memory with quick timeout
     const preloadPromise = new Promise<void>((resolve) => {
       const img = new Image();
       img.onload = () => resolve();
-      img.onerror = () => resolve();
+      img.onerror = () => {
+        setImageLoadError(true);
+        resolve();
+      };
       img.src = directUrl;
-      // timeout after 2.5s max
-      setTimeout(() => resolve(), 2500);
+      setTimeout(() => resolve(), 2200);
     });
 
-    // Try API with a 2.5s timeout, if backend is sleeping or slow, immediately use client visual engine
+    // Try API with a 2.2s timeout, if backend is sleeping or slow, immediately use visual engine
     const apiPromise = api.generateDesign(prompt, style, fabric, colorPalette, shotType, fitTarget)
       .catch(() => null);
 
-    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2500));
+    const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2200));
 
     try {
       const res: any = await Promise.race([apiPromise, timeoutPromise]);
       if (res && res.data && res.data.imageUrl) {
         setGeneratedResult({
           ...res.data,
+          fallbackUrl: reliableFallback,
           displayStyle: effectiveStyle,
           displayFabric: effectiveFabric,
           displayPalette: effectivePalette,
@@ -239,7 +297,7 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
     setProgress(100);
     setTimeout(() => {
       setStage("preview");
-    }, 250);
+    }, 200);
   };
 
   const handleShare = () => {
@@ -538,18 +596,26 @@ export function TextToDesignScreen({ onNavigate }: { onNavigate: (s: Screen) => 
                 </span>
               </div>
 
-              <div className="aspect-[4/5] bg-gray-900 relative flex items-center justify-center overflow-hidden group">
+              <div className="aspect-[4/5] bg-gradient-to-b from-[#f8f9fc] to-[#ebeff8] relative flex items-center justify-center overflow-hidden group">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/80 backdrop-blur-xs z-10">
+                    <Sparkles size={24} className="text-purple-600 animate-spin mb-2" />
+                    <span className="text-xs font-bold text-gray-500">Loading Render…</span>
+                  </div>
+                )}
                 <img
-                  src={generatedResult?.imageUrl}
+                  src={imageLoadError ? (generatedResult?.fallbackUrl || getStudioApparelFallback(prompt, shotType, fitTarget)) : (generatedResult?.imageUrl || generatedResult?.fallbackUrl || getStudioApparelFallback(prompt, shotType, fitTarget))}
                   alt="Fashion design concept"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onLoad={() => setImageLoading(false)}
                   onError={(e) => {
-                    if (generatedResult?.imageUrl) {
-                      (e.target as HTMLImageElement).src = generatedResult.imageUrl;
-                    }
+                    setImageLoadError(true);
+                    setImageLoading(false);
+                    const safeFallback = generatedResult?.fallbackUrl || getStudioApparelFallback(prompt, shotType, fitTarget);
+                    (e.target as HTMLImageElement).src = safeFallback;
                   }}
                 />
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 z-20">
                   <Badge variant="purple">
                     {shotType === "ghost-mannequin" ? "E-Commerce Product" : "Runway Concept"}
                   </Badge>

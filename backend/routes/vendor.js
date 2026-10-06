@@ -171,6 +171,96 @@ router.post('/products', async (req, res) => {
   }
 });
 
+// @desc    Update existing vendor product
+// @route   PUT /api/vendor/products/:id
+// @access  Private
+router.put('/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, originalPrice, brand, image, images, stock, category, tag, sizes, colors } = req.body;
+
+    let product = await Product.findOne({
+      _id: id,
+      ...(req.user.role !== 'admin' ? { vendor: req.user._id } : {}),
+    });
+
+    if (!product) {
+      return res.status(404).json({ status: 'fail', message: 'Product not found or unauthorized' });
+    }
+
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (price !== undefined) product.price = Number(price);
+    if (originalPrice !== undefined) product.originalPrice = Number(originalPrice);
+    if (stock !== undefined) product.stock = Number(stock);
+    if (brand) product.brand = brand;
+    if (tag) product.tag = tag;
+    if (sizes) product.sizes = sizes;
+    if (colors) product.colors = colors;
+
+    if (images && Array.isArray(images) && images.length > 0) {
+      product.images = images;
+      product.image = images[0];
+    } else if (image) {
+      product.image = image;
+      product.images = [image];
+    }
+
+    if (category) {
+      let categoryDoc = null;
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        categoryDoc = await Category.findById(category);
+      }
+      if (!categoryDoc) {
+        const catSlug = String(category).toLowerCase().replace(/\s+/g, '-');
+        categoryDoc = await Category.findOne({
+          $or: [{ slug: catSlug }, { name: new RegExp(`^${category}$`, 'i') }],
+        });
+      }
+      if (categoryDoc) {
+        product.category = categoryDoc._id;
+      }
+    }
+
+    await product.save();
+    await product.populate('category', 'name slug');
+
+    res.json({
+      status: 'success',
+      message: 'Product updated successfully',
+      data: product,
+    });
+  } catch (error) {
+    console.error('Vendor product update error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// @desc    Delete vendor product
+// @route   DELETE /api/vendor/products/:id
+// @access  Private
+router.delete('/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Product.findOneAndDelete({
+      _id: id,
+      ...(req.user.role !== 'admin' ? { vendor: req.user._id } : {}),
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ status: 'fail', message: 'Product not found or unauthorized' });
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Product removed from store successfully',
+    });
+  } catch (error) {
+    console.error('Vendor product delete error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
 // @desc    Get vendor wallet, multi-vendor commission breakdown & earnings
 // @route   GET /api/vendor/wallet
 // @access  Private
