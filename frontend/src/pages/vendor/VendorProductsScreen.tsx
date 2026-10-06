@@ -45,77 +45,102 @@ export function VendorProductsScreen({ onNavigate }: { onNavigate: (s: Screen) =
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      api.getVendorProducts()
-        .then(res => {
-          if (res?.data) {
-            const formatted = res.data.map((p: any) => {
-              const rawImgs = Array.isArray(p.images) && p.images.length > 0 
-                ? p.images 
-                : (p.image ? [p.image] : []);
-              return {
-                id: p._id || p.id,
-                _id: p._id || p.id,
-                name: p.name,
-                sku: p.sku || `VP-${String(p._id || p.id).slice(-4)}`,
-                stock: p.stock ?? 0,
-                price: p.price,
-                originalPrice: p.originalPrice || Math.round(p.price * 1.25),
-                sales: p.salesCount || 0,
-                status: p.stock > 10 ? 'Active' : p.stock > 0 ? 'Low Stock' : 'Out of Stock',
-                image: rawImgs[0] || p.image || '',
-                images: rawImgs,
-                brand: p.brand,
-                category: p.category?.name || p.category,
-                description: p.description,
-                sizes: p.sizes || ['S', 'M', 'L'],
-              };
-            });
+    let isMounted = true;
 
-            // Merge with local newly created products
-            const saved = localStorage.getItem('ts_vendor_products');
-            const vendorSaved = saved ? JSON.parse(saved) : [];
+    // Load initial local products first
+    const loadLocal = () => {
+      try {
+        const saved = localStorage.getItem('ts_vendor_products');
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    };
 
-            const seenIds = new Set<string>();
-            const seenNames = new Set<string>();
-            const uniqueList: any[] = [];
-
-            formatted.forEach((p: any) => {
-              const pId = String(p.id || p._id || '');
-              const pName = (p.name || '').trim().toLowerCase();
-              if (pId) seenIds.add(pId);
-              if (pName) seenNames.add(pName);
-              uniqueList.push(p);
-            });
-
-            vendorSaved.forEach((p: any) => {
-              const pId = String(p.id || p._id || '');
-              const pName = (p.name || '').trim().toLowerCase();
-              const isDuplicate = (pId && seenIds.has(pId)) || (pName && seenNames.has(pName));
-              if (!isDuplicate) {
-                if (pId) seenIds.add(pId);
-                if (pName) seenNames.add(pName);
-                const rawImgs = Array.isArray(p.images) && p.images.length > 0 
-                  ? p.images 
-                  : (p.image ? [p.image] : []);
-                uniqueList.push({
-                  ...p,
-                  id: p.id || p._id,
-                  _id: p._id || p.id,
-                  images: rawImgs,
-                  image: rawImgs[0] || p.image || '',
-                  sku: p.sku || `VP-${String(p._id || p.id || Date.now()).slice(-4)}`,
-                  status: (p.stock || 20) > 10 ? 'Active' : (p.stock || 0) > 0 ? 'Low Stock' : 'Out of Stock',
-                  sizes: p.sizes || ['S', 'M', 'L'],
-                });
-              }
-            });
-
-            setItems(uniqueList);
-          }
-        })
-        .catch(() => {});
+    const initialLocal = loadLocal();
+    if (initialLocal.length > 0 && items.length === 0) {
+      setItems(initialLocal);
     }
+
+    api.getVendorProducts()
+      .then(res => {
+        if (!isMounted) return;
+        const formatted = (res?.data || []).map((p: any) => {
+          if (!p) return null;
+          const rawImgs = Array.isArray(p.images) && p.images.length > 0 
+            ? p.images 
+            : (p.image ? [p.image] : []);
+          return {
+            id: p._id || p.id,
+            _id: p._id || p.id,
+            name: p.name || 'Untitled Product',
+            sku: p.sku || `VP-${String(p._id || p.id || '').slice(-4) || '001'}`,
+            stock: Number(p.stock) ?? 0,
+            price: Number(p.price) || 0,
+            originalPrice: Number(p.originalPrice) || Math.round((Number(p.price) || 0) * 1.25),
+            sales: Number(p.salesCount) || 0,
+            status: (Number(p.stock) || 0) > 10 ? 'Active' : (Number(p.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
+            image: rawImgs[0] || p.image || '',
+            images: rawImgs,
+            brand: p.brand || 'Independent Brand',
+            category: typeof p.category === 'string' ? p.category : p.category?.name || 'Apparel',
+            description: p.description || '',
+            sizes: Array.isArray(p.sizes) && p.sizes.length > 0 ? p.sizes : ['S', 'M', 'L'],
+          };
+        }).filter(Boolean);
+
+        // Merge with local newly created products
+        const vendorSaved = loadLocal();
+
+        const seenIds = new Set<string>();
+        const seenNames = new Set<string>();
+        const uniqueList: any[] = [];
+
+        formatted.forEach((p: any) => {
+          if (!p) return;
+          const pId = String(p.id || p._id || '');
+          const pName = String(p.name || '').trim().toLowerCase();
+          if (pId) seenIds.add(pId);
+          if (pName) seenNames.add(pName);
+          uniqueList.push(p);
+        });
+
+        vendorSaved.forEach((p: any) => {
+          if (!p) return;
+          const pId = String(p.id || p._id || '');
+          const pName = String(p.name || '').trim().toLowerCase();
+          const isDuplicate = (pId && seenIds.has(pId)) || (pName && seenNames.has(pName));
+          if (!isDuplicate) {
+            if (pId) seenIds.add(pId);
+            if (pName) seenNames.add(pName);
+            const rawImgs = Array.isArray(p.images) && p.images.length > 0 
+              ? p.images 
+              : (p.image ? [p.image] : []);
+            uniqueList.push({
+              ...p,
+              id: p.id || p._id || 'vp-' + Date.now(),
+              _id: p._id || p.id || 'vp-' + Date.now(),
+              name: p.name || 'Untitled Product',
+              price: Number(p.price) || 0,
+              originalPrice: Number(p.originalPrice) || Math.round((Number(p.price) || 0) * 1.25),
+              images: rawImgs,
+              image: rawImgs[0] || p.image || '',
+              sku: p.sku || `VP-${String(p._id || p.id || Date.now()).slice(-4)}`,
+              status: (Number(p.stock) || 20) > 10 ? 'Active' : (Number(p.stock) || 0) > 0 ? 'Low Stock' : 'Out of Stock',
+              sizes: Array.isArray(p.sizes) && p.sizes.length > 0 ? p.sizes : ['S', 'M', 'L'],
+            });
+          }
+        });
+
+        setItems(uniqueList);
+      })
+      .catch(() => {
+        if (isMounted) {
+          setItems(loadLocal());
+        }
+      });
+
+    return () => { isMounted = false; };
   }, [isAuthenticated]);
 
   const handleOpenEdit = (p: any) => {

@@ -166,8 +166,11 @@ export const aiTools = [
 // ═══ App Root ══════════════════════════════════════════════════════════════════
 
 
-export function lkr(amount: number) {
-  return "LKR " + amount.toLocaleString("en-LK");
+export function lkr(amount: any) {
+  if (amount === undefined || amount === null || amount === '') return "LKR 0";
+  const num = typeof amount === 'number' ? amount : Number(amount);
+  if (isNaN(num)) return "LKR 0";
+  return "LKR " + num.toLocaleString("en-LK");
 }
 
 export function Badge({ children, variant = "purple" }: { children: React.ReactNode; variant?: "purple" | "green" | "red" | "amber" | "gray" }) {
